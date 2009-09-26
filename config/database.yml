@@ -1,0 +1,16 @@
+development:
+    adapter: mysql
+    encoding: utf8
+    database: temp_db
+    username: root
+    password: root
+    socket: /var/run/mysqld/mysqld.sock
+
+production:
+    adapter: mysql
+    encoding: utf8
+    database: index_crawler_prod
+    username: killerapp_prod
+    password: sokratisrosenwel
+    host: 75.126.145.240
+    socket: /var/lib/mysql/mysql.sock

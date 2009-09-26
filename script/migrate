@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+####################################
+# Usage: migrate.rb [VERSION=version] [ENV=env]
+# version : version to migrate to
+# env     : the environment to use from database.yml
+####################################
+
+require 'rubygems'
+require 'activerecord'
+
+options = {}
+
+ARGV.each do |a|
+  options[:version] = a.split('=')[1].to_i if a =~ /VERSION=\d+/
+  options[:env]     = a.split('=')[1]      if a =~ /ENV=.+/
+end
+
+options[:env] ||= 'development'
+root_dir        = File.join(File.dirname(__FILE__),'..')
+
+config          = YAML.load_file(File.join(root_dir, 'config/database.yml'))
+
+
+logger                    = Logger.new $stderr
+ActiveRecord::Base.logger = logger
+ActiveRecord::Base.establish_connection(config[options[:env]])
+
+ActiveRecord::Migrator.migrate(File.join(root_dir,"db/migrations"),options[:version])
