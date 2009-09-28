@@ -11,6 +11,6 @@ production:
     encoding: utf8
     database: tier2_db_prod
     username: jurnalo
-    password: jp4t2d
+    password: jp4t2db
     host: localhost
     socket: /var/lib/mysql/mysql.sock
