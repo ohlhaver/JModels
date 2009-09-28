@@ -1,0 +1,28 @@
+JModels contains the database schema in  db/migrations and models in j_models.
+
+Usage :
+  1. run migrations on production          - ruby ./script/migration [ENV=env] [VERSION=version]
+  2. to require 'j_models' from rails apps -  $: << 'JModel_dir_path'; require 'j_models';
+
+Dependencies
+
+  * For usage 1 & 2
+    - git-core
+    - mysql-server, mysql, mysql-devel
+    - ruby (enterprise edition), rubygems
+    - gems : mysql, activerecord
+
+  * For usage 2 only (using remote database)
+     - git-core
+     - mysql, mysql-devel
+     - ruby (enterprise edition), rubygems
+     - gems : mysql, activerecord
+
+  
+Deploymet
+  * Dependecies
+    - a machine with ruby, rubygems and capistrano installed. It is generally your developer machine. 
+    - repository JDeploy/JModels
+  * From inside JDeploy/JModels, You can run the following commands
+    - cap deploy:update # deploy the master branch to production
+    - cap db:migrate    # run the latest migrations on production

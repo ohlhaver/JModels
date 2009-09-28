@@ -1,3 +1,23 @@
-* commit to git hub
-* Add validations to models
-* How many authors can a story have?
+TODO
+* Add validations to models when required.
+
+********************************************************
+Tasks mentioned below are done (7 hrs)
+  * Software repository setup
+    - a central place where some of the important softwares are going to be stored. we will be downloading from this repository if we want to install it on machines ( will save us some bandwidh and hence money)
+
+  * JDeploy repository setup
+    -- will contain the code for deployment of all the apps
+
+  * Machine setup (through capistrano scripts so that we can create machines quickly again with the scripts)
+    -- install ruby enterprise version
+    -- install git
+    -- install mysql
+    -- install rubygems, gems : active_record, mysql
+    -- start mysqld_safe, configure mysql users : set root password, remove other users (done manually)
+    -- create production database, setup non-root user with password to access it ( cap setup:db)
+
+* Deployment
+  -- setup deployment environment         ( cap deploy:setup)
+  -- do a deployment                      ( cap deploy:update)
+  -- run a migration                      ( cap db:migrate )
