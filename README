@@ -22,7 +22,7 @@ Dependencies
 Deploymet
   * Dependecies
     - a machine with ruby, rubygems and capistrano installed. It is generally your developer machine. 
-    - repository JDeploy/JModels
-  * From inside JDeploy/JModels, You can run the following commands
+    - repository JDeploy/j_models
+  * From inside JDeploy/j_models, You can run the following commands
     - cap deploy:update # deploy the master branch to production
     - cap db:migrate    # run the latest migrations on production
