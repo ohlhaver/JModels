@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 
-####################################
+#########################################################
 # Usage: migrate.rb [VERSION=version] [ENV=env]
 # version : version to migrate to
 # env     : the environment to use from database.yml
-####################################
+#########################################################
 
 require 'rubygems'
 require 'activerecord'
