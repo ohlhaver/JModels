@@ -20,8 +20,9 @@ class Tier12InteractionApiSchemaV0 < ActiveRecord::Migration
     add_index :categories, [:code], :name => "index_categories_on_code", :unique => true
 
     create_table :sources do |t|
-      t.string :name, :null => false, :default => '', :limit => 100 
-      t.string :url,  :null => false, :default => '', :limit => 1000
+      t.string  :name,               :null => false, :default => '', :limit => 100 
+      t.string  :url,                :null => false, :default => '', :limit => 1000
+      t.string  :subscription_type,  :null => false, :default => 'public', :limit => 10
     end
 
     create_table :source_regions, {:id => false} do |t|
@@ -32,12 +33,6 @@ class Tier12InteractionApiSchemaV0 < ActiveRecord::Migration
     add_index :source_regions, [:source_id], :name => "index_source_regions_on_source_id"
     add_index :source_regions, [:region_id], :name => "index_source_regions_on_region_id"
 
-    create_table :subscription_types do |t|
-      t.string :description, :null => false, :default => '', :limit => 255
-      t.string :code,        :null => false, :default => '', :limit => 10
-    end
-    add_index :subscription_types, [:code], :name => "index_subscription_types_on_code", :unique => true
-
 
     create_table :feeds do |t|
       t.string  :url,                  :null => false, :default => '', :limit => 1000 
@@ -46,7 +41,7 @@ class Tier12InteractionApiSchemaV0 < ActiveRecord::Migration
       t.boolean :is_opinion,           :null => false, :default => 0
       t.boolean :is_video,             :null => false, :default => 0
       t.boolean :is_blog,              :null => false, :default => 0
-      t.integer :subscription_type_id, :null => false, :default => 0
+      t.string  :subscription_type,    :null => false, :default => 'public', :limit => 10
       t.integer :language_id,          :null => false, :default => 0
       t.integer :source_id,            :null => false, :default => 0
     end
