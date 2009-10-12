@@ -57,14 +57,18 @@ class Tier12InteractionApiSchemaV0 < ActiveRecord::Migration
     add_index :feed_categories, [:category_id], :name => "index_feed_categories_on_category_id"
 
     create_table :stories do |t|
-      t.string  :title,       :null => false, :default => '', :limit => 1000
-      t.string  :url,         :null => false, :default => '', :limit => 1000
-      t.boolean :is_opinion,  :null => false, :default => 0
-      t.boolean :is_video,    :null => false, :default => 0
-      t.boolean :is_blog,     :null => false, :default => 0
-      t.integer :language_id, :null => false, :default => 0
-      t.integer :source_id,   :null => false, :default => 0
-      t.integer :feed_id,     :null => false, :default => 0
+      t.string   :title,        :null => false, :default => '', :limit => 1000
+      t.string   :url,          :null => false, :default => '', :limit => 1000
+      t.boolean  :is_opinion,   :null => false, :default => 0
+      t.boolean  :is_video,     :null => false, :default => 0
+      t.boolean  :is_blog,      :null => false, :default => 0
+      t.boolean  :thumb_exists, :null => false, :default => 0
+      t.integer  :language_id,  :null => false, :default => 0
+      t.integer  :source_id,    :null => false, :default => 0
+      t.integer  :feed_id,      :null => false, :default => 0
+      t.string   :subscription_type, :null => false, :default => 'public', :limit => 10
+      t.boolean  :thumbnail_exists,  :null => false, :default => false
+      t.datetime :created_at,   :null => false
     end
 
     add_index :stories, [:source_id],   :name => "index_stories_on_source_id"
@@ -101,6 +105,9 @@ class Tier12InteractionApiSchemaV0 < ActiveRecord::Migration
       t.string  :content_type, :null => false, :default => '', :limit => 100
       t.integer :height,       :null => false, :default => 0
       t.integer :width,        :null => false, :default => 0
+      t.string  :download_url, :null => false, :default => '', :limit => 1000
+      t.string  :storage_url,  :null => false, :default => '', :limit => 1000
+      t.boolean :available_in_storage, :null => false, :default => false
       t.integer :source_id,    :null => false, :default => 0
     end
     add_index :thumbnails, [:source_id], :name => "index_thumbnails_on_source_id"
