@@ -1,3 +1,7 @@
+ram:
+  adapter: sqlite3
+  database: /Users/ram/Workspace/jurnalo/JTier1-to-API/db/development.sqlite3
+
 development:
     adapter: mysql
     encoding: utf8
