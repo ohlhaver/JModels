@@ -15,4 +15,21 @@ class Story < ActiveRecord::Base
 
   validates_presence_of    :title, :url, :language_id, :source_id, :feed_id, :created_at, :story_content, :subscription_type, :on => :create
   validates_inclusion_of   :subscription_type, :in => %w(public private paid)
+  
+  define_index do
+    indexes :title, :as => :title
+    indexes story_content(:body), :as => :content
+    indexes story_authors.authors(:name), :as => :authors
+    # Attributes over which search results can be limited
+    has :created_at
+    has :is_video
+    has :is_blog
+    has :is_opinion
+    has :subscription_type
+    has story_authors(:id), :as => :author_ids
+    has :feed_id
+    has :source_id
+    has :language_id
+  end
+  
 end
