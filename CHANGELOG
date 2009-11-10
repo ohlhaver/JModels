@@ -1,0 +1,6 @@
+10 Nov: Ram Singla
+------------------
+Transformed the JModels into Rails App
+ * Sphinx will can be used inside the JModels
+ * We can unit test models inside the JModels
+ * JModels can be loaded as expected from the Applications

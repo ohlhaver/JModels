@@ -4,7 +4,7 @@ RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 # Bootstrap the Rails environment, frameworks, and default configuration
 if defined?( Rails ) && Rails.initialized?
   
-  ActiveRecord::Base.connection
+  ActiveRecord::Base.connection # Connect to database using former RAILS_ROOT
   
   RAILS_ROOT_ORIGINAL = RAILS_ROOT 
   Object.send( :remove_const, :RAILS_ROOT )
