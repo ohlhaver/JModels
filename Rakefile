@@ -52,7 +52,7 @@ namespace :thinking_sphinx do
     
     desc "Stop Delayed Delta Indexing"
     task :stop do
-      pid_file = File.join( File.dirname(__FILE__), '/log/delayed_delta.pid'
+      pid_file = File.join( File.dirname(__FILE__), '/log/delayed_delta.pid' )
       pid = PidFile.recall( pid_file )
       FileUtils.rm( pid_file ) rescue nil
       pid && Process.kill( "TERM", pid )
