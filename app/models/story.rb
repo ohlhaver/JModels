@@ -30,6 +30,7 @@ class Story < ActiveRecord::Base
     has :feed_id
     has :source_id
     has :language_id
+    set_property :delta => :delayed
   end
   
 end
