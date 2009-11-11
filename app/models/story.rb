@@ -19,17 +19,17 @@ class Story < ActiveRecord::Base
   define_index do
     indexes :title, :as => :title
     indexes story_content(:body), :as => :content
-    indexes story_authors.authors(:name), :as => :authors
+    indexes story_authors.author(:name), :as => :authors
     # Attributes over which search results can be limited
     has :created_at
     has :is_video
     has :is_blog
     has :is_opinion
     has :subscription_type
-    has story_authors(:id), :as => :author_ids
     has :feed_id
     has :source_id
     has :language_id
+    has story_authors(:author_id), :as => :author_ids
     set_property :delta => :delayed
   end
   
