@@ -1,15 +1,15 @@
 class Story < ActiveRecord::Base
+  
   belongs_to :source
   belongs_to :feed
   belongs_to :language
 
   has_many  :story_authors
   has_many  :authors, :through => :story_authors, :source => :author
-
   
-  has_one    :story_content 
-
-  has_one    :story_thumbnail
+  has_one    :story_content
+  has_one    :story_metric
+  has_one    :story_thumbnail,
   has_one    :thumbnail, :through => :story_thumbnail, :source => :thumbnail
 
 
@@ -30,6 +30,7 @@ class Story < ActiveRecord::Base
     has :source_id
     has :language_id
     has story_authors(:author_id), :as => :author_ids
+    has story_metric(:master_id), :as => :master_id
     set_property :delta => :delayed
   end
   

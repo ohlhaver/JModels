@@ -2,6 +2,11 @@ class Tier2SchemaV0 < ActiveRecord::Migration
   
   def self.up
     
+    create_table :story_teasers do |t|
+      t.integer :story_id
+      t.string :body, :limit => 2000
+    end
+    
     create_table :users do |t|
       t.string  :name, :limit => 80, :null => false
       t.string  :email, :limit => 255, :null => false
@@ -33,6 +38,7 @@ class Tier2SchemaV0 < ActiveRecord::Migration
     create_table :plans do |t|
       t.string  :name, :limit => 80
       t.decimal :price, :precision => 5, :scale => 2
+      t.integer :api_limit
       t.boolean :paid
     end
     
@@ -57,26 +63,26 @@ class Tier2SchemaV0 < ActiveRecord::Migration
     add_index :apps, :name, :unique => true
     add_index :apps, :api_key, :unique => true
     
-    create_table :credit_cards do |t|
-      t.integer :owner_id
-      t.string  :card_holder_name
-      t.string  :last_four_digits
-      t.string  :crypted_secure_code, :limit => 20, :null => false
-      t.string  :crypted_credit_card, :limit => 80, :null => false
-      t.string  :crypted_expiry_month, :limit => 20
-      t.string  :crypted_expiry_year, :limit => 20
-      t.string  :billing_address, :limit => 1000
-    end
-    
-    create_table :app_credit_cards do |t|
-      t.integer :credit_card_id
-      t.integer :app_id
-      t.boolean :auto_charge
-      t.boolean :last_transaction_successful
-      t.timestamp :last_transaction_at
-    end
-    
-    add_index :app_credit_card, :app_id, :unique => true
+    # create_table :credit_cards do |t|
+    #   t.integer :owner_id
+    #   t.string  :card_holder_name
+    #   t.string  :last_four_digits
+    #   t.string  :crypted_secure_code, :limit => 20, :null => false
+    #   t.string  :crypted_credit_card, :limit => 80, :null => false
+    #   t.string  :crypted_expiry_month, :limit => 20
+    #   t.string  :crypted_expiry_year, :limit => 20
+    #   t.string  :billing_address, :limit => 1000
+    # end
+    # 
+    # create_table :app_credit_cards do |t|
+    #   t.integer :credit_card_id
+    #   t.integer :app_id
+    #   t.boolean :auto_charge
+    #   t.boolean :last_transaction_successful
+    #   t.timestamp :last_transaction_at
+    # end
+    # 
+    # add_index :app_credit_card, :app_id, :unique => true
     
     #
     # Application Cluster Groups should be public for Application Users
@@ -112,7 +118,7 @@ class Tier2SchemaV0 < ActiveRecord::Migration
     add_index :preferences, [ :author_email, :owner_type, :owner_id ], :unique => true
     add_index :preferences, [ :topic_email, :owner_type, :owner_id ], :unique => true
     
-    # used for storing the preferences like search result preferences, homepage cluster group preferences
+    # used for storing the preferences like search result language preferences, homepage cluster group preferences
     create_table :multi_valued_preferences do |t|
       t.string  :owner_type, :limit => 20 
       t.integer :owner_id, :null => false
@@ -128,6 +134,7 @@ class Tier2SchemaV0 < ActiveRecord::Migration
       t.string  :owner_type, :limit => 20
       t.integer :owner_id, :null => false
       t.integer :author_id
+      t.boolean :subscribed
       t.integer :author_preference, :limit => 1
     end
     add_index :author_subscriptions, [ :owner_type, :owner_id, :author_preference, :author_id ], :name => 'author_subscriptions_author_pref_idx'
@@ -168,31 +175,6 @@ class Tier2SchemaV0 < ActiveRecord::Migration
     end
     add_index :cluster_perspectives, [ :app_id, :name ], :unique => true
     add_index :cluster_perspectives, [ :public, :app_id, :name ], :unique => true
-    
-    create_table :category_subscriptions do |t|
-      t.string  :owner_type, :limit => 20
-      t.string  :owner_id, :null => false
-      t.integer :category_id
-    end
-    add_index :category_subscriptions, [ :owner_type, :owner_id, :category_id ], :unique => true
-    
-    #
-    # You specify the cluster_perspective_id or region_id
-    # Region is just as cluster_perspective_id. Clustering Source List determines the ranking through broadness value.
-    #
-    create_table :cluster_groups do |t|
-      t.string  :owner_type, :limit => 20
-      t.string  :owner_id, :null => false
-      t.string  :name
-      t.integer :language_id # These are filters ( definite value either english or german ). Nothing to do with ranking
-      t.integer :category_id # These are filters
-      t.string  :perspective_type, :limit => 20 # Region or ClusterPerspective
-      t.integer :perspective_id # RegionId or ClusterPerspectiveId
-      t.boolean :public
-    end
-    add_index :cluster_groups, [ :owner_type, :owner_id, :name ], :unique => true
-    add_index :cluster_groups, [ :perspective_type, :perspective_id ]
-    add_index :cluster_groups, :public
     
     #
     # Background Job Sessions ( Which Iteration is Running )
@@ -254,6 +236,9 @@ class Tier2SchemaV0 < ActiveRecord::Migration
       t.integer  :story_count  # used internally ( originally weight )
       t.integer  :broadness    # number of sources + number_of_stories / 100
       t.integer  :video_count
+      t.integer  :blog_count
+      t.integer  :opinion_count
+      t.string   :top_keywords # 3 keywords
       t.integer  :thumbnail_story_id
       t.boolean  :thumbnail_exists
       t.datetime :created_at
@@ -285,20 +270,6 @@ class Tier2SchemaV0 < ActiveRecord::Migration
     add_index :cluster_subscriptions, :story_id
     
     #
-    # Story Metric Information
-    # Story belongs to which group and which cluster, is it a duplicate story etc.
-    #
-    create_table :story_metrics do |t|
-      t.integer :story_id
-      t.integer :group_id
-      t.integer :cluster_id
-      t.integer :master_id       # in case of duplicate
-    end
-    add_index :story_metrics, [ :story_id, :group_id ], :name => 'story_metrics_story_group_idx'
-    add_index :story_metrics, [ :story_id, :cluster_id ], :name => 'story_metrics_story_cluster_idx'
-    add_index :story_metrics, [ :master_id, :story_id ]
-    
-    #
     # Story Quality Rating
     #
     create_table :quality_ratings do |t|
@@ -313,18 +284,49 @@ class Tier2SchemaV0 < ActiveRecord::Migration
     # One table to store Top Authors, Top Stories, Top Author Stories, Top Opinions
     # Populated by Background Process
     #
-    create_table :top_subscriptions do |t|
-      t.integer :item_id
-      t.integer :language_id
-      t.integer :subscription_type_id
+    create_table :top_stories do |t|
+      t.integer :story_id
+      t.integer :rank
     end
-    add_index :top_subscriptions, [ :subscription_type_id, :item_id ], :unique => true, :name => 'top_subscription_item_idx'
-    add_index :top_subscriptions, [ :language_id, :subscription_type_id, :item_id ], :unique => true, :name => 'top_subscription_lang_item_idx'
+    add_index :top_stories, :story_id, :unique => true
+    add_index :top_stories, [ :story_id, :rank ], :unique => true, :name => 'top_stories_uniq_idx1'
+    add_index :top_stories, [ :rank, :story_id ], :unique => true, :name => 'top_stories_uniq_idx2'
+    
+    #
+    # Ranked list of Authors based on number of subscriptions
+    # Limit to 50 Authors
+    #
+    create_table :top_authors do |t|
+      t.integer :author_id
+      t.integer :rank
+    end
+    add_index :top_stories, :author_id, :unique => true
+    add_index :top_stories, [ :rank, :author_id ], :unique => true, :name => 'top_authors_uniq_idx1'
+    add_index :top_stories, [ :author_id, :rank ], :unique => true, :name => 'top_authors_uniq_idx2'
+    
+    #
+    # You specify the cluster_perspective_id or region_id
+    # Region is just as cluster_perspective_id. Clustering Source List determines the ranking through broadness value.
+    #
+    create_table :cluster_groups do |t|
+      t.string  :owner_type, :limit => 20
+      t.string  :owner_id, :null => false
+      t.string  :name
+      t.integer :language_id # These are filters ( definite value either english or german ). Nothing to do with ranking
+      t.integer :category_id # These are filters
+      t.string  :perspective_type, :limit => 20 # Region or ClusterPerspective
+      t.integer :perspective_id # RegionId or ClusterPerspectiveId
+      t.boolean :public
+    end
+    add_index :cluster_groups, [ :owner_type, :owner_id, :name ], :unique => true
+    add_index :cluster_groups, [ :perspective_type, :perspective_id ]
+    add_index :cluster_groups, :public
     
   end
   
   def self.down
-    drop_table :top_susbcriptions
+    drop_table :top_authors
+    drop_table :top_stories
     drop_table :quality_ratings
     drop_table :story_metrics
     drop_table :cluster_subscriptions
@@ -344,8 +346,6 @@ class Tier2SchemaV0 < ActiveRecord::Migration
     drop_table :multi_valued_preferences
     drop_table :preferences
     drop_table :app_users
-    drop_table :app_credit_cards
-    drop_table :credit_cards
     drop_table :apps
     drop_table :plans
     drop_table :user_roles
