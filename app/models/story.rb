@@ -9,7 +9,7 @@ class Story < ActiveRecord::Base
   
   has_one    :story_content
   has_one    :story_metric
-  has_one    :story_thumbnail,
+  has_one    :story_thumbnail
   has_one    :thumbnail, :through => :story_thumbnail, :source => :thumbnail
 
 
