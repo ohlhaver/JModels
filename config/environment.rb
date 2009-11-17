@@ -15,6 +15,10 @@ if defined?( Rails ) && Rails.initialized?
   require 'thinking_sphinx'
   gem( 'ts-delayed-delta', :lib => 'thinking_sphinx/deltas/delayed_delta', :version => '1.0.0' )
   require 'thinking_sphinx/deltas/delayed_delta'
+  gem( 'jcore', :lib => 'jcore', :version => '>=1.0.4' )
+  require 'jcore'
+  gem( 'algorithms', :lib => 'algorithms', :version => '=0.3.0')
+  require 'algorithms'
   
   Dir[ File.join( RAILS_ROOT ,'app/models/*.rb' ) ].each do |model_file|
     load model_file
@@ -32,9 +36,12 @@ else
   Rails::Initializer.run do |config|
     config.gem( 'thinking-sphinx-099', :lib => 'thinking_sphinx', :version => '1.3.2' )
     config.gem( 'ts-delayed-delta', :lib => 'thinking_sphinx/deltas/delayed_delta', :version => '1.0.0' )
+    config.gem( 'jcore', :version =>'>=1.0.4', :lib => 'jcore' )
+    config.gem( 'algorithms', :version => '=0.3.0', :lib => 'algorithms' )
     config.frameworks -= [ :active_resource, :action_mailer, :action_controller,  :action_view ]
     config.routes_configuration_file = nil
     config.time_zone = 'UTC'
   end
 
 end
+ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/services' )

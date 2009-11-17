@@ -8,6 +8,7 @@ class StoryMetric < ActiveRecord::Base
   
   def set_delta_index_story
     @delta_index_story = master_id_changed?
+    return true
   end
   
   def set_story_delta_flag
