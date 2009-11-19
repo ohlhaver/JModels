@@ -1,15 +1,16 @@
 class BjSession < ActiveRecord::Base
   
   module Jobs
-    CandidateGeneration = 1
-    DuplicateMarker     = 2
-    GroupGeneration     = 3
-    ClusterGeneration   = 4
+    unless defined?(CandidateGeneration)
+      CandidateGeneration = 1
+      DuplicateMarker     = 2
+      GroupGeneration     = 3
+      QualityRating       = 4
+    end
   end
   
   def self.last( job_id )
-    created_at = maximum( :created_at, :conditions => { :job_id => job_id } )
-    find( :first, :conditions => { :job_id => job_id, :created_at => created_at } )
+    find( :first, :conditions => [ 'job_id = ? AND duration IS NOT NULL', job_id ], :group => 'job_id', :having => 'MAX( created_at )', :order => 'id DESC' )
   end
   
 end
