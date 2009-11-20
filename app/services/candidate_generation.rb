@@ -67,8 +67,8 @@ class CandidateGeneration < BackgroundService
       FROM candidate_stories
       INNER JOIN default_source_ratings ON ( default_source_ratings.id = candidate_stories.source_id )')
     
-    db.add_index 'candidate_story_authors', [:story_id, :author_id], :unique => true
-    db.add_index 'candidate_story_sources', [:story_id, :source_id], :unique => true
+    db.add_index 'candidate_story_authors', [:story_id, :author_id], :unique => true, :name => 'cdd_story_author_idx'
+    db.add_index 'candidate_story_sources', [:story_id, :source_id], :unique => true, :name => 'cdd_story_source_idx'
   end
   
   def finalize( optoins = {} )

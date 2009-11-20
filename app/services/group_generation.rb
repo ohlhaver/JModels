@@ -21,6 +21,8 @@ class GroupGeneration < BackgroundService
     
     populate_story_groups_table_from_final_groups
     
+    archive_old_groups
+    
   end
   
   def finalize( options = {} )
@@ -56,7 +58,7 @@ class GroupGeneration < BackgroundService
       WHERE keyword_subscriptions.excerpt_frequency IS NOT NULL AND 
       candidate_stories.master_id IS NULL' )
         
-    db.add_index :candidate_story_keywords, [ :keyword_id, :story_id ], :unique => true
+    db.add_index :candidate_story_keywords, [ :keyword_id, :story_id ], :unique => true, :name => 'cdd_story_keywords_idx'
     
   end
   
@@ -94,7 +96,7 @@ class GroupGeneration < BackgroundService
     
     end
   
-    db.add_index 'related_candidates', [ :story1_id, :story2_id ], :unique => true
+    db.add_index 'related_candidates', [ :story1_id, :story2_id ], :unique => true, :name => 'related_stories_idx'
     
     db.create_table( 'candidate_groups', :force => true ) do |t|
       t.integer :story_count
@@ -216,7 +218,7 @@ class GroupGeneration < BackgroundService
     # blub =  age*quality_value
     db.execute('UPDATE candidate_group_stories SET blub_score = ( 100 / POWER( 1 + TIMESTAMPDIFF( ' + DB::Timestamp::Hour + ', UTC_TIMESTAMP(), created_at ), 0.33 ) ) * quality_rating')
     
-    db.add_index( 'candidate_group_stories', [:group_id, :blub_score] )
+    db.add_index( 'candidate_group_stories', [:group_id, :blub_score], :name => 'cdd_grp_stories_idx' )
     
   end
   
@@ -240,7 +242,7 @@ class GroupGeneration < BackgroundService
         GROUP BY candidate_story_keywords.keyword_id
       ) AS t ORDER BY t.group_id ASC, t.score ASC' )
       
-    db.add_index 'candidate_group_keywords', [ :group_id, :score, :keyword_id ], :unique => true
+    db.add_index 'candidate_group_keywords', [ :group_id, :score, :keyword_id ], :unique => true, :name => 'cdd_grp_keywords_idx'
     
     # Step7. Finding Top 3 Keywords for each group based on score
     db.create_table( 'candidate_group_top_keywords', :force => true ) do |t|
@@ -321,15 +323,42 @@ class GroupGeneration < BackgroundService
             group.thumbnail_story_id = story_attributes['story_id'] if ( story_attributes.delete('thumbnail_exists') == db_true_value && 
               group.thumbnail_exists? && group.thumbnail_story_id.nil? )
             
-            group.memberships << StoryGroupMembership.new( story_attributes )
+            group.memberships << StoryGroupMembership.new( story_attributes.merge!( :bj_session_id => @session.id ) )
           }
         end
       end
     end
     
+    @session.update_attributes( :running => false )
+    
     @pilot_stories = []
     @group_stories = []
     @final_groups = []
+    
+  end
+  
+  def archive_old_groups
+    
+    session_ids = @session.id.to_s
+    
+    db.execute( 'INSERT OR IGNORE INTO story_group_membership_archives (
+        bj_session_id, group_id, story_id, source_id, created_at, quality_rating, blub_score
+      ) SELECT bj_session_id, group_id, story_id, source_id, created_at, quality_rating, blub_score
+      FROM story_group_memberships WHERE bj_session_id NOT IN ('+ session_ids +')')
+    
+    db.execute( 'DELETE FROM story_group_memberships WHERE bj_session_id NOT IN ('+ session_ids + ')' )
+    
+    db.execute( 'INSERT OR IGNORE INTO story_group_archives ( 
+        group_id, bj_session_id, pilot_story_id, category_id, 
+        language_id, top_keywords, story_count, source_count, 
+        video_count, blog_count, opinion_count, broadness_score, 
+        created_at ) 
+      SELECT id, bj_session_id, pilot_story_id, category_id, 
+        language_id, top_keywords, story_count, source_count, video_count,
+        blog_count, opinion_count, broadness_score, created_at
+      FROM story_groups WHERE bj_session_id NOT IN (' + session_ids + ')' )
+    
+    db.execute( 'DELETE FROM story_groups WHERE bj_session_id NOT IN (' + session_ids + ')' )
     
   end
 

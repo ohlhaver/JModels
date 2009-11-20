@@ -5,7 +5,6 @@ require 'benchmark'
 #  CandidateGeneration.new.run( :with_session => true ) do 
 #    DuplicateMarker.new.run( :with_session => true )
 #    GroupGeneration.new.run( :with_session => true )
-#    ClusterGeneration.new.run( :with_session => true )
 #    OpinionGeneration.new.run( :with_session => true )
 #  end
 #  repeat
@@ -47,22 +46,17 @@ class BackgroundService
       @session = BjSession.create( :job_id => self.job_id )
       options[:with_benchmark] = true
     end
-    options[:with_benchmark] ? start_with_benchmark( options[:start] ) : start( options[:start] )
     begin
+      options[:with_benchmark] ? start_with_benchmark( options[:start] ) : start( options[:start] )
       yield if block_given?
+      options[:with_benchmark] ? finalize_with_benchmark( options[:finalize] ) : finalize( options[:finalize] )
     rescue StandardError => message
-      logger.debug( message )
       logger.debug( message.backtrace.join("\n") )
-    end
-    if options[:with_benchmark] 
-      finalize_with_benchmark( options[:finalize] )
-    else
-      finalize( options[:finalize] )
     end
     if options[:with_session]
       logger.info( "Background Service Benchmark: #{self.class.name}: Session: #{@session.id}\n" + Benchmark::Tms::CAPTION + (@start_bm + @finalize_bm).to_s )
-      @session.update_attributes( :duration => self.duration )
-      return 
+      @session.update_attributes( :duration => self.duration, :running => false )
+      return
     end
   end
   

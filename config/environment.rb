@@ -1,6 +1,23 @@
 # Specifies gem version of Rails to use when vendor/rails is not present
 RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 
+module DB
+  
+  module Timestamp
+    Day    = 'DAY'.freeze
+    Hour   = 'HOUR'.freeze
+    Minute = 'MINUTE'.freeze
+    Second = 'SECOND'.freeze
+    Engine_MyISAM = 'ENGINE MyISAM'.freeze
+  end
+  
+  module Engine
+    MyISAM = 'ENGINE MyISAM'.freeze
+    InnoDB = 'ENGINE InnoDB'.freeze
+  end
+  
+end
+
 # Bootstrap the Rails environment, frameworks, and default configuration
 if defined?( Rails ) && Rails.initialized?
   
@@ -24,10 +41,12 @@ if defined?( Rails ) && Rails.initialized?
     load model_file
   end
   
+  ActiveSupport::Dependencies.load_paths.shift
+  ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/services' )
+  
   Object.send( :remove_const, :RAILS_ROOT )
   RAILS_ROOT = RAILS_ROOT_ORIGINAL
   Object.send( :remove_const, :RAILS_ROOT_ORIGINAL )
-  ActiveSupport::Dependencies.load_paths.shift
   
 else
   
@@ -42,6 +61,7 @@ else
     config.routes_configuration_file = nil
     config.time_zone = 'UTC'
   end
+  
+  ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/services' )
 
 end
-ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/services' )

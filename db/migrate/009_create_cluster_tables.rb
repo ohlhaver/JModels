@@ -9,9 +9,10 @@ class CreateClusterTables < ActiveRecord::Migration
     create_table :bj_sessions do |t|
       t.integer  :job_id
       t.datetime :created_at
+      t.boolean  :running, :default => true, :null => false
       t.float    :duration # How much time it took to run the bj ( in Seconds )
     end
-    add_index :bj_sessions, [ :job_id, :created_at ]
+    add_index :bj_sessions, [ :job_id, :running, :created_at ]
     
     #
     # Story Groups
@@ -39,6 +40,7 @@ class CreateClusterTables < ActiveRecord::Migration
     # Story Group Stories
     #
     create_table :story_group_memberships, :id => false do |t|
+      t.integer :bj_session_id
       t.integer :group_id
       t.integer :story_id
       t.integer :source_id      # story source_id
@@ -46,7 +48,8 @@ class CreateClusterTables < ActiveRecord::Migration
       t.float   :quality_rating # story quality rating
       t.float   :blub_score     # story blub score
     end
-    add_index :story_group_memberships, [ :group_id, :story_id ], :unique => true
+    add_index :story_group_memberships, [ :group_id, :story_id ], :unique => true, :name => 'story_group_members_idx'
+    add_index :story_group_memberships, [ :bj_session_id, :source_id, :group_id ], :name => 'story_group_perspective_idx'
     
   end
   

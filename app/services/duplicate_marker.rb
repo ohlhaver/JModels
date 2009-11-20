@@ -15,7 +15,7 @@ class DuplicateMarker < BackgroundService
       SELECT keyword_subscriptions.story_id, keyword_subscriptions.keyword_id
       FROM keyword_subscriptions INNER JOIN candidate_stories ON ( candidate_stories.id = keyword_subscriptions.story_id )' )
         
-    db.add_index 'candidate_story_keywords', [ :keyword_id, :story_id ], :unique => true
+    db.add_index 'candidate_story_keywords', [ :keyword_id, :story_id ], :unique => true, :name => 'cdd_story_keywords_idx'
     
     db.create_table( 'candidate_similarities', :force => true, :id => false ) do |t|
       t.integer :story1_id
@@ -30,7 +30,7 @@ class DuplicateMarker < BackgroundService
       INNER JOIN candidate_story_keywords AS ks2 ON ( ks1.keyword_id = ks2.keyword_id )
       GROUP BY ks1.story_id, ks2.story_id' )
         
-    db.add_index 'candidate_similarities', [ :story1_id, :story2_id, :frequency ]
+    db.add_index 'candidate_similarities', [ :story1_id, :story2_id, :frequency ], :name => 'cdd_story_similarity_idx'
     
     
     db.create_table( 'duplicate_groups', :force => true, :id => false ) do |t|
@@ -47,7 +47,7 @@ class DuplicateMarker < BackgroundService
       WHERE ( ss1.frequency IS NOT NULL )
         AND ( ss1.frequency / ( ss2.frequency + ss3.frequency - ss1.frequency )  >= 0.90 )' ) #  |A intersection B| / |A union B|
           
-    db.add_index 'duplicate_groups', [ :story_id, :master_id ]
+    db.add_index 'duplicate_groups', [ :story_id, :master_id ], :name => 'dup_grp_idx'
   
     
     db.create_table( 'duplicate_candidates', :force => true ) do |t|
@@ -65,7 +65,7 @@ class DuplicateMarker < BackgroundService
       db.execute( 'DELETE FROM duplicate_candidates WHERE group_count IS NULL OR group_count < 2' )
     end
     
-    db.add_index 'duplicate_candidates', [:master_id, :frequency]
+    db.add_index 'duplicate_candidates', [:master_id, :frequency], :name => 'dup_cdd_idx'
     
     db.create_table( 'duplicate_stories', :force => true ) do |t|
       t.integer :master_id

@@ -1,26 +1,18 @@
 connection = ActiveRecord::Base.connection
 
-module DB
-  module Timestamp
-    Day    = 'DAY'.freeze
-    Hour   = 'HOUR'.freeze
-    Minute = 'MINUTE'.freeze
-    Second = 'SECOND'.freeze
-    
-    def self.redefine_const( constant_name, value )
-      remove_const( constant_name )
-      const_set( constant_name, value)
-    end
-  end
-  
+def redefine_const( module_obj, constant_name, value )
+  module_obj.send( :remove_const, constant_name )
+  module_obj.send( :const_set, constant_name, value)
 end
 
 if connection.adapter_name.downcase =~ /sqlite/
   
-  DB::Timestamp.redefine_const( :'Day', connection.quote( DB::Timestamp::Day ) )
-  DB::Timestamp.redefine_const( :'Hour', connection.quote( DB::Timestamp::Hour ) )
-  DB::Timestamp.redefine_const( :'Minute', connection.quote( DB::Timestamp::Minute ) )
-  DB::Timestamp.redefine_const( :'Second', connection.quote( DB::Timestamp::Second ) )
+  redefine_const( DB::Timestamp, :Day, connection.quote( DB::Timestamp::Day ).freeze )
+  redefine_const( DB::Timestamp, :Hour, connection.quote( DB::Timestamp::Hour ).freeze )
+  redefine_const( DB::Timestamp, :Minute, connection.quote( DB::Timestamp::Minute ).freeze )
+  redefine_const( DB::Timestamp, :Second, connection.quote( DB::Timestamp::Second ).freeze )
+  redefine_const( DB::Engine, :MyISAM, nil )
+  redefine_const( DB::Engine, :InnoDB, nil )
   
   db = connection.instance_variable_get('@connection')
   

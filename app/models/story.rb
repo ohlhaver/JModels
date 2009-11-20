@@ -12,9 +12,28 @@ class Story < ActiveRecord::Base
   has_one    :story_thumbnail
   has_one    :thumbnail, :through => :story_thumbnail, :source => :thumbnail
 
-
   validates_presence_of    :title, :url, :language_id, :source_id, :feed_id, :created_at, :story_content, :subscription_type, :on => :create
   validates_inclusion_of   :subscription_type, :in => %w(public private paid)
+  
+  named_scope :language, lambda { |language| { :conditions => { :language_id => ( language.is_a?( Language ) ? language.id : language ) } } }
+  named_scope :since, lambda{ |time|  { :conditions => [ 'stories.created_at > ?', time ] } }
+  named_scope :non_duplicates, :conditions => 'stories.id NOT IN ( SELECT story_id FROM story_metrics WHERE master_id IS NOT NULL )'
+  named_scope :duplicates, :conditions => 'stories.id IN ( SELECT story_id FROM story_metrics WHERE master_id IS NOT NULL )'
+  # last 24 hours Story.since(24.hours.ago).language(Language.find_by_code('de').id)  
+  
+  # particular story
+  def duplicates( *args )
+    master_id = story_metric.master_id || id
+    self.class.send(:with_scope, :find => { 
+        :conditions => 
+          [ 'stories.id IN ( SELECT story_id FROM story_metrics 
+              WHERE master_id = ? OR story_id = ?) 
+                AND stories.id != ? ', master_id, master_id, id ] 
+      }
+    ) do
+      self.class.find( *args )
+    end
+  end
   
   define_index do
     indexes :title, :as => :title
