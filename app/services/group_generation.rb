@@ -52,11 +52,10 @@ class GroupGeneration < BackgroundService
     #
     # Select non duplicate stories and select related excerpt keywords
     #
-    db.execute( 'INSERT OR IGNORE INTO candidate_story_keywords ( story_id, keyword_id, frequency ) 
+    db.execute( DB::Insert::Ignore + 'INTO candidate_story_keywords ( story_id, keyword_id, frequency ) 
       SELECT keyword_subscriptions.story_id, keyword_subscriptions.keyword_id, keyword_subscriptions.excerpt_frequency
       FROM keyword_subscriptions INNER JOIN candidate_stories ON ( candidate_stories.id = keyword_subscriptions.story_id )
-      WHERE keyword_subscriptions.excerpt_frequency IS NOT NULL AND 
-      candidate_stories.master_id IS NULL' )
+      WHERE keyword_subscriptions.excerpt_frequency IS NOT NULL AND candidate_stories.master_id IS NULL' )
         
     db.add_index :candidate_story_keywords, [ :keyword_id, :story_id ], :unique => true, :name => 'cdd_story_keywords_idx'
     
@@ -79,7 +78,7 @@ class GroupGeneration < BackgroundService
   
     db.transaction do
     
-      db.execute( 'INSERT OR IGNORE INTO related_candidates ( story1_id, story2_id, frequency )
+      db.execute( DB::Insert::Ignore + 'INTO related_candidates ( story1_id, story2_id, frequency )
         SELECT  ks1.story_id AS story1_id, ks2.story_id AS story2_id, COUNT( ks1.keyword_id ) AS frequency 
         FROM candidate_story_keywords AS ks1
         INNER JOIN candidate_story_keywords AS ks2 ON ( ks1.keyword_id = ks2.keyword_id )
@@ -107,7 +106,7 @@ class GroupGeneration < BackgroundService
     #
     # Overlapping and Redundant Groups
     #
-    db.execute( 'INSERT OR IGNORE INTO candidate_groups ( id, story_count, source_count, language_id ) 
+    db.execute( DB::Insert::Ignore + 'INTO candidate_groups ( id, story_count, source_count, language_id ) 
       SELECT story1_id, COUNT(*) AS story_count, COUNT( DISTINCT source_id ) AS source_count, language_id 
       FROM related_candidates 
       LEFT OUTER JOIN candidate_stories ON ( candidate_stories.id = related_candidates.story2_id )
@@ -178,7 +177,7 @@ class GroupGeneration < BackgroundService
       @final_groups.each do | group|
         group_id = group['id'].to_s
         group['story_ids'].each do |story_id|
-          db.execute('INSERT OR IGNORE INTO tmp_group_stories_map (group_id, story_id) VALUES(' + group_id + ',' + story_id.to_s + ')')
+          db.execute( DB::Insert::Ignore + 'INTO tmp_group_stories_map (group_id, story_id) VALUES(' + group_id + ',' + story_id.to_s + ')')
         end
       end
     end
@@ -198,22 +197,14 @@ class GroupGeneration < BackgroundService
     end
     
     db.execute('INSERT INTO candidate_group_stories ( group_id, story_id, source_id, category_id, 
-        is_video, is_blog, is_opinion, thumbnail_exists, created_at ) 
+        is_video, is_blog, is_opinion, thumbnail_exists, created_at, quality_rating ) 
       SELECT tmp_group_stories_map.group_id, tmp_group_stories_map.story_id,  candidate_stories.source_id, candidate_stories.category_id,
           candidate_stories.is_video, candidate_stories.is_blog, candidate_stories.is_opinion, candidate_stories.thumbnail_exists, 
-          candidate_stories.created_at
+          candidate_stories.created_at, candidate_stories.quality_rating
       FROM tmp_group_stories_map 
       INNER JOIN candidate_stories ON ( candidate_stories.id =  tmp_group_stories_map.story_id )')
       
     db.drop_table( 'tmp_group_stories_map' )
-        
-    db.execute('UPDATE candidate_group_stories
-      SET quality_rating = ( SELECT COALESCE( AVG ( candidate_story_authors.rating ), COALESCE( candidate_story_sources.rating, 1 ) )
-        FROM candidate_group_stories AS cgs 
-        LEFT OUTER JOIN candidate_story_sources ON ( candidate_story_sources.story_id = cgs.story_id )
-        LEFT OUTER JOIN candidate_story_authors ON ( candidate_story_authors.story_id = cgs.story_id ) 
-        WHERE cgs.group_id = candidate_group_stories.group_id AND cgs.story_id = candidate_group_stories.story_id
-        GROUP BY cgs.group_id, cgs.story_id )')
     
     # blub =  age*quality_value
     db.execute('UPDATE candidate_group_stories SET blub_score = ( 100 / POWER( 1 + TIMESTAMPDIFF( ' + DB::Timestamp::Hour + ', UTC_TIMESTAMP(), created_at ), 0.33 ) ) * quality_rating')
@@ -234,7 +225,7 @@ class GroupGeneration < BackgroundService
       t.integer :score
     end
     
-    db.execute( 'INSERT OR IGNORE INTO candidate_group_keywords ( group_id, keyword_id, score )
+    db.execute( DB::Insert::Ignore + 'INTO candidate_group_keywords ( group_id, keyword_id, score )
       SELECT t.group_id, t.keyword_id, t.score FROM ( 
         SELECT candidate_groups.id AS group_id, keyword_id, COUNT( frequency ) * SUM ( frequency ) AS score FROM candidate_groups
         INNER JOIN candidate_group_stories ON ( candidate_group_stories.group_id = candidate_groups.id ) 
@@ -288,8 +279,10 @@ class GroupGeneration < BackgroundService
       FROM candidate_group_stories ORDER BY group_id, blub_score' ).group_by{ |x| x['group_id'].to_i }
     
     # Fetch all pilot stories group by pilot_story_id
-    @pilot_stories = db.select_all( 'SELECT story_id, body FROM story_contents 
-      WHERE story_id IN ( SELECT id FROM candidate_groups )' ).group_by{ |x| x['story_id'].to_i }
+    pilot_story_ids = db.select_values('SELECT id FROM candidate_groups')
+    @pilot_stories = master_db.select_all( 'SELECT story_id, body FROM story_contents 
+      WHERE story_id IN (' + pilot_story_ids.join(',') + ')' ).group_by{ |x| x['story_id'].to_i }
+    pilot_story_ids = nil
     
     StoryGroup.transaction do
       @final_groups.each do | group_attributes |
@@ -341,14 +334,14 @@ class GroupGeneration < BackgroundService
     
     session_ids = @session.id.to_s
     
-    db.execute( 'INSERT OR IGNORE INTO story_group_membership_archives (
+    master_db.execute( DB::Insert::Ignore + 'INTO story_group_membership_archives (
         bj_session_id, group_id, story_id, source_id, created_at, quality_rating, blub_score
       ) SELECT bj_session_id, group_id, story_id, source_id, created_at, quality_rating, blub_score
       FROM story_group_memberships WHERE bj_session_id NOT IN ('+ session_ids +')')
     
-    db.execute( 'DELETE FROM story_group_memberships WHERE bj_session_id NOT IN ('+ session_ids + ')' )
+    master_db.execute( 'DELETE FROM story_group_memberships WHERE bj_session_id NOT IN ('+ session_ids + ')' )
     
-    db.execute( 'INSERT OR IGNORE INTO story_group_archives ( 
+    master_db.execute( DB::Insert::Ignore + 'INTO story_group_archives ( 
         group_id, bj_session_id, pilot_story_id, category_id, 
         language_id, top_keywords, story_count, source_count, 
         video_count, blog_count, opinion_count, broadness_score, 
@@ -358,7 +351,7 @@ class GroupGeneration < BackgroundService
         blog_count, opinion_count, broadness_score, created_at
       FROM story_groups WHERE bj_session_id NOT IN (' + session_ids + ')' )
     
-    db.execute( 'DELETE FROM story_groups WHERE bj_session_id NOT IN (' + session_ids + ')' )
+    master_db.execute( 'DELETE FROM story_groups WHERE bj_session_id NOT IN (' + session_ids + ')' )
     
   end
 

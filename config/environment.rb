@@ -16,6 +16,10 @@ module DB
     InnoDB = 'ENGINE InnoDB'.freeze
   end
   
+  module Insert
+    Ignore = 'INSERT IGNORE '.freeze
+  end
+  
 end
 
 # Bootstrap the Rails environment, frameworks, and default configuration

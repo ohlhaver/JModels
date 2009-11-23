@@ -2,79 +2,108 @@
 # Generates a pool of stories on which algorithms should run
 # Creates a candidate_stories table with stories from last 24 hours
 #
+#require 'ruby-debug'
 class CandidateGeneration < BackgroundService
   
-  def start( options = {} )
-    options ||= {}
-    time = options[:time] || Time.now.utc
-    
-    db.create_table( 'candidate_stories', :force => true ) do |t|
-      t.integer :master_id
-      t.integer :language_id
-      t.integer :source_id
-      t.integer :category_id
-      t.boolean :is_video
-      t.boolean :is_blog
-      t.boolean :is_opinion
-      t.boolean :keyword_exists
-      t.boolean :thumbnail_exists
-      t.datetime :created_at
-    end
-    
-    time += -24.hours
-    
-    # Candidate Stories are last 24 hours stories
-    db.execute( 'INSERT INTO candidate_stories ( id, language_id, source_id, category_id, 
-      is_video, is_blog, is_opinion, created_at, thumbnail_exists, master_id, keyword_exists )
-      SELECT stories.id, stories.language_id, stories.source_id, MAX( feed_categories.category_id ), 
-      stories.is_video, stories.is_blog, stories.is_opinion, stories.created_at, stories.thumbnail_exists,
-      story_metrics.master_id, COALESCE( story_metrics.keyword_exists, ' + db.quoted_false + ')
-      FROM stories LEFT OUTER JOIN feed_categories ON ( feed_categories.feed_id = stories.feed_id )
-      LEFT OUTER JOIN story_metrics ON ( story_metrics.story_id = stories.id ) WHERE created_at >= ' + time.to_s(:db).dump + ' GROUP BY stories.id')
-      
-    # Also get stories which are the duplicates that algorithm found out and are not in the candidate stories
-    db.execute( ' INSERT OR IGNORE INTO candidate_stories ( id, master_id, keyword_exists )
-      SELECT story_metrics.story_id, story_metrics.master_id, story_metrics.keyword_exists 
-      FROM story_metrics WHERE story_metrics.master_id IN ( SELECT candidate_stories.master_id FROM candidate_stories GROUP BY candidate_stories.master_id ) ')
-    
-    # Generate keywords for the stories which do not have the keywords
-    Story.find_each( :joins => 'INNER JOIN candidate_stories ON ( candidate_stories.id = stories.id )', 
-      :conditions => [ 'candidate_stories.keyword_exists = ? ', false ], :include => :story_metric ) do | story |
-      Keyword.save( story )
-    end
-    db.execute( 'UPDATE candidate_stories SET keyword_exists = 1' )
-    
-    db.create_table( 'candidate_story_authors', :force => true, :id => false ) do |t|
-      t.integer :story_id
-      t.integer :author_id
-      t.float :rating # default_author_rating
-    end
-    
-    db.create_table( 'candidate_story_sources', :force => true, :id => false ) do |t|
-      t.integer :story_id
-      t.integer :source_id
-      t.float :rating # default_source_rating
-    end
-    
-    db.execute( 'INSERT INTO candidate_story_authors ( story_id, author_id, rating) 
-      SELECT candidate_stories.id, story_authors.author_id, default_author_ratings.rating
-      FROM candidate_stories 
-      INNER JOIN story_authors ON ( story_authors.story_id = candidate_stories.id )
-      INNER JOIN default_author_ratings ON ( default_author_ratings.id = story_authors.author_id )')
-      
-    db.execute( 'INSERT INTO candidate_story_sources ( story_id, source_id, rating)
-      SELECT candidate_stories.id, candidate_stories.source_id, default_source_ratings.rating
-      FROM candidate_stories
-      INNER JOIN default_source_ratings ON ( default_source_ratings.id = candidate_stories.source_id )')
-    
-    db.add_index 'candidate_story_authors', [:story_id, :author_id], :unique => true, :name => 'cdd_story_author_idx'
-    db.add_index 'candidate_story_sources', [:story_id, :source_id], :unique => true, :name => 'cdd_story_source_idx'
+  def initialize( options = {} )
+    super(options)
+    @keyword_caches = Hash.new{ |h,k| h[k] = ActiveSupport::Cache::MemoryStore.new }
+    @story_titles = Hash.new
+    @story_languages = Hash.new
   end
   
-  def finalize( optoins = {} )
-    db.drop_table( 'candidate_story_authors' )
-    db.drop_table( 'candidate_story_sources' )
-    db.drop_table( 'candidate_stories' )
+  def start( options = {} )
+    sync_recent_stories( options[:time] || Time.now.utc )
+  end
+  
+  def finalize( options = {} )
+  end
+  
+  def clear_all!
+    clear_cache!
+    db.execute('DELETE FROM keyword_subscriptions')
+    db.execute('DELETE FROM keywords' )
+    db.execute('DELETE FROM candidate_stories')
+  end
+  
+  def clear_cache!
+    @keyword_caches.each{ |k,v| v.clear }
+  end
+  
+  protected
+  
+  def sync_recent_stories( time )
+    
+    last_story_found_at = db.select_value('SELECT MAX(created_at) FROM candidate_stories').try(:to_time)
+    last_story_found_at = 24.hours.ago( time ) if last_story_found_at.nil? || last_story_found_at < 24.hours.ago( time )
+    last_story_found_at -= 5.minutes # 5.minutes backlog
+    
+    attributes = [ :id, :language_id, :source_id, :category_id, :is_video, :is_blog, :is_opinion, :thumbnail_exists, :quality_rating, :master_id, :created_at, :keyword_exists ]
+    
+    attributes_to_select = Story.select_attributes( :id, :title, :language_id, :source_id, 'MAX(feed_categories.category_id) AS category_id', 
+      :is_video, :is_blog, :is_opinion, :thumbnail_exists, 'COALESCE( stories.quality_rating, 1) AS quality_rating', 'story_metrics.master_id', :created_at, 
+      'languages.code AS language_code', "#{db.quoted_false} AS keyword_exists" )
+      
+    column_names = attributes.join(', ')
+    
+    db.transaction do
+      
+      Story.find_in_batches( :select => attributes_to_select, :joins => 'LEFT OUTER JOIN feed_categories ON ( feed_categories.feed_id = stories.feed_id ) 
+          LEFT OUTER JOIN story_metrics ON ( story_metrics.story_id = stories.id ) LEFT OUTER JOIN languages ON ( languages.id = stories.language_id)', 
+        :conditions => [ 'created_at >= ? ', last_story_found_at ], :group => 'stories.id' ) do |story_batch|
+        
+        story_batch.each do |story|
+          @story_titles[ story.id ] = story.title
+          @story_languages[ story.id ] = { :code => story.send( :read_attribute, :language_code ), :id => story.language_id }
+          db.execute( DB::Insert::Ignore + 'INTO candidate_stories ( ' +  column_names + ') VALUES(' + story.to_csv( *attributes ) + ')' )
+        end
+        
+        generate_keywords_for_stories
+        
+        @story_titles.clear
+        @story_languages.clear
+      end
+      
+      clear_cache!
+      clear_old_stories( 24.hours.ago( time ) - 5.minutes ) # Delete stories older then 24 hours ago from now 
+      
+    end
+    
+  end
+  
+  def clear_old_stories( time )
+    db.execute('DELETE FROM keyword_subscriptions WHERE story_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE created_at < '+ db.quote( time ) +')')
+    db.execute('DELETE FROM candidate_stories WHERE created_at < ' + db.quote( time ))
+  end
+  
+  def generate_keywords_for_stories
+    loop do
+      story_ids = db.select_values( 'SELECT id FROM candidate_stories WHERE keyword_exists = ' + db.quoted_false + ' LIMIT 100' )
+      break if story_ids.empty?
+      StoryContent.find(:all, :conditions => { :story_id => story_ids }).each{ |story_content|
+        language_code =  @story_languages[ story_content.story_id ][:code].to_s
+        language_id = @story_languages[ story_content.story_id ][:id].to_s
+        keywords = JCore::Keyword.collection( @story_titles[ story_content.story_id ] + ' ' + story_content.body, language_code )
+        keywords.each do |keyword|
+          keyword_id = get_keyword_id( keyword, language_id )
+          db.execute( DB::Insert::Ignore + 'INTO keyword_subscriptions ( keyword_id, story_id, frequency, excerpt_frequency) 
+            VALUES(' + db.quote_and_merge( keyword_id, story_content.story_id, keywords.rank( keyword ), keywords.rank( keyword, :selected ) )  + ')')
+        end
+      }
+      db.execute( 'UPDATE candidate_stories SET keyword_exists = ' + db.quoted_true + ' WHERE id IN (' + story_ids.join(',') + ')')
+    end
+  end
+  
+  #
+  # Gets the Keyword from the Cache or Insert the item into the Keywords Table and update the Cache
+  #
+  def get_keyword_id( keyword, language_id )
+    keyword_id = @keyword_caches[ language_id.to_i ].read( keyword )
+    return keyword_id if keyword_id # Value In Cache
+    quoted_values = db.quote_all( keyword, language_id )
+    db.execute( DB::Insert::Ignore + 'INTO keywords (name, language_id) VALUES(' + quoted_values.join(',') + ')' )
+    keyword_id = db.select_value( "SELECT id FROM keywords WHERE language_id = #{quoted_values[1]} AND name = #{quoted_values[0]}" ).to_i
+    @keyword_caches[ language_id.to_i ].write( keyword, keyword_id )
   end
   
 end

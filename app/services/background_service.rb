@@ -1,7 +1,8 @@
 require 'benchmark'
 #
 #  BackgroundService is base class of the Background Algorithms
-#
+#  Every Day Run: BackgroundMigration.new.run( :with_session => true )
+#  
 #  CandidateGeneration.new.run( :with_session => true ) do 
 #    DuplicateMarker.new.run( :with_session => true )
 #    GroupGeneration.new.run( :with_session => true )
@@ -13,20 +14,38 @@ require 'benchmark'
 #    DuplicateMarker.new.run( :with_session => true )
 #  end
 #
+$background_database_config = YAML.load_file( File.join( RAILS_ROOT, '/config/background.yml' ) )
+
+class BackgroundServiceDB < ActiveRecord::Base
+  self.establish_connection( $background_database_config[ RAILS_ENV ] ) 
+end
+
 class BackgroundService
   
   attr_reader :options
   
   def initialize( options = {})
     @options = options
+    @master_db = ActiveRecord::Base.connection # Defaults Rails Connection
+    @cluster_db = BackgroundServiceDB.connection
+    @logger = ActiveRecord::Base.logger
+    @start_bm    = Benchmark.measure{}
+    @run_bm      = Benchmark.measure{}
+    @finalize_bm = Benchmark.measure{}
   end
   
-  def db
-    @db ||= ActiveRecord::Base.connection
+  def master_db
+    @master_db
   end
+  
+  def cluster_db
+    @cluster_db
+  end
+  
+  alias_method :db, :cluster_db
   
   def logger
-    @logger ||= ActiveRecord::Base.logger
+    @logger
   end
   
   def duration( scope = :start_and_finalize )
@@ -51,12 +70,13 @@ class BackgroundService
       yield if block_given?
       options[:with_benchmark] ? finalize_with_benchmark( options[:finalize] ) : finalize( options[:finalize] )
     rescue StandardError => message
+      logger.info( message )
       logger.debug( message.backtrace.join("\n") )
     end
-    if options[:with_session]
+    @session.update_attributes( :duration => self.duration, :running => false ) if options[:with_session]
+    if options[:with_benchmark]
+      
       logger.info( "Background Service Benchmark: #{self.class.name}: Session: #{@session.id}\n" + Benchmark::Tms::CAPTION + (@start_bm + @finalize_bm).to_s )
-      @session.update_attributes( :duration => self.duration, :running => false )
-      return
     end
   end
   

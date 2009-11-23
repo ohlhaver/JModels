@@ -53,22 +53,22 @@ class Story < ActiveRecord::Base
     set_property :delta => :delayed
   end
   
-  def mark_duplicate( master_id )
-    master_id = nil if master_id.to_i == id.to_i
-    find_or_initialize_story_metric
-    story_metric.master_id = master_id
-    story_metric.save if story_metric.changed? || story_metric.new_record?
-  end
-  
-  def mark_keyword_exists
-    find_or_initialize_story_metric
-    story_metric.keyword_exists = true
-    story_metric.save if story_metric.changed? || story_metric.new_record?
-  end
-  
-  def keyword_exists?
-    story_metric && story_metric.keyword_exists?
-  end
+  # def mark_duplicate( master_id )
+  #   master_id = nil if master_id.to_i == id.to_i
+  #   find_or_initialize_story_metric
+  #   story_metric.master_id = master_id
+  #   story_metric.save if story_metric.changed? || story_metric.new_record?
+  # end
+  # 
+  # def mark_keyword_exists
+  #   find_or_initialize_story_metric
+  #   story_metric.keyword_exists = true
+  #   story_metric.save if story_metric.changed? || story_metric.new_record?
+  # end
+  # 
+  # def keyword_exists?
+  #   story_metric && story_metric.keyword_exists?
+  # end
   
   protected
   

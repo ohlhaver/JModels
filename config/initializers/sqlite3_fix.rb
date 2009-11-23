@@ -1,4 +1,6 @@
-connection = ActiveRecord::Base.connection
+require 'background_service'
+
+connection = BackgroundServiceDB.connection
 
 def redefine_const( module_obj, constant_name, value )
   module_obj.send( :remove_const, constant_name )
@@ -13,6 +15,7 @@ if connection.adapter_name.downcase =~ /sqlite/
   redefine_const( DB::Timestamp, :Second, connection.quote( DB::Timestamp::Second ).freeze )
   redefine_const( DB::Engine, :MyISAM, nil )
   redefine_const( DB::Engine, :InnoDB, nil )
+  redefine_const( DB::Insert, :Ignore, 'INSERT OR IGNORE '.freeze )
   
   db = connection.instance_variable_get('@connection')
   
