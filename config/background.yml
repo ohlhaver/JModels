@@ -1,6 +1,14 @@
-ram:
+ram_sqlite:
   adapter: sqlite3
-  database: /Users/ram/Workspace/jurnalo/JTier1-to-API/db/background.sqlite3
+  database: /Users/ram/Workspace/jurnalo/JTier1-to-API/db/background_db.sqlite3
+
+ram:
+  adapter: mysql
+  encoding: utf8
+  database: background_db
+  user: root
+  password: 
+  host: localhost
 
 development:
     adapter: mysql
@@ -13,7 +21,7 @@ development:
 production:
     adapter: mysql
     encoding: utf8
-    database: tier2_db_prod
+    database: background_db_prod
     username: jurnalo
     password: jp4t2db
     host: 10.176.228.50

@@ -1,21 +1,31 @@
 require 'background_service'
 
-connection = BackgroundServiceDB.connection
+module DB
+  Connection = BackgroundServiceDB.connection
+end
+
+module MasterDB
+  Connection = ActiveRecord::Base.connection
+end
 
 def redefine_const( module_obj, constant_name, value )
   module_obj.send( :remove_const, constant_name )
   module_obj.send( :const_set, constant_name, value)
 end
 
-if connection.adapter_name.downcase =~ /sqlite/
+[ MasterDB, DB ].each do | dbC |
   
-  redefine_const( DB::Timestamp, :Day, connection.quote( DB::Timestamp::Day ).freeze )
-  redefine_const( DB::Timestamp, :Hour, connection.quote( DB::Timestamp::Hour ).freeze )
-  redefine_const( DB::Timestamp, :Minute, connection.quote( DB::Timestamp::Minute ).freeze )
-  redefine_const( DB::Timestamp, :Second, connection.quote( DB::Timestamp::Second ).freeze )
-  redefine_const( DB::Engine, :MyISAM, nil )
-  redefine_const( DB::Engine, :InnoDB, nil )
-  redefine_const( DB::Insert, :Ignore, 'INSERT OR IGNORE '.freeze )
+  next unless dbC::Connection.adapter_name.downcase =~ /sqlite/
+  
+  connection = dbC::Connection
+  
+  redefine_const( dbC::Timestamp, :Day, connection.quote( dbC::Timestamp::Day ).freeze )
+  redefine_const( dbC::Timestamp, :Hour, connection.quote( dbC::Timestamp::Hour ).freeze )
+  redefine_const( dbC::Timestamp, :Minute, connection.quote( dbC::Timestamp::Minute ).freeze )
+  redefine_const( dbC::Timestamp, :Second, connection.quote( dbC::Timestamp::Second ).freeze )
+  redefine_const( dbC::Engine, :MyISAM, nil )
+  redefine_const( dbC::Engine, :InnoDB, nil )
+  redefine_const( dbC::Insert, :Ignore, 'INSERT OR IGNORE '.freeze )
   
   db = connection.instance_variable_get('@connection')
   
@@ -56,4 +66,5 @@ if connection.adapter_name.downcase =~ /sqlite/
     end
   end
   
+  dbC.send( :remove_const, :Connection )
 end

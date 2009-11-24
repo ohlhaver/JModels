@@ -227,7 +227,7 @@ class GroupGeneration < BackgroundService
     
     db.execute( DB::Insert::Ignore + 'INTO candidate_group_keywords ( group_id, keyword_id, score )
       SELECT t.group_id, t.keyword_id, t.score FROM ( 
-        SELECT candidate_groups.id AS group_id, keyword_id, COUNT( frequency ) * SUM ( frequency ) AS score FROM candidate_groups
+        SELECT candidate_groups.id AS group_id, keyword_id, ( COUNT( frequency ) * SUM( frequency ) ) AS score FROM candidate_groups
         INNER JOIN candidate_group_stories ON ( candidate_group_stories.group_id = candidate_groups.id ) 
         INNER JOIN candidate_story_keywords ON ( candidate_story_keywords.story_id = candidate_group_stories.story_id )
         GROUP BY candidate_story_keywords.keyword_id
@@ -245,7 +245,7 @@ class GroupGeneration < BackgroundService
         FROM ( SELECT  k1.*
           FROM candidate_group_keywords AS k1
           LEFT OUTER JOIN candidate_group_keywords AS k2 ON ( k2.group_id = k1.group_id AND 
-            ( k2.score > k1.score OR ( k2.score == k1.score AND k2.keyword_id < k1.keyword_id ) ) )
+            ( k2.score > k1.score OR ( k2.score = k1.score AND k2.keyword_id < k1.keyword_id ) ) )
           GROUP BY k1.keyword_id
           HAVING COUNT(*) < 3 
           ORDER BY k1.group_id ASC, k1.score DESC ) AS t 
@@ -261,7 +261,7 @@ class GroupGeneration < BackgroundService
     @final_groups = db.select_all( '
       SELECT candidate_groups.id AS pilot_story_id, 
         candidate_groups.language_id,
-        GROUP_CONCAT( category_id ) AS category_ids,
+        COALESCE( GROUP_CONCAT( category_id ), "" ) AS category_ids,
         candidate_group_top_keywords.keywords AS top_keywords,
         COUNT(*) AS story_count, 
         COUNT(DISTINCT source_id) AS source_count,
@@ -334,14 +334,14 @@ class GroupGeneration < BackgroundService
     
     session_ids = @session.id.to_s
     
-    master_db.execute( DB::Insert::Ignore + 'INTO story_group_membership_archives (
+    master_db.execute( MasterDB::Insert::Ignore + 'INTO story_group_membership_archives (
         bj_session_id, group_id, story_id, source_id, created_at, quality_rating, blub_score
       ) SELECT bj_session_id, group_id, story_id, source_id, created_at, quality_rating, blub_score
       FROM story_group_memberships WHERE bj_session_id NOT IN ('+ session_ids +')')
     
     master_db.execute( 'DELETE FROM story_group_memberships WHERE bj_session_id NOT IN ('+ session_ids + ')' )
     
-    master_db.execute( DB::Insert::Ignore + 'INTO story_group_archives ( 
+    master_db.execute( MasterDB::Insert::Ignore + 'INTO story_group_archives ( 
         group_id, bj_session_id, pilot_story_id, category_id, 
         language_id, top_keywords, story_count, source_count, 
         video_count, blog_count, opinion_count, broadness_score, 

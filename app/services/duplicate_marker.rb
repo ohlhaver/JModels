@@ -78,10 +78,12 @@ class DuplicateMarker < BackgroundService
     # Choosing the correct leader with max number of keywords
     db.transaction do
       db.execute( 'INSERT INTO duplicate_stories (id, master_id) 
-        SELECT s2.id as id, s1.id as master_id 
-          FROM duplicate_candidates AS s1 
-          INNER JOIN duplicate_candidates AS s2 ON (s1.master_id = s2.master_id)
-          GROUP BY s2.id HAVING s1.frequency = MAX (s1.frequency)' )
+        SELECT id, master_id FROM ( 
+          SELECT s2.id as id, s1.id as master_id, s1.frequency, MAX(s1.frequency) AS max_frequency
+            FROM duplicate_candidates AS s1 
+            INNER JOIN duplicate_candidates AS s2 ON (s1.master_id = s2.master_id)
+            GROUP BY s2.id HAVING s1.frequency = max_frequency
+        ) AS t ' )
       db.execute( 'UPDATE duplicate_stories SET master_id = NULL WHERE master_id = id' )
       db.execute( DB::Insert::Ignore + 'INTO duplicate_stories (id, master_id) SELECT id, NULL FROM candidate_stories' )
     end
@@ -98,7 +100,7 @@ class DuplicateMarker < BackgroundService
     #
     master_db.transaction do
       DuplicateStory.find_each do |story|
-        master_db.execute( DB::Insert::Ignore + 'INTO story_metrics ( story_id ) VALUES(' + db.quote( story.id ) + ')')
+        master_db.execute( MasterDB::Insert::Ignore + 'INTO story_metrics ( story_id ) VALUES(' + db.quote( story.id ) + ')')
         master_db.execute( 'UPDATE story_metrics SET master_id = ' + db.quote( story.master_id ) + ' WHERE story_id = ' + db.quote( story.id ) )
       end
     end

@@ -28,7 +28,7 @@ class BackgroundService
     @options = options
     @master_db = ActiveRecord::Base.connection # Defaults Rails Connection
     @cluster_db = BackgroundServiceDB.connection
-    @logger = ActiveRecord::Base.logger
+    @logger = options[:logger] || ActiveRecord::Base.logger
     @start_bm    = Benchmark.measure{}
     @run_bm      = Benchmark.measure{}
     @finalize_bm = Benchmark.measure{}
@@ -66,16 +66,15 @@ class BackgroundService
       options[:with_benchmark] = true
     end
     begin
-      options[:with_benchmark] ? start_with_benchmark( options[:start] ) : start( options[:start] )
+      options[:with_benchmark] ? start_with_benchmark( options[:start] || {} ) : start( options[:start] || {})
       yield if block_given?
-      options[:with_benchmark] ? finalize_with_benchmark( options[:finalize] ) : finalize( options[:finalize] )
+      options[:with_benchmark] ? finalize_with_benchmark( options[:finalize] || {}) : finalize( options[:finalize] || {})
     rescue StandardError => message
       logger.info( message )
       logger.debug( message.backtrace.join("\n") )
     end
     @session.update_attributes( :duration => self.duration, :running => false ) if options[:with_session]
     if options[:with_benchmark]
-      
       logger.info( "Background Service Benchmark: #{self.class.name}: Session: #{@session.id}\n" + Benchmark::Tms::CAPTION + (@start_bm + @finalize_bm).to_s )
     end
   end

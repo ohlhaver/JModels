@@ -22,6 +22,27 @@ module DB
   
 end
 
+module MasterDB
+  
+  module Timestamp
+    Day    = 'DAY'.freeze
+    Hour   = 'HOUR'.freeze
+    Minute = 'MINUTE'.freeze
+    Second = 'SECOND'.freeze
+    Engine_MyISAM = 'ENGINE MyISAM'.freeze
+  end
+  
+  module Engine
+    MyISAM = 'ENGINE MyISAM'.freeze
+    InnoDB = 'ENGINE InnoDB'.freeze
+  end
+  
+  module Insert
+    Ignore = 'INSERT IGNORE '.freeze
+  end
+  
+end
+
 # Bootstrap the Rails environment, frameworks, and default configuration
 if defined?( Rails ) && Rails.initialized?
   
@@ -67,5 +88,6 @@ else
   end
   
   ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/services' )
-
+  ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/runners' )
+  
 end

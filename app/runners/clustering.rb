@@ -1,0 +1,47 @@
+class Clustering < BackgroundRunnerPool
+  
+  def initialize( options = {} )
+    super( options )
+    
+    if options[:test]
+    
+      add_runner( 'Background Migrations', :run_once ) do
+        BackgroundMigration.new.run
+      end
+    
+      add_runner( 'Candidate Stories Generation', :run_once ) do
+        t = Story.maximum(:created_at)
+        CandidateGeneration.new( :logger => self.logger ).run( :with_session => true, :start => { :time => t } )
+      end
+    
+      add_runner( 'Duplicate Stories Marker', :run_once ) do
+        DuplicateMarker.new( :logger => self.logger ).run( :with_session => true )
+      end
+    
+      add_runner( 'Story Groups Generation', :run_once ) do
+        GroupGeneration.new( :logger => self.logger ).run( :with_session => true )
+      end
+    
+    else
+    
+      add_runner( 'Background Migrations', :run_every_day ) do
+        BackgroundMigration.new.run
+      end
+    
+      add_runner( 'Candidate Stories Generation', :run_forever ) do
+        CandidateGeneration.new( :logger => self.logger ).run( :with_session => true )
+      end
+    
+      add_runner( 'Duplicate Stories Marker', :run_forever ) do
+        DuplicateMarker.new( :logger => self.logger ).run( :with_session => true )
+      end
+    
+      add_runner( 'Story Groups Generation', :run_forever ) do
+        GroupGeneration.new( :logger => self.logger ).run( :with_session => true )
+      end
+    
+    end
+    
+  end
+  
+end
