@@ -1,11 +1,11 @@
+module MasterDB
+  Connection = ActiveRecord::Base.connection
+end
+
 require 'background_service'
 
 module DB
   Connection = BackgroundServiceDB.connection
-end
-
-module MasterDB
-  Connection = ActiveRecord::Base.connection
 end
 
 def redefine_const( module_obj, constant_name, value )
