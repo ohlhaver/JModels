@@ -15,9 +15,10 @@ end
 
 [ MasterDB, DB ].each do | dbC |
   
-  next unless dbC::Connection.adapter_name.downcase =~ /sqlite/
-  
   connection = dbC::Connection
+  dbC.send( :remove_const, :Connection )
+  
+  next unless connection.adapter_name.downcase =~ /sqlite/
   
   redefine_const( dbC::Timestamp, :Day, connection.quote( dbC::Timestamp::Day ).freeze )
   redefine_const( dbC::Timestamp, :Hour, connection.quote( dbC::Timestamp::Hour ).freeze )
@@ -66,5 +67,4 @@ end
     end
   end
   
-  dbC.send( :remove_const, :Connection )
 end
