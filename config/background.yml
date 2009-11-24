@@ -24,4 +24,4 @@ production:
     database: background_db_prod
     username: jurnalo
     password: jp4t2db
-    host: 10.176.228.50
+    host: 10.176.243.221
