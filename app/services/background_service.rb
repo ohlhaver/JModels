@@ -16,10 +16,6 @@ require 'benchmark'
 #
 $background_database_config = YAML.load_file( File.join( RAILS_ROOT, '/config/background.yml' ) )
 
-class ActiveRecord::Base
-  self.establish_connection
-end
-
 class BackgroundServiceDB < ActiveRecord::Base
   self.establish_connection( $background_database_config[ RAILS_ENV ] ) 
 end

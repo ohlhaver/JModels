@@ -6,7 +6,8 @@ class Clustering < BackgroundRunnerPool
     if options[:test]
     
       add_runner( 'Background Migrations', :run_once ) do
-        BackgroundMigration.new.run
+        BackgroundMigration.new.clear_database
+        BackgroundMigration.new( :logger => self.logger ).run
       end
     
       add_runner( 'Candidate Stories Generation', :run_once ) do
@@ -14,30 +15,38 @@ class Clustering < BackgroundRunnerPool
         CandidateGeneration.new( :logger => self.logger ).run( :with_session => true, :start => { :time => t } )
       end
     
-      add_runner( 'Duplicate Stories Marker', :run_once ) do
-        DuplicateMarker.new( :logger => self.logger ).run( :with_session => true )
+      add_runner( 'Duplicate Deletion Within Source', :run_once ) do
+        DuplicateDeletion.new( :logger => self.logger ).run( :with_session => true )
       end
     
       add_runner( 'Story Groups Generation', :run_once ) do
         GroupGeneration.new( :logger => self.logger ).run( :with_session => true )
       end
+      
+      add_runner( 'Duplicate Marker Across Source', :run_once ) do
+        DuplicateMarker.new( :logger => self.logger ).run( :with_session => true )
+      end
     
     else
-    
+      
       add_runner( 'Background Migrations', :run_every_day ) do
-        BackgroundMigration.new.run
+        BackgroundMigration.new( :logger => self.logger ).run
       end
     
       add_runner( 'Candidate Stories Generation', :run_forever ) do
         CandidateGeneration.new( :logger => self.logger ).run( :with_session => true )
       end
     
-      add_runner( 'Duplicate Stories Marker', :run_forever ) do
-        DuplicateMarker.new( :logger => self.logger ).run( :with_session => true )
+      add_runner( 'Duplicate Deletion Within Source', :run_forever ) do
+        DuplicateDeletion.new( :logger => self.logger ).run( :with_session => true )
       end
     
       add_runner( 'Story Groups Generation', :run_forever ) do
         GroupGeneration.new( :logger => self.logger ).run( :with_session => true )
+      end
+      
+      add_runner( 'Duplicate Marker Across Source', :run_forever ) do
+        DuplicateMarker.new( :logger => self.logger ).run( :with_session => true )
       end
     
     end

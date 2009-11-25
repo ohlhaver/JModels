@@ -8,6 +8,8 @@ class CandidateGeneration < BackgroundService
   def initialize( options = {} )
     super(options)
     @keyword_caches = Hash.new{ |h,k| h[k] = ActiveSupport::Cache::MemoryStore.new }
+    @title_hash_map = ActiveSupport::Cache::MemoryStore.new
+    @duplicate_groups = Hash.new
     @story_titles = Hash.new
     @story_languages = Hash.new
   end
@@ -39,7 +41,7 @@ class CandidateGeneration < BackgroundService
     last_story_found_at = 24.hours.ago( time ) if last_story_found_at.nil? || last_story_found_at < 24.hours.ago( time )
     last_story_found_at -= 5.minutes # 5.minutes backlog
     
-    attributes = [ :id, :language_id, :source_id, :category_id, :is_video, :is_blog, :is_opinion, :thumbnail_exists, :quality_rating, :master_id, :created_at, :keyword_exists ]
+    attributes = [ :id, :title_hash, :language_id, :source_id, :category_id, :is_video, :is_blog, :is_opinion, :thumbnail_exists, :quality_rating, :master_id, :created_at, :keyword_exists ]
     
     attributes_to_select = Story.select_attributes( :id, :title, :language_id, :source_id, 'MAX(feed_categories.category_id) AS category_id', 
       :is_video, :is_blog, :is_opinion, :thumbnail_exists, 'COALESCE( stories.quality_rating, 1) AS quality_rating', 'story_metrics.master_id', :created_at, 
@@ -55,6 +57,8 @@ class CandidateGeneration < BackgroundService
         
         story_batch.each do |story|
           @story_titles[ story.id ] = story.title
+          # storing title hash for duplicate deletion within a source
+          story.send(:write_attribute, :title_hash, story.title.hash )
           @story_languages[ story.id ] = { :code => story.send( :read_attribute, :language_code ), :id => story.language_id }
           db.execute( DB::Insert::Ignore + 'INTO candidate_stories ( ' +  column_names + ') VALUES(' + story.to_csv( *attributes ) + ')' )
         end

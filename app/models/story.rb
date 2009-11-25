@@ -4,12 +4,13 @@ class Story < ActiveRecord::Base
   belongs_to :feed
   belongs_to :language
 
-  has_many  :story_authors
+  has_many  :story_authors, :dependent => :delete_all
   has_many  :authors, :through => :story_authors, :source => :author
   
-  has_one    :story_content
-  has_one    :story_metric
-  has_one    :story_thumbnail
+  has_one    :story_content, :dependent => :delete
+  has_one    :story_metric, :dependent => :delete
+  has_one    :story_thumbnail, :dependent => :delete
+  
   has_one    :thumbnail, :through => :story_thumbnail, :source => :thumbnail
 
   validates_presence_of    :title, :url, :language_id, :source_id, :feed_id, :created_at, :story_content, :subscription_type, :on => :create

@@ -1,5 +1,11 @@
 class BackgroundMigration < BackgroundService
   
+  def clear_database
+    [ :candidate_similarities, :keyword_subscriptions, :keywords, :candidate_stories, :languages ].each do |table|
+      db.drop_table( table ) if db.table_exists?( table )
+    end
+  end
+  
   def start( options = {} )
     
     unless db.table_exists?( :languages )
@@ -13,18 +19,20 @@ class BackgroundMigration < BackgroundService
     
     unless db.table_exists?( :candidate_stories )
       db.create_table( :candidate_stories ) do |t|
-        t.integer :master_id
-        t.integer :language_id
-        t.integer :source_id
-        t.integer :category_id
-        t.boolean :is_video
-        t.boolean :is_blog
-        t.boolean :is_opinion
-        t.boolean :keyword_exists
-        t.boolean :thumbnail_exists
-        t.float   :quality_rating
+        t.integer  :title_hash, :limit => 8
+        t.integer  :master_id
+        t.integer  :language_id
+        t.integer  :source_id
+        t.integer  :category_id
+        t.boolean  :is_video
+        t.boolean  :is_blog
+        t.boolean  :is_opinion
+        t.boolean  :keyword_exists
+        t.boolean  :thumbnail_exists
+        t.float    :quality_rating
         t.datetime :created_at
       end
+      db.add_index :candidate_stories, :title_hash
     end
     
     unless db.table_exists?( :keywords )

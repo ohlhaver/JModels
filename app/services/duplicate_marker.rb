@@ -13,18 +13,38 @@ class DuplicateMarker < BackgroundService
     #
     # Step 1: Candidate Story Similarities
     #
-    # This is the bottleneck takes the maximum time
-    # Reduced this into incremental fashion
-    db.execute( DB::Insert::Ignore + 'INTO candidate_similarities (story1_id, story2_id)
-      SELECT s1.id, s2.id FROM candidate_stories AS s1, candidate_stories AS s2')
+    db.create_table :shadow_candidate_similarities, :force => true, :id => false do |t|
+      t.integer :story1_id
+      t.integer :story2_id
+      t.integer :frequency
+    end
+    
+    db.add_index :shadow_candidate_similarities, [ :story1_id, :story2_id ], :unique => true
+    
+    db.execute( 'INSERT INTO shadow_candidate_similarities (story1_id, story2_id, frequency) SELECT story1_id, story2_id, frequency FROM candidate_similarities' )
+    
+    # Finding Duplicate Stories Inside the Story Group
+    StoryGroup.current_session.find_each do |group|
+      story_ids = group.stories.all( :select => 'id' ).collect{ |x| x.id }
+      story_ids.each do |s1_id|
+        story_ids.each do |s2_id|
+          db.execute( DB::Insert::Ignore + 'INTO candidate_similarities (story1_id, story2_id) VALUES (' + db.quote_and_merge( s1_id, s2_id ) + ')' )
+        end
+      end
+    end
+    
+    db.execute( 'UPDATE candidate_similarities SET frequency = ( SELECT s.frequency FROM shadow_candidate_similarities AS s 
+      WHERE s.story1_id = candidate_similarities.story1_id AND s.story2_id = candidate_similarities.story2_id )' )
+    
+    db.drop_database( :shadow_candidate_similarities )
     
     db.execute( 'UPDATE candidate_similarities SET frequency = ( SELECT COUNT(*) FROM keyword_subscriptions WHERE story_id = story1_id ) 
       WHERE story1_id = story2_id AND frequency IS NULL' )
-      
+    
     db.create_table( 'story_keyword_ids', :force => true ) do |t|
     end
     
-    story_ids = db.select_values( 'SELECT story1_id FROM candidate_similarities WHERE frequency IS NULL GROUP BY story1_id ORDER BY story1_id' )
+    story_ids = db.select_values( 'SELECT story1_id FROM candidate_similarities WHERE frequency IS NULL GROUP BY story1_id' )
     
     story_ids.each do | story_id |
       db.execute( 'DELETE FROM story_keyword_ids' )
@@ -36,19 +56,9 @@ class DuplicateMarker < BackgroundService
     end
     
     db.drop_table( 'story_keyword_ids' )
-      
-    # db.execute( 'UPDATE candidate_similarities SET frequency = ( SELECT COUNT(*) FROM ( SELECT keyword_id FROM keyword_subscriptions 
-    #         WHERE ( story_id = story1_id OR story_id = story2_id ) GROUP BY keyword_id HAVING COUNT(story_id) = 2 ) AS common_keywords )
-    #       WHERE story1_id != story2_id AND frequency IS NULL')
     
-    # db.execute( 'INSERT INTO candidate_similarities ( story1_id, story2_id, frequency )
-    #   SELECT  ks1.story_id AS story1_id, ks2.story_id AS story2_id, COUNT( ks1.keyword_id ) AS frequency 
-    #   FROM keyword_subscriptions AS ks1
-    #   INNER JOIN keyword_subscriptions AS ks2 ON ( ks1.keyword_id = ks2.keyword_id )
-    #   GROUP BY ks1.story_id, ks2.story_id' )
-    #  
-    # db.add_index 'candidate_similarities', [ :story1_id, :story2_id, :frequency ], :name => 'cdd_story_similarity_idx'
-    
+    logger.info( 'Candidate Similarities Table Size: ' + db.select_value( 'SELECT COUNT(*) FROM candidate_similarities' ) + ' Rows.' )
+
     #
     # Step 2: Generate Duplicate Stories Groups
     #
@@ -121,6 +131,7 @@ class DuplicateMarker < BackgroundService
     #
     master_db.transaction do
       DuplicateStory.find_each do |story|
+        next unless story.master_id
         master_db.execute( MasterDB::Insert::Ignore + 'INTO story_metrics ( story_id ) VALUES(' + db.quote( story.id ) + ')')
         master_db.execute( 'UPDATE story_metrics SET master_id = ' + db.quote( story.master_id ) + ' WHERE story_id = ' + db.quote( story.id ) )
       end

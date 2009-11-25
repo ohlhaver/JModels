@@ -50,12 +50,12 @@ class GroupGeneration < BackgroundService
     end
     
     #
-    # Select non duplicate stories and select related excerpt keywords
+    # Select stories and select related excerpt keywords
     #
     db.execute( DB::Insert::Ignore + 'INTO candidate_story_keywords ( story_id, keyword_id, frequency ) 
       SELECT keyword_subscriptions.story_id, keyword_subscriptions.keyword_id, keyword_subscriptions.excerpt_frequency
       FROM keyword_subscriptions INNER JOIN candidate_stories ON ( candidate_stories.id = keyword_subscriptions.story_id )
-      WHERE keyword_subscriptions.excerpt_frequency IS NOT NULL AND candidate_stories.master_id IS NULL' )
+      WHERE keyword_subscriptions.excerpt_frequency IS NOT NULL' )
         
     db.add_index :candidate_story_keywords, [ :keyword_id, :story_id ], :unique => true, :name => 'cdd_story_keywords_idx'
     
