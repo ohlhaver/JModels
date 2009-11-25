@@ -36,7 +36,7 @@ class BackgroundMigration < BackgroundService
     end
     
     unless db.table_exists?( :keyword_subscriptions )
-      db.create_table :keyword_subscriptions do |t|
+      db.create_table( :keyword_subscriptions, :id => false ) do |t|
         t.integer :story_id
         t.integer :keyword_id
         t.integer :frequency
@@ -44,6 +44,16 @@ class BackgroundMigration < BackgroundService
       end
       db.add_index :keyword_subscriptions, [ :story_id, :keyword_id ], :unique => true, :name => 'keyword_subscriptions_story_idx'
       db.add_index :keyword_subscriptions, [ :keyword_id, :story_id ], :unique => true, :name => 'keyword_subscriptions_kw_idx'
+    end
+    
+    unless db.table_exists?( :candidate_similarities )
+      db.create_table( 'candidate_similarities', :id => false ) do |t|
+        t.integer :story1_id
+        t.integer :story2_id
+        t.integer :frequency
+      end
+      db.add_index :candidate_similarities, [ :story1_id, :story2_id ], :unique => true, :name => 'candidate_similarities_unique_idx'
+      db.add_index :candidate_similarities, [ :story1_id, :story2_id, :frequency ], :name => 'cdd_story_similarity_idx'
     end
     
   end

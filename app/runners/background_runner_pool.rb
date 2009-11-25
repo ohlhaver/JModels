@@ -45,6 +45,7 @@ class BackgroundRunnerPool
   attr_reader :logger
   
   def initialize( options = {} )
+    ActiveRecord::Base.logger.level = 0
     @runners = Array.new
     @pause_between_iterations = options[:pause_between_iterations] || 5.seconds
     @pause_between_runners = options[:pause_between_runners] || 2.seconds

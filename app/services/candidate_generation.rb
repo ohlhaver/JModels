@@ -24,6 +24,7 @@ class CandidateGeneration < BackgroundService
     db.execute('DELETE FROM keyword_subscriptions')
     db.execute('DELETE FROM keywords' )
     db.execute('DELETE FROM candidate_stories')
+    db.execute('DELETE FROM candidate_similarities')
   end
   
   def clear_cache!
@@ -73,6 +74,8 @@ class CandidateGeneration < BackgroundService
   
   def clear_old_stories( time )
     db.execute('DELETE FROM keyword_subscriptions WHERE story_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE created_at < '+ db.quote( time ) +')')
+    db.execute('DELETE FROM candidate_similarities WHERE story1_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE created_at < '+ db.quote( time ) +')')
+    db.execute('DELETE FROM candidate_similarities WHERE story2_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE created_at < '+ db.quote( time ) +')')
     db.execute('DELETE FROM candidate_stories WHERE created_at < ' + db.quote( time ))
   end
   
