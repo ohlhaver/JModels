@@ -36,7 +36,7 @@ class DuplicateMarker < BackgroundService
     db.execute( 'UPDATE candidate_similarities SET frequency = ( SELECT s.frequency FROM shadow_candidate_similarities AS s 
       WHERE s.story1_id = candidate_similarities.story1_id AND s.story2_id = candidate_similarities.story2_id )' )
     
-    db.drop_database( :shadow_candidate_similarities )
+    db.drop_table( :shadow_candidate_similarities )
     
     db.execute( 'UPDATE candidate_similarities SET frequency = ( SELECT COUNT(*) FROM keyword_subscriptions WHERE story_id = story1_id ) 
       WHERE story1_id = story2_id AND frequency IS NULL' )

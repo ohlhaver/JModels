@@ -3,6 +3,8 @@ class Clustering < BackgroundRunnerPool
   def initialize( options = {} )
     super( options )
     
+    ActiveRecord::Base.logger.level = 0
+    
     if options[:test]
     
       add_runner( 'Background Migrations', :run_once ) do

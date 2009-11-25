@@ -4,17 +4,19 @@ class Story < ActiveRecord::Base
   belongs_to :feed
   belongs_to :language
 
-  has_many  :story_authors, :dependent => :delete_all
+  has_many  :story_authors
   has_many  :authors, :through => :story_authors, :source => :author
   
-  has_one    :story_content, :dependent => :delete
-  has_one    :story_metric, :dependent => :delete
-  has_one    :story_thumbnail, :dependent => :delete
+  has_one    :story_content
+  has_one    :story_metric
+  has_one    :story_thumbnail
   
   has_one    :thumbnail, :through => :story_thumbnail, :source => :thumbnail
 
   validates_presence_of    :title, :url, :language_id, :source_id, :feed_id, :created_at, :story_content, :subscription_type, :on => :create
   validates_inclusion_of   :subscription_type, :in => %w(public private paid)
+  
+  after_destroy :delete_dependencies
   
   named_scope :language, lambda { |language| { :conditions => { :language_id => ( language.is_a?( Language ) ? language.id : language ) } } }
   named_scope :since, lambda{ |time|  { :conditions => [ 'stories.created_at > ?', time ] } }
@@ -70,6 +72,14 @@ class Story < ActiveRecord::Base
   # def keyword_exists?
   #   story_metric && story_metric.keyword_exists?
   # end
+  
+  def delete_dependencies
+    StoryMetric.delete_all( { :story_id => self.id } )
+    StoryContent.delete_all( { :story_id => self.id } )
+    StoryAuthor.delete_all( { :story_id => self.id } )
+    StoryThumbnail.delete_all( { :story_id => self.id } )
+    StoryGroupMembership.delete_all( { :story_id => self.id } )
+  end
   
   protected
   
