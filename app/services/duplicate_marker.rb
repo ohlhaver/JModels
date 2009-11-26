@@ -134,7 +134,7 @@ class DuplicateMarker < BackgroundService
         next unless story.master_id
         master_db.execute( MasterDB::Insert::Ignore + 'INTO story_metrics ( story_id ) VALUES(' + db.quote( story.id ) + ')')
         story_metric = StoryMetric.find( :first, :conditions => { :story_id => story.id  } )
-        story_metric.update_attributes( :master_id => story.master_id ) # sphinx callback necessary
+        story_metric.update_attributes( :master_id => story.master_id ) # sphinx  & story_group_memberships callback necessary
         #master_db.execute( 'UPDATE story_metrics SET master_id = ' + db.quote( story.master_id ) + ' WHERE story_id = ' + db.quote( story.id ) )
       end
     end
