@@ -17,3 +17,4 @@ production:
     username: jurnalo
     password: jp4t2db
     host: 10.176.228.50
+    reconnect: true

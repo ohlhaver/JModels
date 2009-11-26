@@ -35,12 +35,10 @@ class BackgroundService
   end
   
   def master_db
-    @master_db.reconnect!
     @master_db
   end
   
   def cluster_db
-    @cluster_db.reconnect!
     @cluster_db
   end
   

@@ -9,6 +9,7 @@ ram:
   user: root
   password: 
   host: localhost
+  reconnect: true
 
 development:
     adapter: mysql
@@ -25,3 +26,4 @@ production:
     username: jurnalo
     password: jp4t2db
     host: 10.176.243.221
+    reconnect: true
