@@ -48,6 +48,7 @@ class CandidateGeneration < BackgroundService
       'languages.code AS language_code', "#{db.quoted_false} AS keyword_exists" )
       
     column_names = attributes.join(', ')
+    new_stories_count = 0
     
     db.transaction do
       
@@ -62,7 +63,7 @@ class CandidateGeneration < BackgroundService
           @story_languages[ story.id ] = { :code => story.send( :read_attribute, :language_code ), :id => story.language_id }
           db.execute( DB::Insert::Ignore + 'INTO candidate_stories ( ' +  column_names + ') VALUES(' + story.to_csv( *attributes ) + ')' )
         end
-        
+        new_stories_count += db.select_value('SELECT COUNT(*) FROM candidate_stories WHERE keyword_exists = ' + db.quoted_false ).to_i
         generate_keywords_for_stories
         
         @story_titles.clear
@@ -73,7 +74,8 @@ class CandidateGeneration < BackgroundService
       clear_old_stories( 24.hours.ago( time ) - 5.minutes ) # Delete stories older then 24 hours ago from now 
       
     end
-    
+    logger.info( 'New Candidates Stories Count: ' + new_stories_count )
+    logger.info( 'Total Candidate Stories Count: ' + db.select_value( 'SELECT COUNT(*) FROM candidate_stories' ) )
   end
   
   def clear_old_stories( time )

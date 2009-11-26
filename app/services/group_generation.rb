@@ -187,6 +187,7 @@ class GroupGeneration < BackgroundService
       t.integer  :story_id
       t.integer  :source_id
       t.integer  :category_id
+      t.integer  :master_id
       t.boolean  :is_video
       t.boolean  :is_blog
       t.boolean  :is_opinion
@@ -196,11 +197,11 @@ class GroupGeneration < BackgroundService
       t.float    :blub_score        # blub value ( time decay + source_rating )
     end
     
-    db.execute('INSERT INTO candidate_group_stories ( group_id, story_id, source_id, category_id, 
+    db.execute('INSERT INTO candidate_group_stories ( group_id, story_id, source_id, category_id, master_id,
         is_video, is_blog, is_opinion, thumbnail_exists, created_at, quality_rating ) 
-      SELECT tmp_group_stories_map.group_id, tmp_group_stories_map.story_id,  candidate_stories.source_id, candidate_stories.category_id,
-          candidate_stories.is_video, candidate_stories.is_blog, candidate_stories.is_opinion, candidate_stories.thumbnail_exists, 
-          candidate_stories.created_at, candidate_stories.quality_rating
+      SELECT tmp_group_stories_map.group_id, tmp_group_stories_map.story_id,  candidate_stories.source_id, candidate_stories.category_id, 
+          candidate_stories.master_id, candidate_stories.is_video, candidate_stories.is_blog, candidate_stories.is_opinion, 
+          candidate_stories.thumbnail_exists, candidate_stories.created_at, candidate_stories.quality_rating
       FROM tmp_group_stories_map 
       INNER JOIN candidate_stories ON ( candidate_stories.id =  tmp_group_stories_map.story_id )')
       
