@@ -2,7 +2,7 @@ class StoryAuthor < ActiveRecord::Base
   belongs_to  :story
   belongs_to  :author
   
-  before_save :set_delta_index_story
+  before_save :set_story_delta_flag
   after_save :set_story_delta_flag
   after_destroy :set_story_delta_flag
   
