@@ -8,7 +8,7 @@ class Clustering < BackgroundRunnerPool
     if options[:test]
     
       add_runner( 'Background Migrations', :run_once ) do
-        BackgroundMigration.new.clear_database
+        BackgroundMigration.new.clear_database # clear tables from background db only
         BackgroundMigration.new( :logger => self.logger ).run
       end
     

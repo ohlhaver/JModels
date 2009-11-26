@@ -26,12 +26,12 @@ class Story < ActiveRecord::Base
   
   # particular story
   def duplicates( *args )
-    master_id = story_metric.master_id || id
+    master_id = story_metric ? story_metric.master_id : id
+    master_id ||= id
     self.class.send(:with_scope, :find => { 
         :conditions => 
-          [ 'stories.id IN ( SELECT story_id FROM story_metrics 
-              WHERE master_id = ? OR story_id = ?) 
-                AND stories.id != ? ', master_id, master_id, id ] 
+          [ '( stories.id IN ( SELECT story_id FROM story_metrics 
+              WHERE master_id = ? ) OR stories.id = ? ) AND stories.id != ? ', master_id, master_id, id ] 
       }
     ) do
       self.class.find( *args )
