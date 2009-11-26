@@ -9,7 +9,8 @@ namespace :clustering do
       PidFile.store(  File.join( RAILS_ROOT, '/log/clustering.pid' ), Process.pid )
       File.umask 0000
       STDIN.reopen "/dev/null"
-      STDOUT.reopen File.join( RAILS_ROOT, '/log/clustering.log' ), "a"
+      #STDOUT.reopen File.join( RAILS_ROOT, '/log/clustering.log' ), "a"
+      STDOUT.reopen "/dev/null"
       STDERR.reopen STDOUT
       clustering = Clustering.new
       clustering.start
