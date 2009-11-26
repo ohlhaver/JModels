@@ -275,7 +275,7 @@ class GroupGeneration < BackgroundService
       GROUP BY candidate_groups.id HAVING source_count > 1' )
     
     # Fetch all stories and group them by group_id
-    @group_stories = db.select_all( 'SELECT group_id, story_id, thumbnail_exists, source_id, created_at, quality_rating, blub_score 
+    @group_stories = db.select_all( 'SELECT group_id, story_id, thumbnail_exists, source_id, created_at, quality_rating, blub_score, master_id 
       FROM candidate_group_stories ORDER BY group_id, blub_score' ).group_by{ |x| x['group_id'].to_i }
     
     # Fetch all pilot stories group by pilot_story_id
