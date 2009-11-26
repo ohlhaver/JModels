@@ -68,7 +68,32 @@ class GroupGeneration < BackgroundService
   #  for each story create a group of stories related to the story 
   #
   def find_and_populate_candidate_groups_per_story
-  
+    
+    #
+    # Step 1: Candidate Story Similarities
+    #
+    db.execute( DB::Insert::Ignore + 'INTO candidate_group_similarities (story1_id, story2_id) 
+      SELECT s1.id, s2.id FROM candidate_stories AS s1, candidate_stories AS s2' )
+
+    db.execute( 'UPDATE candidate_group_similarities SET frequency = ( SELECT COUNT(*) FROM candidate_story_keywords WHERE story_id = story1_id ) 
+      WHERE story1_id = story2_id AND frequency IS NULL' )
+
+    db.create_table( 'story_keyword_ids', :force => true ) do |t|
+    end
+
+    story_ids = db.select_values( 'SELECT story1_id FROM candidate_group_similarities WHERE frequency IS NULL GROUP BY story1_id' )
+
+    story_ids.each do | story_id |
+      db.execute( 'DELETE FROM story_keyword_ids' )
+      db.execute(  DB::Insert::Ignore + 'INTO story_keyword_ids (id) SELECT keyword_id FROM candidate_story_keywords WHERE story_id = ' + db.quote( story_id ) )
+      db.execute( 'UPDATE candidate_group_similarities SET frequency = ( SELECT COUNT(*) FROM story_keyword_ids 
+          INNER JOIN candidate_story_keywords ON ( story_keyword_ids.id = candidate_story_keywords.keyword_id ) 
+          WHERE story_id = candidate_group_similarities.story2_id ) 
+        WHERE frequency IS NULL AND story1_id = ' + db.quote( story_id ) )
+    end
+
+    db.drop_table( 'story_keyword_ids' )
+    
     # Step 2: Find Related Stories based on Keyword Matching and Language Specific Threshold
     db.create_table( 'related_candidates', :id => false, :force => true ) do |t|
       t.integer :story1_id
@@ -76,24 +101,29 @@ class GroupGeneration < BackgroundService
       t.integer :frequency # common to both story1_id and story2_id
     end
   
-    db.transaction do
+    #db.transaction do
+      
+    # Cluster Threshold is language specific setting. It is the minimum number of keywords that two stories must match in order to be related
+    db.execute( 'INSERT INTO related_candidates ( story1_id, story2_id, frequency ) 
+      SELECT story1_id, story2_id, frequency FROM candidate_group_similarities
+        LEFT OUTER JOIN candidate_stories ON ( candidate_stories.id = story1_id )
+        LEFT OUTER JOIN languages ON ( candidate_stories.language_id = languages.id )
+        WHERE frequency >= COALESCE( languages.cluster_threshold, 5 )' )
     
-      db.execute( DB::Insert::Ignore + 'INTO related_candidates ( story1_id, story2_id, frequency )
-        SELECT  ks1.story_id AS story1_id, ks2.story_id AS story2_id, COUNT( ks1.keyword_id ) AS frequency 
-        FROM candidate_story_keywords AS ks1
-        INNER JOIN candidate_story_keywords AS ks2 ON ( ks1.keyword_id = ks2.keyword_id )
-        GROUP BY ks1.story_id, ks2.story_id' )
+      # db.execute( DB::Insert::Ignore + 'INTO related_candidates ( story1_id, story2_id, frequency )
+      #   SELECT  ks1.story_id AS story1_id, ks2.story_id AS story2_id, COUNT( ks1.keyword_id ) AS frequency 
+      #   FROM candidate_story_keywords AS ks1
+      #   INNER JOIN candidate_story_keywords AS ks2 ON ( ks1.keyword_id = ks2.keyword_id )
+      #   GROUP BY ks1.story_id, ks2.story_id' )
+      #    
+      # db.execute( 'DELETE FROM related_candidates 
+      #   WHERE frequency < ( 
+      #     SELECT COALESCE( languages.cluster_threshold, 5 )
+      #     FROM candidate_stories 
+      #     LEFT OUTER JOIN languages ON ( candidate_stories.language_id = languages.id ) 
+      #     WHERE candidate_stories.id = story1_id )' )
     
-      # Cluster Threshold is language specific setting. It is the minimum number of keywords that two stories must match in order to be related
-    
-      db.execute( 'DELETE FROM related_candidates 
-        WHERE frequency < ( 
-          SELECT COALESCE( languages.cluster_threshold, 5 )
-          FROM candidate_stories 
-          LEFT OUTER JOIN languages ON ( candidate_stories.language_id = languages.id ) 
-          WHERE candidate_stories.id = story1_id )' )
-    
-    end
+    #end
   
     db.add_index 'related_candidates', [ :story1_id, :story2_id ], :unique => true, :name => 'related_stories_idx'
     

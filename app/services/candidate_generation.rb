@@ -8,8 +8,6 @@ class CandidateGeneration < BackgroundService
   def initialize( options = {} )
     super(options)
     @keyword_caches = Hash.new{ |h,k| h[k] = ActiveSupport::Cache::MemoryStore.new }
-    @title_hash_map = ActiveSupport::Cache::MemoryStore.new
-    @duplicate_groups = Hash.new
     @story_titles = Hash.new
     @story_languages = Hash.new
   end
@@ -74,7 +72,7 @@ class CandidateGeneration < BackgroundService
       clear_old_stories( 24.hours.ago( time ) - 5.minutes ) # Delete stories older then 24 hours ago from now 
       
     end
-    logger.info( 'New Candidates Stories Count: ' + new_stories_count )
+    logger.info( 'New Candidates Stories Count: ' + new_stories_count.to_s )
     logger.info( 'Total Candidate Stories Count: ' + db.select_value( 'SELECT COUNT(*) FROM candidate_stories' ) )
   end
   
@@ -82,6 +80,8 @@ class CandidateGeneration < BackgroundService
     db.execute('DELETE FROM keyword_subscriptions WHERE story_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE created_at < '+ db.quote( time ) +')')
     db.execute('DELETE FROM candidate_similarities WHERE story1_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE created_at < '+ db.quote( time ) +')')
     db.execute('DELETE FROM candidate_similarities WHERE story2_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE created_at < '+ db.quote( time ) +')')
+    db.execute('DELETE FROM candidate_group_similarities WHERE story1_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE created_at < '+ db.quote( time ) +')')
+    db.execute('DELETE FROM candidate_group_similarities WHERE story2_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE created_at < '+ db.quote( time ) +')')
     db.execute('DELETE FROM candidate_stories WHERE created_at < ' + db.quote( time ))
   end
   

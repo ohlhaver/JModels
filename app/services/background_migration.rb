@@ -1,7 +1,7 @@
 class BackgroundMigration < BackgroundService
   
   def clear_database
-    [ :candidate_similarities, :keyword_subscriptions, :keywords, :candidate_stories, :languages ].each do |table|
+    [ :candidate_group_similarities, :candidate_similarities, :keyword_subscriptions, :keywords, :candidate_stories, :languages ].each do |table|
       db.drop_table( table ) if db.table_exists?( table )
     end
   end
@@ -62,6 +62,15 @@ class BackgroundMigration < BackgroundService
       end
       db.add_index :candidate_similarities, [ :story1_id, :story2_id ], :unique => true, :name => 'candidate_similarities_unique_idx'
       db.add_index :candidate_similarities, [ :story1_id, :story2_id, :frequency ], :name => 'cdd_story_similarity_idx'
+    end
+    
+    unless db.table_exists?( :candidate_group_similarities )
+      db.create_table( :candidate_group_similarities, :id => false ) do |t|
+        t.integer :story1_id
+        t.integer :story2_id
+        t.integer :frequency
+      end
+      db.add_index :candidate_group_similarities, [ :story1_id, :story2_id ], :unique => true, :name => 'candidate_group_similarities_unique_idx'
     end
     
   end

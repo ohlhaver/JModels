@@ -13,30 +13,33 @@ class DuplicateMarker < BackgroundService
     #
     # Step 1: Candidate Story Similarities
     #
-    db.create_table :shadow_candidate_similarities, :force => true, :id => false do |t|
-      t.integer :story1_id
-      t.integer :story2_id
-      t.integer :frequency
-    end
     
-    db.add_index :shadow_candidate_similarities, [ :story1_id, :story2_id ], :unique => true
-    
-    db.execute( 'INSERT INTO shadow_candidate_similarities (story1_id, story2_id, frequency) SELECT story1_id, story2_id, frequency FROM candidate_similarities' )
+    # db.create_table :shadow_candidate_similarities, :force => true, :id => false do |t|
+    #   t.integer :story1_id
+    #   t.integer :story2_id
+    #   t.integer :frequency
+    # end
+    # 
+    # db.add_index :shadow_candidate_similarities, [ :story1_id, :story2_id ], :unique => true
+    # 
+    # db.execute( 'INSERT INTO shadow_candidate_similarities (story1_id, story2_id, frequency) SELECT story1_id, story2_id, frequency FROM candidate_similarities' )
+    # 
+    # db.execute( 'DELETE * FROM candidate_similarities' )
     
     # Finding Duplicate Stories Inside the Story Group
     StoryGroup.current_session.find_each do |group|
       story_ids = group.stories.all( :select => 'id' ).collect{ |x| x.id }
       story_ids.each do |s1_id|
         story_ids.each do |s2_id|
-          db.execute( DB::Insert::Ignore + 'INTO candidate_similarities (story1_id, story2_id) VALUES (' + db.quote_and_merge( s1_id, s2_id ) + ')' )
+          db.execute( 'INSERT INTO candidate_similarities (story1_id, story2_id) VALUES (' + db.quote_and_merge( s1_id, s2_id ) + ')' )
         end
       end
     end
     
-    db.execute( 'UPDATE candidate_similarities SET frequency = ( SELECT s.frequency FROM shadow_candidate_similarities AS s 
-      WHERE s.story1_id = candidate_similarities.story1_id AND s.story2_id = candidate_similarities.story2_id )' )
-    
-    db.drop_table( :shadow_candidate_similarities )
+    # db.execute( 'UPDATE candidate_similarities SET frequency = ( SELECT s.frequency FROM shadow_candidate_similarities AS s 
+    #   WHERE s.story1_id = candidate_similarities.story1_id AND s.story2_id = candidate_similarities.story2_id )' )
+    # 
+    # db.drop_table( :shadow_candidate_similarities )
     
     db.execute( 'UPDATE candidate_similarities SET frequency = ( SELECT COUNT(*) FROM keyword_subscriptions WHERE story_id = story1_id ) 
       WHERE story1_id = story2_id AND frequency IS NULL' )
