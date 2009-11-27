@@ -76,7 +76,7 @@ class GroupGeneration < BackgroundService
       # In Memory Calculations of the Keyword Frequency in Incremental Mode
       #
       while( story_ids = story_ids_groups.pop )
-        new_story_ids_in_a_group, old_story_ids_in_a_group = story_ids.split(',').partition{ |x| !new_story_ids[x].nil? }
+        new_story_ids_in_a_group, old_story_ids_in_a_group = story_ids.to_s.split(',').partition{ |x| !new_story_ids[x].nil? }
         while( s1_id = new_story_ids_in_a_group.pop )
           pair_hash[ s1_id ][ s1_id ] += 1
           new_story_ids_in_a_group.each do |s2_id|
@@ -345,9 +345,9 @@ class GroupGeneration < BackgroundService
     StoryGroup.transaction do
       @final_groups.each do | group_attributes |
         
-        category_ids = group_attributes.delete( 'category_ids' ).split(',').collect!{ |x| x.to_i }
+        category_ids = group_attributes.delete( 'category_ids' ).to_s.split(',').collect!{ |x| x.to_i }
         
-        top_keywords = group_attributes.delete( 'top_keywords' ).split(',')
+        top_keywords = group_attributes.delete( 'top_keywords' ).to_s.split(',')
         
         StoryGroup.create( group_attributes ) do | group |
           
