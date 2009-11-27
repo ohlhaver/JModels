@@ -4,7 +4,7 @@ class Feed < ActiveRecord::Base
   has_many   :feed_categories
   has_many   :categories, :through => :feed_categories, :source => :category
 
-  validates_presence_of    :id, :url, :publication, :website, :subscription_type, :language_id, :source_id
+  validates_presence_of    :id, :url, :publication, :subscription_type, :language_id, :source_id
   validates_uniqueness_of  :id, :on => :create
   validates_inclusion_of   :subscription_type, :in => %w(public private paid)
   validates_inclusion_of   :is_opinion, :in => [true,false]
