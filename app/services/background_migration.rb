@@ -52,6 +52,7 @@ class BackgroundMigration < BackgroundService
       end
       db.add_index :keyword_subscriptions, [ :story_id, :keyword_id ], :unique => true, :name => 'keyword_subscriptions_story_idx'
       db.add_index :keyword_subscriptions, [ :keyword_id, :story_id ], :unique => true, :name => 'keyword_subscriptions_kw_idx'
+      db.add_index :keyword_subscriptions, [ :excerpt_frequency, :story_id ], :name => 'excerpt_keyword_subscriptions_idx'
     end
     
     unless db.table_exists?( :candidate_similarities )
@@ -61,7 +62,9 @@ class BackgroundMigration < BackgroundService
         t.integer :frequency
       end
       db.add_index :candidate_similarities, [ :story1_id, :story2_id ], :unique => true, :name => 'candidate_similarities_unique_idx'
-      db.add_index :candidate_similarities, [ :story1_id, :story2_id, :frequency ], :name => 'cdd_story_similarity_idx'
+      db.add_index :candidate_similarities, [ :frequency, :story2_id, :story1_id ], :unique => true, :name => 'candidate_similarities_frequency_idx'
+      db.add_index :candidate_similarities, [ :story2_id ], :name => 'candidate_similarities_story2_idx'
+      db.add_index :candidate_similarities, [ :story1_id ], :name => 'candidate_similarities_story1_idx'
     end
     
     unless db.table_exists?( :candidate_group_similarities )
@@ -71,6 +74,9 @@ class BackgroundMigration < BackgroundService
         t.integer :frequency
       end
       db.add_index :candidate_group_similarities, [ :story1_id, :story2_id ], :unique => true, :name => 'candidate_group_similarities_unique_idx'
+      db.add_index :candidate_group_similarities, [ :frequency, :story2_id, :story1_id ], :unique => true, :name => 'candidte_group_similarities_frequency_idx'
+      db.add_index :candidate_group_similarities, [ :story2_id ], :name => 'candidate_group_similarities_story2_idx'
+      db.add_index :candidate_group_similarities, [ :story1_id ], :name => 'candidate_group_similarities_story1_idx'
     end
     
   end

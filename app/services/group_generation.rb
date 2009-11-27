@@ -52,32 +52,34 @@ class GroupGeneration < BackgroundService
     #
     # Select stories and select related excerpt keywords
     #
-    db.execute( DB::Insert::Ignore + 'INTO candidate_story_keywords ( story_id, keyword_id, frequency ) 
+    db.execute( 'INSERT INTO candidate_story_keywords ( story_id, keyword_id, frequency ) 
       SELECT keyword_subscriptions.story_id, keyword_subscriptions.keyword_id, keyword_subscriptions.excerpt_frequency
       FROM keyword_subscriptions INNER JOIN candidate_stories ON ( candidate_stories.id = keyword_subscriptions.story_id )
       WHERE keyword_subscriptions.excerpt_frequency IS NOT NULL' )
         
     db.add_index :candidate_story_keywords, [ :keyword_id, :story_id ], :unique => true, :name => 'cdd_story_keywords_idx'
     
-  end
-  
-  
-  #
-  # For each pair of stories find number of excerpt keywords common to both ( frequency )
-  # Based on the frequency and language specific threshold 
-  #  for each story create a group of stories related to the story 
-  #
-  def find_and_populate_candidate_groups_per_story
+    story_ids_groups = db.select_values( 'SELECT GROUP_CONCAT( story_id ) FROM candidate_story_keywords GROUP by keyword_id' )
     
-    #
-    # Step 1: Candidate Story Similarities
-    #
-    db.execute( DB::Insert::Ignore + 'INTO candidate_group_similarities (story1_id, story2_id) 
-      SELECT s1.id, s2.id FROM candidate_stories AS s1, candidate_stories AS s2' )
-
-    db.execute( 'UPDATE candidate_group_similarities SET frequency = ( SELECT COUNT(*) FROM candidate_story_keywords WHERE story_id = story1_id ) 
-      WHERE story1_id = story2_id AND frequency IS NULL' )
-
+    pair_hash = Hash.new{ |h,k| h[k] = ActiveSupport::Cache::MemoryStore.new }
+    db.transaction do
+      
+      story_ids_groups.each do | story_ids |
+        story_ids = story_ids.split(',')
+        story_ids.each do | s1_id |
+          story_ids.each do | s2_id |
+            next if pair_hash[s1_id].read( s2_id )
+            db.execute( DB::Insert::Ignore + 'INTO candidate_group_similarities (story1_id, story2_id) VALUES( ' + db.quote_and_merge( s1_id, s2_id ) + ' )' )
+            pair_hash[s1_id].write( s2_id, true )
+          end
+        end
+      end
+      
+      db.execute( 'UPDATE candidate_group_similarities SET frequency = ( SELECT COUNT(*) FROM candidate_story_keywords WHERE story_id = story1_id ) 
+        WHERE story1_id = story2_id AND frequency IS NULL' )
+    
+    end
+    
     db.create_table( 'story_keyword_ids', :force => true ) do |t|
     end
 
@@ -93,6 +95,20 @@ class GroupGeneration < BackgroundService
     end
 
     db.drop_table( 'story_keyword_ids' )
+    
+  end
+  
+  
+  #
+  # For each pair of stories find number of excerpt keywords common to both ( frequency )
+  # Based on the frequency and language specific threshold 
+  #  for each story create a group of stories related to the story 
+  #
+  def find_and_populate_candidate_groups_per_story
+    
+    #
+    # Step 1: Candidate Story Similarities
+    #
     
     # Step 2: Find Related Stories based on Keyword Matching and Language Specific Threshold
     db.create_table( 'related_candidates', :id => false, :force => true ) do |t|

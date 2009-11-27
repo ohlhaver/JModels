@@ -38,12 +38,22 @@ class DuplicateDeletion < BackgroundService
     master_story.is_opinion = stories.inject( master_story.is_opinion ){ |s,x| s = s || x.is_opinion }
     master_story.story_metric.update_attributes( :master_id => nil ) if master_story.story_metric
     master_story.save if master_story.changed?
-    db.execute( 'DELETE FROM candidate_stories WHERE id IN (' + db.quote_and_merge( *( stories.collect{ |x| x.id } ) ) + ')' )
+    delete_stories_from_background_db(  *( stories.collect{ |x| x.id } ) )
     db.execute( 'UPDATE candidate_stories SET is_blog = ' + db.quote( master_story.is_blog ) + ', is_video = ' + db.quote( master_story.is_video ) +
       ', is_opinion = ' + db.quote( master_story.is_opinion ) + ' WHERE id = ' + db.quote( master_story.id ) )
     stories.each{ |story| story.destroy }
     @duplicates_found += stories.size
     #logger.info( 'Deleted Duplicate Story: ' + stories.collect{ |x| x.id }.to_s )
+  end
+  
+  def delete_stories_from_background_db( *story_ids )
+    quoted_story_ids = db.quote_and_merge( *story_ids )
+    db.execute( 'DELETE FROM candidate_similarities WHERE story1_id IN (' + quoted_story_ids + ')' )
+    db.execute( 'DELETE FROM candidate_similarities WHERE story2_id IN (' + quoted_story_ids + ')' )
+    db.execute( 'DELETE FROM candidate_group_similarities WHERE story1_id IN (' + quoted_story_ids + ')' )
+    db.execute( 'DELETE FROM candidate_group_similarities WHERE story2_id IN (' + quoted_story_ids + ')' )
+    db.execute( 'DELETE FROM keyword_subscriptions WHERE story_id IN (' + quoted_story_ids + ')' )
+    db.execute( 'DELETE FROM candidate_stories WHERE id IN (' + quoted_story_ids + ')' )
   end
   
 end

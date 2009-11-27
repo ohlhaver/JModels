@@ -25,6 +25,7 @@ class CandidateGeneration < BackgroundService
     db.execute('DELETE FROM keywords' )
     db.execute('DELETE FROM candidate_stories')
     db.execute('DELETE FROM candidate_similarities')
+    db.execute('DELETE FROM candidate_group_similarities')
   end
   
   def clear_cache!
