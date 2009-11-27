@@ -64,7 +64,7 @@ class GroupGeneration < BackgroundService
     # For Incremental Calculations to Speed Up Things
     #
     new_story_ids = db.select_values( 'SELECT id FROM candidate_stories LEFT OUTER JOIN candidate_group_similarities 
-      ON ( story1_id = story2_id AND story1_id = id ) WHERE story1_id IS NULL' )
+      ON ( story1_id = story2_id AND story1_id = id ) WHERE story1_id IS NULL' ).group_by{ |x| x }
       
     unless new_story_ids.blank?
       
