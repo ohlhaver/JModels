@@ -96,6 +96,8 @@ class GroupGeneration < BackgroundService
 
     db.drop_table( 'story_keyword_ids' )
     
+    logger.info( 'Candidate Group Similarities Table: ' + db.select_value('SELECT COUNT(*) FROM candidate_story_keywords') + ' Rows' )
+    
   end
   
   
@@ -142,6 +144,8 @@ class GroupGeneration < BackgroundService
     #end
   
     db.add_index 'related_candidates', [ :story1_id, :story2_id ], :unique => true, :name => 'related_stories_idx'
+    
+    logger.info( 'Related Candidates Table: ' + db.select_value('SELECT COUNT(*) FROM related_candidates') + ' Rows' )
     
     db.create_table( 'candidate_groups', :force => true ) do |t|
       t.integer :story_count

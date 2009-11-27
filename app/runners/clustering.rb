@@ -6,12 +6,14 @@ class Clustering < BackgroundRunnerPool
     ActiveRecord::Base.logger.level = 0
     
     if options[:test]
-    
-      add_runner( 'Background Migrations', :run_once ) do
-        BackgroundMigration.new.clear_database # clear tables from background db only
-        BackgroundMigration.new( :logger => self.logger ).run
+      
+      unless options[:skip_migration]
+        add_runner( 'Background Migrations', :run_once ) do
+          BackgroundMigration.new.clear_database # clear tables from background db only
+          BackgroundMigration.new( :logger => self.logger ).run
+        end
       end
-    
+      
       add_runner( 'Candidate Stories Generation', :run_once ) do
         t = Story.maximum(:created_at)
         CandidateGeneration.new( :logger => self.logger ).run( :with_session => true, :start => { :time => t } )

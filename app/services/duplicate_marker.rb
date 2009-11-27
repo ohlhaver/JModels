@@ -31,7 +31,7 @@ class DuplicateMarker < BackgroundService
       story_ids = group.stories.all( :select => 'id' ).collect{ |x| x.id }
       story_ids.each do |s1_id|
         story_ids.each do |s2_id|
-          db.execute( 'INSERT INTO candidate_similarities (story1_id, story2_id) VALUES (' + db.quote_and_merge( s1_id, s2_id ) + ')' )
+          db.execute( DB::Insert::Ignore + 'INTO candidate_similarities (story1_id, story2_id) VALUES (' + db.quote_and_merge( s1_id, s2_id ) + ')' )
         end
       end
     end

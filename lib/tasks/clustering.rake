@@ -33,12 +33,21 @@ namespace :clustering do
   task :restart => [ :stop, :start ] do
   end
   
-  desc "Test Clustering Algorithm: Run Once and Run in foreground"
+  
+  desc "Test Clustering Algorithm: Run Once and Run in foreground ( Background DB Data is Lost )"
   task :test => :environment do
     clustering = Clustering.new( :test => true, :logfile => STDOUT )
     clustering.start
     puts "Duplicates Count: #{Story.duplicates.count}"
     puts "Groups Count: #{StoryGroup.current_session.count}"
   end
-
+  
+  desc "Test Incremental Clustering Algorithm: Run Once and Run in foregroeund ( Background DB Data IS NOT lost)"
+  task :test_inc => :environment do
+    clustering = Clustering.new( :test => true, :skip_migration => true, :logfile => STDOUT)
+    clustering.start
+    puts "Duplicates Count: #{Story.duplicates.count}"
+    puts "Groups Count: #{StoryGroup.current_session.count}"
+  end
+  
 end
