@@ -58,43 +58,50 @@ class GroupGeneration < BackgroundService
       WHERE keyword_subscriptions.excerpt_frequency IS NOT NULL' )
         
     db.add_index :candidate_story_keywords, [ :keyword_id, :story_id ], :unique => true, :name => 'cdd_story_keywords_idx'
+    db.add_index :candidate_story_keywords, :story_id, :name => 'cdd_story_keywords_idx2'
     
-    story_ids_groups = db.select_values( 'SELECT GROUP_CONCAT( story_id ) FROM candidate_story_keywords GROUP by keyword_id' )
-    
-    pair_hash = Hash.new{ |h,k| h[k] = ActiveSupport::Cache::MemoryStore.new }
-    db.transaction do
+    #
+    # For Incremental Calculations to Speed Up Things
+    #
+    new_story_ids = db.select_values( 'SELECT story_id FROM candidate_story_keywords 
+      WHERE story_id NOT IN ( SELECT story1_id FROM candidate_group_similarities GROUP BY story1_id) GROUP BY story_id' ).group_by{ |x| x }
       
-      story_ids_groups.each do | story_ids |
-        story_ids = story_ids.split(',')
-        story_ids.each do | s1_id |
-          story_ids.each do | s2_id |
-            next if pair_hash[s1_id].read( s2_id )
-            db.execute( DB::Insert::Ignore + 'INTO candidate_group_similarities (story1_id, story2_id) VALUES( ' + db.quote_and_merge( s1_id, s2_id ) + ' )' )
-            pair_hash[s1_id].write( s2_id, true )
+    unless new_story_ids.blank?
+      
+      story_ids_groups = db.select_values( 'SELECT GROUP_CONCAT( story_id ) FROM candidate_story_keywords GROUP by keyword_id' )
+    
+      pair_hash = Hash.new{ |h,k| h[k] = Hash.new{ |sh, sk| sh[sk] = 0 } } # Pairwise Frequency Count Holder
+    
+      #
+      # In Memory Calculations of the Keyword Frequency in Incremental Mode
+      #
+      while( story_ids = story_ids_groups.pop )
+        new_story_ids_in_a_group, old_story_ids_in_a_group = story_ids.split(',').partition{ |x| !new_story_ids[x].nil? }
+        while( s1_id = new_story_ids_in_a_group.pop )
+          pair_hash[ s1_id ][ s1_id ] += 1
+          new_story_ids_in_a_group.each do |s2_id|
+            pair_hash[s1_id][s2_id] += 1
+            pair_hash[s2_id][s1_id] += 1
+          end if new_story_ids_in_a_group.any?
+          old_story_ids_in_a_group.each do |s2_id|
+            pair_hash[s1_id][s2_id] += 1
+            pair_hash[s2_id][s1_id] += 1
+          end if old_story_ids_in_a_group.any?
+        end
+      end
+    
+      new_story_ids.clear
+    
+      db.transaction do
+        pair_hash.each do | s1_id, s1_hash |
+          s1_hash.each do | s2_id, frequency |
+            db.execute( DB::Insert::Ignore + 'INTO candidate_group_similarities (story1_id, story2_id, frequency ) VALUES( ' +
+              db.quote_and_merge( s1_id, s2_id, frequency ) + ')' )
           end
         end
       end
       
-      db.execute( 'UPDATE candidate_group_similarities SET frequency = ( SELECT COUNT(*) FROM candidate_story_keywords WHERE story_id = story1_id ) 
-        WHERE story1_id = story2_id AND frequency IS NULL' )
-    
     end
-    
-    db.create_table( 'story_keyword_ids', :force => true ) do |t|
-    end
-
-    story_ids = db.select_values( 'SELECT story1_id FROM candidate_group_similarities WHERE frequency IS NULL GROUP BY story1_id' )
-
-    story_ids.each do | story_id |
-      db.execute( 'DELETE FROM story_keyword_ids' )
-      db.execute(  DB::Insert::Ignore + 'INTO story_keyword_ids (id) SELECT keyword_id FROM candidate_story_keywords WHERE story_id = ' + db.quote( story_id ) )
-      db.execute( 'UPDATE candidate_group_similarities SET frequency = ( SELECT COUNT(*) FROM story_keyword_ids 
-          INNER JOIN candidate_story_keywords ON ( story_keyword_ids.id = candidate_story_keywords.keyword_id ) 
-          WHERE story_id = candidate_group_similarities.story2_id ) 
-        WHERE frequency IS NULL AND story1_id = ' + db.quote( story_id ) )
-    end
-
-    db.drop_table( 'story_keyword_ids' )
     
     logger.info( 'Candidate Group Similarities Table: ' + db.select_value('SELECT COUNT(*) FROM candidate_story_keywords') + ' Rows' )
     
