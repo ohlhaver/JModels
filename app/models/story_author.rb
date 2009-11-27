@@ -9,7 +9,7 @@ class StoryAuthor < ActiveRecord::Base
   protected
   
   def set_delta_index_story
-    @delta_index_story = name_changed?
+    @delta_index_story = author_id_changed?
     return true
   end
   
