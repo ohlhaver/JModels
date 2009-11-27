@@ -16,7 +16,7 @@ class Author < ActiveRecord::Base
     authors = []
     author_names.each do |a_n|
       a_n = a_n[0, 100] # author names are truncated at 100 chars
-      a = self.find( a_n )
+      a = self.find( :first, :conditions => { :name => a_n } )
       a_n = a_n.chars.upcase.to_s
       a ||= self.find_or_initialize_by_name( a_n )
       if a.new_record?
