@@ -63,15 +63,15 @@ class GroupGeneration < BackgroundService
     #
     # For Incremental Calculations to Speed Up Things
     #
-    new_story_ids = db.select_values( 'SELECT story_id FROM candidate_story_keywords 
-      WHERE story_id NOT IN ( SELECT story1_id FROM candidate_group_similarities GROUP BY story1_id) GROUP BY story_id' ).group_by{ |x| x }
+    new_story_ids = db.select_values( 'SELECT id FROM candidate_stories LEFT OUTER JOIN candidate_group_similarities 
+      ON ( story1_id = story2_id AND story1_id = id ) WHERE story1_id IS NULL' )
       
     unless new_story_ids.blank?
       
       story_ids_groups = db.select_values( 'SELECT GROUP_CONCAT( story_id ) FROM candidate_story_keywords GROUP by keyword_id' )
-    
+      
       pair_hash = Hash.new{ |h,k| h[k] = Hash.new{ |sh, sk| sh[sk] = 0 } } # Pairwise Frequency Count Holder
-    
+      
       #
       # In Memory Calculations of the Keyword Frequency in Incremental Mode
       #

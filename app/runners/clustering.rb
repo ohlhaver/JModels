@@ -3,7 +3,7 @@ class Clustering < BackgroundRunnerPool
   def initialize( options = {} )
     super( options )
     
-    ActiveRecord::Base.logger.level = 0
+    #ActiveRecord::Base.logger.level = 0
     
     if options[:test]
       
