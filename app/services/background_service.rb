@@ -75,7 +75,8 @@ class BackgroundService
     end
     @session.update_attributes( :duration => self.duration, :running => false ) if options[:with_session]
     if options[:with_benchmark]
-      logger.info( "Background Service Benchmark: #{self.class.name}: Session: #{@session.id}\n" + Benchmark::Tms::CAPTION + (@start_bm + @finalize_bm).to_s )
+      session_str = @session ? "Session: #{@session.id}\n" : "\n"
+      logger.info( "Background Service Benchmark: #{self.class.name}: " + Benchmark::Tms::CAPTION + (@start_bm + @finalize_bm).to_s )
     end
   end
   

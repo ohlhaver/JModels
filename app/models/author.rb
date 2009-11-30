@@ -20,7 +20,7 @@ class Author < ActiveRecord::Base
       a_n = a_n.chars.upcase.to_s
       a ||= self.find_or_initialize_by_name( a_n )
       if a.new_record?
-        a.is_agency = false
+        a.is_agency =  JCore::Clean.agency?( a_n )
         a = a.save ? a : nil
       end
       authors.push( a ) if a
