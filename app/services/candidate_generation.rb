@@ -79,6 +79,7 @@ class CandidateGeneration < BackgroundService
     end
     logger.info( 'New Candidates Stories Count: ' + new_stories_count.to_s )
     logger.info( 'Total Candidate Stories Count: ' + db.select_value( 'SELECT COUNT(*) FROM candidate_stories' ) )
+    $new_stories_count = new_stories_count
   end
   
   def clear_old_stories( time )

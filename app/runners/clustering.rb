@@ -2,7 +2,7 @@ class Clustering < BackgroundRunnerPool
   
   def initialize( options = {} )
     super( options )
-    
+    $new_stories_count = 0
     #ActiveRecord::Base.logger.level = 0
     
     if options[:test]
@@ -42,15 +42,21 @@ class Clustering < BackgroundRunnerPool
       end
     
       add_runner( 'Duplicate Deletion Within Source', :run_forever ) do
-        DuplicateDeletion.new( :logger => self.logger ).run( :with_session => true )
+        unless $new_stories_count == 0
+          DuplicateDeletion.new( :logger => self.logger ).run( :with_session => true )
+        end
       end
     
       add_runner( 'Story Groups Generation', :run_forever ) do
-        GroupGeneration.new( :logger => self.logger ).run( :with_session => true )
+        unless $new_stories_count == 0
+          GroupGeneration.new( :logger => self.logger ).run( :with_session => true )
+        end
       end
       
       add_runner( 'Duplicate Marker Across Source', :run_forever ) do
-        DuplicateMarker.new( :logger => self.logger ).run( :with_session => true )
+        unless $new_stories_count == 0
+          DuplicateMarker.new( :logger => self.logger ).run( :with_session => true )
+        end
       end
     
     end
