@@ -58,7 +58,6 @@ class GroupGeneration < BackgroundService
       WHERE keyword_subscriptions.excerpt_frequency IS NOT NULL' )
         
     db.add_index :candidate_story_keywords, [ :keyword_id, :story_id ], :unique => true, :name => 'cdd_story_keywords_idx'
-    db.add_index :candidate_story_keywords, :story_id, :name => 'cdd_story_keywords_idx2'
     
     #
     # For Incremental Calculations to Speed Up Things
