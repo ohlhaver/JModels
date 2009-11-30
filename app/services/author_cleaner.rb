@@ -17,6 +17,7 @@ class AuthorCleaner < BackgroundService
       end
       progress += 1
       logger.info( "#{progress} / #{total} Authors Processed") if ( progress % 500 == 0 )
+      break if parent && parent.send(:exit?)
     end
   end
   
@@ -28,12 +29,10 @@ class AuthorCleaner < BackgroundService
   protected
   
   def migrate_author( source, target )
-    source.save && return if target.nil? || target.id == source.id
+    Author.update_all("name = '#{source.name}'", { :id => source.id }) && return if target.nil? || target.id == source.id
     logger.info( "[#{source.name_was}:#{source.id}] => [#{target.name}:#{target.id}]")
-    StoryAuthor.transaction do
-      source.story_authors.each{ |sa| sa.update_attributes( :author_id => target.id ) }
-    end
-    source.destroy
+    StoryAuthor.update_all( "author_id = '#{target.id}'", { :author_id => source.id } )
+    Author.delete( source.id )
     @migrate_count += 1
   end
   
@@ -44,12 +43,13 @@ class AuthorCleaner < BackgroundService
     end
     target = targets.pop
     StoryAuthor.transaction do
-      source.story_authors.each{ |sa| 
-        sa.update_attributes( :author_id => target.id )
-        targets.each{ |t| StoryAuthor.create( :story_id => sa.story_id, :author_id => t.id ) }
+      source.story_authors.each{ |sa|
+        targets.each{ |t| master_db.execute("INSERT INTO story_authors( story_id, author_id ) VALUES( #{sa.story_id}, #{t.id} )") }
       }
+      StoryAuthor.update_all( "author_id = '#{target.id}'", { :author_id => source.id } )
     end
-    source.destroy
+    
+    Author.delete( source.id )
     @split_author_count += 1
   end
   

@@ -26,12 +26,17 @@ class BackgroundService
   
   def initialize( options = {})
     @options = options
+    @parent = options[:parent]
     @master_db = ActiveRecord::Base.connection # Defaults Rails Connection
     @cluster_db = BackgroundServiceDB.connection
     @logger = options[:logger] || ActiveRecord::Base.logger
     @start_bm    = Benchmark.measure{}
     @run_bm      = Benchmark.measure{}
     @finalize_bm = Benchmark.measure{}
+  end
+  
+  def parent
+    @parent
   end
   
   def master_db
