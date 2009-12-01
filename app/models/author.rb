@@ -14,17 +14,21 @@ class Author < ActiveRecord::Base
   
   def self.create_or_find(author_names)
     authors = []
-    author_names.each do |a_n|
-      a_n = a_n[0, 100] # author names are truncated at 100 chars
-      a = self.find( :first, :conditions => { :name => a_n } )
-      a_n = a_n.chars.upcase.to_s
-      a ||= self.find_or_initialize_by_name( a_n )
-      if a.new_record?
-        a.is_agency =  JCore::Clean.agency?( a_n )
-        a = a.save ? a : nil
+    author_names.each do |name|
+      a_ns = Array( JCore::Clean.author( name ) )
+      a_ns.each do |a_n|
+        a_n = a_n[0, 100] # author names are truncated at 100 chars
+        a = self.find( :first, :conditions => { :name => a_n } )
+        a_n = a_n.chars.upcase.to_s
+        a ||= self.find_or_initialize_by_name( a_n )
+        if a.new_record?
+          a.is_agency =  JCore::Clean.agency?( a_n )
+          a = a.save ? a : nil
+        end
+        authors.push( a ) if a
       end
-      authors.push( a ) if a
     end
+    authors.uniq!
     return authors
   end
   

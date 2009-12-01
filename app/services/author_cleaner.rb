@@ -29,7 +29,7 @@ class AuthorCleaner < BackgroundService
   protected
   
   def migrate_author( source, target )
-    Author.update_all("name = '#{source.name}'", { :id => source.id }) && return if target.nil? || target.id == source.id
+    Author.update_all("name = #{master_db.quote(source.name)}", { :id => source.id }) && return if target.nil? || target.id == source.id
     logger.info( "[#{source.name_was}:#{source.id}] => [#{target.name}:#{target.id}]")
     StoryAuthor.update_all( "author_id = '#{target.id}'", { :author_id => source.id } )
     Author.delete( source.id )
