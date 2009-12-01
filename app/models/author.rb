@@ -11,7 +11,7 @@ class Author < ActiveRecord::Base
   validates_presence_of :name
   
   validates_uniqueness_of :name, :if => Proc.new{|r| !r.skip_uniqueness_validation }
-  validate :uniqueness_of_name_in_aliases, :on => :create, :if => Proc.new{ |r| !r.skip_uniqueness_validation }
+  validate_on_create :uniqueness_of_name_in_aliases, :if => Proc.new{ |r| !r.skip_uniqueness_validation }
   
   define_index do
     indexes :name, :as => :name
@@ -58,6 +58,8 @@ class Author < ActiveRecord::Base
   end
   
   def uniqueness_of_name_in_aliases
+    #author_alias_author_id = AuthorAlias.find(:first, :conditions => { :name => name.chars.upcase.to_s }, :select => 'author_id' ).try( :author_id )
+    #errors.add( :name, :taken ) if author_alias_author_id && self.id != author_alias_author_id
     errors.add( :name, :taken ) if AuthorAlias.exists?( { :name => name.chars.upcase.to_s } )
   end
   
