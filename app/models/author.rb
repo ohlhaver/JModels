@@ -1,10 +1,21 @@
 class Author < ActiveRecord::Base
   
+  attr_accessor :skip_uniqueness_validation
+  
   has_many  :story_authors
   has_many  :stories, :through => :story_authors, :source => :story
+  has_many  :aliases, :class_name => 'AuthorAlias'
+  
+  after_create :create_default_author_alias
+  
+  validates_presence_of :name
+  
+  validates_uniqueness_of :name, :if => Proc.new{|r| !r.skip_uniqueness_validation }
+  validate :uniqueness_of_name_in_aliases, :on => :create, :if => Proc.new{ |r| !r.skip_uniqueness_validation }
   
   define_index do
     indexes :name, :as => :name
+    indexes aliases(:name), :as => :aliases
     set_property :delta => :delayed
   end
   
@@ -12,27 +23,44 @@ class Author < ActiveRecord::Base
   after_save :set_story_delta_flag
   after_destroy :set_story_delta_flag
   
-  def self.create_or_find(author_names)
+  def self.create_or_find( author_names )
     authors = []
     author_names.each do |name|
       a_ns = Array( JCore::Clean.author( name ) )
       a_ns.each do |a_n|
         a_n = a_n[0, 100] # author names are truncated at 100 chars
-        a = self.find( :first, :conditions => { :name => a_n } )
         a_n = a_n.chars.upcase.to_s
         a ||= self.find_or_initialize_by_name( a_n )
         if a.new_record?
           a.is_agency =  JCore::Clean.agency?( a_n )
-          a = a.save ? a : nil
+          a = ( a.save && !a.frozen? ) ? a : self.find_or_initialize_by_name( a_n )
         end
-        authors.push( a ) if a
+        authors.push( a ) unless a.new_record?
       end
     end
     authors.uniq!
     return authors
   end
   
+  # First look at the AuthorAlias Table
+  # Then look at Authors Table
+  # If not found Initialize the new object
+  def self.find_or_initialize_by_name( name )
+    author_alias = AuthorAlias.find( :first, :conditions => { :name => name } )
+    author = ( author_alias.try( :author ) || find( :first, :conditions => { :name => name } ) || new( :name => name, :skip_uniqueness_validation => true ) )
+  end
+  
   protected
+  
+  def create_default_author_alias
+    success = AuthorAlias.create!( :name => self.name, :author_id => self.id, :skip_uniqueness_validation => true ) rescue false
+    self.destroy unless success
+  end
+  
+  def uniqueness_of_name_in_aliases
+    errors.add( :name, :taken ) if AuthorAlias.exists?( { :name => name.chars.upcase.to_s } )
+  end
+  
   
   def set_delta_index_story
     @delta_index_story = name_changed?
