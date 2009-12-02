@@ -42,6 +42,8 @@ namespace :thinking_sphinx do
         STDOUT.reopen File.join( File.dirname(__FILE__), '/log/delayed_delta.log' ), "a"
         STDERR.reopen STDOUT
         require 'delayed_job'
+        ActiveRecord::Base.connection.reconnect!  
+        BackgroundServiceDB.connection.reconnect! # Due to fork and MySQL Gone Away
         Delayed::Worker.new(
          :min_priority => ENV['MIN_PRIORITY'],
          :max_priority => ENV['MAX_PRIORITY']

@@ -39,10 +39,11 @@ class Story < ActiveRecord::Base
   end
   
   define_index do
-    indexes :title, :as => :title
+    indexes :title, :as => :title, :sortable => true
     indexes story_content(:body), :as => :content
     indexes story_authors.author(:name), :as => :authors
     # Attributes over which search results can be limited
+    has :id, :as => :story_id
     has :created_at
     has :is_video
     has :is_blog

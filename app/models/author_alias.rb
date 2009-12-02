@@ -3,10 +3,15 @@ class AuthorAlias < ActiveRecord::Base
   attr_accessor :skip_uniqueness_validation
   
   belongs_to :author
-  before_save :upcase_name
+  before_validation :upcase_name
   
   validates_presence_of :name
   validates_uniqueness_of :name, :if => Proc.new{ |r| !r.skip_uniqueness_validation }
+  validates_presence_of :author_id
+  
+  after_create :set_delta_index_flag
+  after_destroy :set_delta_index_flag
+  before_update :set_delta_index_flag, :if => Proc.new{ |r| r.name_changed? }
   
   def self.populate_missing
     transaction { 
@@ -18,8 +23,12 @@ class AuthorAlias < ActiveRecord::Base
   
   protected
   
+  def set_delta_index_flag
+    author.update_attributes( :delta => true ) if author
+  end
+  
   def upcase_name
-    self.name = name.chars.upcase.to_s
+    self.name = name.chars.upcase.to_s if name
   end
   
 end

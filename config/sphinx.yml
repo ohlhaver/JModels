@@ -2,7 +2,6 @@ development:
   mem_limit: 128M
   address: 127.0.0.1
   port: 3312
-  enable_star: true
   max_matches: 10000
   charset_type: utf-8
   searchd_file_path: "/Users/ram/Workspace/jurnalo/JModels/db/sphinx"

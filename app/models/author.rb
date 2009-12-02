@@ -14,8 +14,10 @@ class Author < ActiveRecord::Base
   validate_on_create :uniqueness_of_name_in_aliases, :if => Proc.new{ |r| !r.skip_uniqueness_validation }
   
   define_index do
-    indexes :name, :as => :name
+    indexes :name, :as => :name, :sortable => true
     indexes aliases(:name), :as => :aliases
+    has :is_agency
+    has :id, :as => :author_id
     set_property :delta => :delayed
   end
   

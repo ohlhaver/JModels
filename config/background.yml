@@ -12,12 +12,7 @@ ram:
   reconnect: true
 
 development:
-    adapter: mysql
-    encoding: utf8
-    database: temp_db2
-    username: root
-    password: root
-    socket: /var/run/mysqld/mysqld.sock
+  &ram
 
 production:
     adapter: mysql
