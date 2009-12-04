@@ -26,6 +26,7 @@ namespace :clustering do
     pid = PidFile.recall( pid_file )
     FileUtils.rm( pid_file ) rescue nil
     pid && Process.kill( "TERM", pid )
+    sleep(20)
     puts "Clustering Service Stopped"
   end
   
