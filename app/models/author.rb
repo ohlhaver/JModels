@@ -80,7 +80,7 @@ class Author < ActiveRecord::Base
   
   def merge_author( author )
     return unless author.is_a?( Author )
-    StoryAuthor.transaction do
+    #StoryAuthor.transaction do
       Story.update_all( "delta = #{Story.connection.quoted_true}", 
         [ 'id IN ( SELECT story_id FROM story_authors WHERE author_id = :author_id )', { :author_id => author.id } ] )
       StoryAuthor.update_all( "author_id = '#{self.id}'", { :author_id => author.id } )
@@ -89,7 +89,7 @@ class Author < ActiveRecord::Base
       author.destroy
       self.update_attribute( :delta, true )
       self.stories.find_each( :conditions => { :delta => true } ){  |story| story.update_attribute( :delta, true ) }
-    end
+    #end
   end
   
   def create_default_author_alias
