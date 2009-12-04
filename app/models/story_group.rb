@@ -2,6 +2,8 @@ class StoryGroup < ActiveRecord::Base
   
   serialize :top_keywords
   
+  belongs_to :language
+  
   has_many :memberships, :class_name => 'StoryGroupMembership', :foreign_key => 'group_id', :dependent => :delete_all
   
   has_many :stories, :through => :memberships, :source => :story, :order => 'blub_score DESC, story_group_memberships.created_at DESC' do

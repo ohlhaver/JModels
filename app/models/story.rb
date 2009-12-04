@@ -11,6 +11,9 @@ class Story < ActiveRecord::Base
   has_one    :story_metric
   has_one    :story_thumbnail
   
+  has_many :story_group_memberships
+  has_many :story_groups, :through => :story_group_memberships, :source => :story_group
+  
   has_one    :thumbnail, :through => :story_thumbnail, :source => :thumbnail
 
   validates_presence_of    :title, :url, :language_id, :source_id, :feed_id, :created_at, :story_content, :subscription_type, :on => :create
@@ -56,6 +59,14 @@ class Story < ActiveRecord::Base
     has story_metric(:master_id), :as => :master_id
     set_property :delta => :delayed
   end
+  
+  # To overcome thinking sphinx bug where deleted item is not flagged from story_core index
+  def destroy_with_ts_bugfix
+    update_attribute( :delta, true )
+    destroy_without_ts_bugfix
+  end
+  
+  alias_method_chain :destroy, :ts_bugfix
   
   # def mark_duplicate( master_id )
   #   master_id = nil if master_id.to_i == id.to_i

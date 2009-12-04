@@ -24,11 +24,11 @@ class AuthorAlias < ActiveRecord::Base
   protected
   
   def set_delta_index_flag
-    author.update_attributes( :delta => true ) if author
+    author.update_attribute( :delta, true ) if author
   end
   
   def upcase_name
-    self.name = name.chars.upcase.to_s if name
+    self.name = name.chars.gsub(/\s+/, ' ').strip.upcase.to_s if name
   end
   
 end
