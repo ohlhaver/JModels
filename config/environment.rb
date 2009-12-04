@@ -65,7 +65,7 @@ if defined?( Rails ) && Rails.initialized?
   require 'algorithms'
   
   Dir[ File.join( RAILS_ROOT ,'app/models/*.rb' ) ].each do |model_file|
-    load model_file
+    require model_file
   end
   
   ActiveSupport::Dependencies.load_paths.shift

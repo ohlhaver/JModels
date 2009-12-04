@@ -61,12 +61,13 @@ class Story < ActiveRecord::Base
   end
   
   # To overcome thinking sphinx bug where deleted item is not flagged from story_core index
-  def destroy_with_ts_bugfix
-    update_attribute( :delta, true )
-    destroy_without_ts_bugfix
+  unless respond_to?( :destroy_with_ts_bugfix )
+    def destroy_with_ts_bugfix
+      update_attribute( :delta, true )
+      destroy_without_ts_bugfix
+    end
+    alias_method_chain :destroy, :ts_bugfix
   end
-  
-  alias_method_chain :destroy, :ts_bugfix
   
   # def mark_duplicate( master_id )
   #   master_id = nil if master_id.to_i == id.to_i

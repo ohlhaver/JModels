@@ -21,12 +21,13 @@ class Author < ActiveRecord::Base
   end
   
   # To overcome thinking sphinx bug where deleted item is not flagged from author_core index
-  def destroy_with_ts_bugfix
-    update_attribute( :delta, true )
-    destroy_without_ts_bugfix
+  unless respond_to?( :destroy_with_ts_bugfix )
+    def destroy_with_ts_bugfix
+      update_attribute( :delta, true )
+      destroy_without_ts_bugfix
+    end
+    alias_method_chain :destroy, :ts_bugfix
   end
-  
-  alias_method_chain :destroy, :ts_bugfix
   
   after_create  :create_default_author_alias
   before_save   :set_delta_index_story, :if => Proc.new{ |r| !r.skip_delta_callbacks }
