@@ -25,6 +25,8 @@ end
     redefine_const( dbC::Timestamp, :Second, connection.quote( dbC::Timestamp::Second ).freeze )
     redefine_const( dbC::Engine, :MyISAM, nil )
     redefine_const( dbC::Engine, :InnoDB, nil )
+    redefine_const( dbC::Charset, :UTF8, nil )
+    redefine_const( dbC::Charset, :UTF8, nil )
     redefine_const( dbC::Insert, :Ignore, 'INSERT OR IGNORE '.freeze )
   
     db = connection.instance_variable_get('@connection')

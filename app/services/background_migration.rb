@@ -36,7 +36,7 @@ class BackgroundMigration < BackgroundService
     end
     
     unless db.table_exists?( :keywords )
-      db.create_table( :keywords ) do |t|
+      db.create_table( :keywords, :options => DB::Charset::UTF8 ) do |t|
         t.string  :name, :length => 40
         t.integer :language_id
       end

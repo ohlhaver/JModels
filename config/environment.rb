@@ -16,6 +16,10 @@ module DB
     InnoDB = 'ENGINE InnoDB'.freeze
   end
   
+  module Charset
+    UTF8 = "DEFAULT CHARACTER SET 'utf8'".freeze
+  end
+  
   module Insert
     Ignore = 'INSERT IGNORE '.freeze
   end
@@ -30,6 +34,10 @@ module MasterDB
     Minute = 'MINUTE'.freeze
     Second = 'SECOND'.freeze
     Engine_MyISAM = 'ENGINE MyISAM'.freeze
+  end
+  
+  module Charset
+    UTF8 = "DEFAULT CHARACTER SET 'utf8'".freeze
   end
   
   module Engine

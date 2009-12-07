@@ -336,10 +336,10 @@ class GroupGeneration < BackgroundService
       FROM candidate_group_stories ORDER BY group_id, blub_score' ).group_by{ |x| x['group_id'].to_i }
     
     # Fetch all pilot stories group by pilot_story_id
-    pilot_story_ids = db.select_values('SELECT id FROM candidate_groups')
-    @pilot_stories = master_db.select_all( 'SELECT story_id, body FROM story_contents 
-      WHERE story_id IN (' + pilot_story_ids.join(',') + ')' ).group_by{ |x| x['story_id'].to_i }
-    pilot_story_ids = nil
+    #pilot_story_ids = db.select_values('SELECT id FROM candidate_groups')
+    #@pilot_stories = master_db.select_all( 'SELECT story_id, body FROM story_contents 
+    #  WHERE story_id IN (' + pilot_story_ids.join(',') + ')' ).group_by{ |x| x['story_id'].to_i }
+    #pilot_story_ids = nil
     
     StoryGroup.transaction do
       @final_groups.each do | group_attributes |
@@ -354,8 +354,8 @@ class GroupGeneration < BackgroundService
           group.category_id = Category.top_category_id( category_ids )
           
           # Getting the top 3 keywords
-          group.top_keywords = JCore::Keyword.words( @pilot_stories[ group.pilot_story_id ].first[ 'body' ], top_keywords )
-          group.top_keywords += top_keywords unless top_keywords.empty?
+          group.top_keywords = top_keywords #JCore::Keyword.words( @pilot_stories[ group.pilot_story_id ].first[ 'body' ], top_keywords )
+          #group.top_keywords += top_keywords unless top_keywords.empty?
           
           # Setting the session id
           group.bj_session_id = @session.id
