@@ -61,6 +61,9 @@ if defined?( Rails ) && Rails.initialized?
   RAILS_ROOT = File.expand_path( File.dirname(__FILE__) + '/..' )
   ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/models' )
   
+  
+  gem( 'authlogic', :version => '2.1.3', :lib => 'authlogic' )
+  require 'authlogic'
   gem( 'mislav-will_paginate', :version => '2.3.4', :lib => 'will_paginate', :source => 'http://gems.github.com' )
   require 'will_paginate'
   gem( 'thinking-sphinx-099', :lib => 'thinking_sphinx', :version => '1.3.2' )
@@ -88,6 +91,7 @@ else
   require File.join(File.dirname(__FILE__), 'boot')
   
   Rails::Initializer.run do |config|
+    config.gem( 'authlogic', :version => '2.1.3', :lib => 'authlogic' )
     config.gem( 'mislav-will_paginate', :version => '2.3.4', :lib => 'will_paginate', :source => 'http://gems.github.com' )
     config.gem( 'thinking-sphinx-099', :lib => 'thinking_sphinx', :version => '1.3.2' )
     config.gem( 'ts-delayed-delta', :lib => 'thinking_sphinx/deltas/delayed_delta', :version => '1.0.0' )
