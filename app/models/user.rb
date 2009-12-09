@@ -8,7 +8,7 @@ class User < ActiveRecord::Base
   
   before_validation :set_login_field_required
   validates_presence_of :name
-  validates_acceptance_of :terms_and_conditions_accepted, :allow_nil => false
+  validates_acceptance_of :terms_and_conditions_accepted, :allow_nil => false, :accept => true
   
   acts_as_authentic do |config|
     
