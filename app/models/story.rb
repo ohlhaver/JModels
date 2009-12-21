@@ -1,5 +1,16 @@
 class Story < ActiveRecord::Base
   
+  Sort = {
+    0 => { :with => { :master_id => 0 }, 
+      :sort_mode => :expr, :order => "@weight * quality_rating * (100/POW( 1 + (NOW() - created_at), 0.33 ) )" },
+    1 => { :with => { :master_id => 0 }, :without => { :group_id => 0 }, :group_by => 'group_id', :group_function => :attr,
+      :sort_mode => :expr, :order => "@weight * quality_rating * (100/POW( 1 + (NOW() - created_at), 0.33 ) )" },
+    2 => { :with => { :master_id => 0 },  
+      :sort_mode => :desc, :order => :created_at },
+    3 => { :with => { :master_id => 0 }, :without => { :group_id => 0 }, :group_by => 'group_id', :group_function => :attr, 
+      :sort_mode => :desc, :order => :created_at }
+  }
+  
   belongs_to :source
   belongs_to :feed
   belongs_to :language
@@ -10,6 +21,9 @@ class Story < ActiveRecord::Base
   has_one    :story_content
   has_one    :story_metric
   has_one    :story_thumbnail
+  
+  has_one  :story_group_membership, :order => 'bj_session_id DESC'
+  has_one  :story_group, :through => :story_group_membership, :source => :story_group
   
   has_many :story_group_memberships
   has_many :story_groups, :through => :story_group_memberships, :source => :story_group
@@ -55,8 +69,10 @@ class Story < ActiveRecord::Base
     has :feed_id
     has :source_id
     has :language_id
+    has "COALESCE(stories.quality_rating, 1)", :type => :integer, :as => :quality_rating
     has story_authors(:author_id), :as => :author_ids
     has story_metric(:master_id), :as => :master_id
+    has story_group_membership(:group_id), :as => :group_id
     set_property :delta => :delayed
   end
   

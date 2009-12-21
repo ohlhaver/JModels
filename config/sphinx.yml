@@ -1,4 +1,5 @@
 development:
+  bin_path: '/opt/sphinx-0.9.9/bin'
   mem_limit: 128M
   address: 127.0.0.1
   port: 3312

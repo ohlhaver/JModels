@@ -3,6 +3,11 @@ class Category < ActiveRecord::Base
   validates_presence_of   :id, :name, :code
   validates_uniqueness_of :code
   
+  def self.for_select( reload = false )
+    @@categories_for_select = nil if reload
+    @@categories_for_select ||= Category.all( :select => 'id, name' ).collect{ |x| [ x.name, x.id ] }
+  end
+  
   def self.top_category_id( category_ids )
     return nil if category_ids.blank?
     groups = category_ids.group_by{ |x| x }

@@ -75,6 +75,16 @@ if defined?( Rails ) && Rails.initialized?
   gem( 'algorithms', :lib => 'algorithms', :version => '=0.3.0')
   require 'algorithms'
   
+  Dir[ File.join( RAILS_ROOT, '/config/locales/*.yml') ].each do |locale_file|
+    I18n.load_path.push( locale_file )
+  end
+  
+  Dir[ File.join( RAILS_ROOT, '/vendor/plugins/*/init.rb') ].each do |plugin_file|
+    $:.unshift "#{File.dirname(plugin_file)}/lib"
+    require plugin_file
+    $:.shift
+  end
+  
   Dir[ File.join( RAILS_ROOT ,'app/models/*.rb' ) ].each do |model_file|
     require model_file
   end

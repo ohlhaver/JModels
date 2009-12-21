@@ -9,7 +9,7 @@ class Author < ActiveRecord::Base
   
   validates_presence_of :name
   
-  validates_uniqueness_of                     :name, :if => Proc.new{|r| !r.skip_uniqueness_validation }
+  validates_uniqueness_of                     :name, :if => Proc.new{ |r| !r.skip_uniqueness_validation }
   validate_on_create :uniqueness_of_name_in_aliases, :if => Proc.new{ |r| !r.skip_uniqueness_validation }
   
   define_index do

@@ -1,0 +1,37 @@
+en:
+  prefs:
+    email:
+      daily: "Send Daily Digest"
+      immediately: "Send Immediately"
+      'off': "Turn Off Emails"
+      weekly: "Send Weekly Digest"
+    image:
+      'off': "No Images"
+      'on': "Show Images"
+    sort:
+      relevance: "Sort by Relevance"
+      time: "Sort by Time"
+      cluster: 
+        relevance: "Sort by Relevance ( Clustered )"
+        time: "Sort by Time ( Clustered )"
+    subscription:
+      all: "All Articles"
+      free: "Only Free Articles"
+      no_login: "Only Login Free Articles"
+    time_span:
+      last_hour: "Articles from Last Hour"
+      last_day: "Articles from Last Day"
+      last_week: "Articles from Last Week"
+      last_month: "Articles from Last Month"
+    val:
+      ban: "Ban"
+      category: "Category"
+      high: "High"
+      low: "Low"
+      medium: "Medium"
+      none: "No"
+      neutral: "Neutral"
+      only: "Only"
+    lang:
+      english: "English"
+      german: "German"
