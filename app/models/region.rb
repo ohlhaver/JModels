@@ -4,4 +4,10 @@ class Region < ActiveRecord::Base
   
   has_many :source_regions
   has_many :sources, :through => :source_regions, :source => :source
+  
+  def self.for_select( reload = false )
+    @@regions_for_select = nil if reload
+    @@regions_for_select ||= self.all( :select => 'id, name' ).collect{ |x| [ x.name, x.id ] }
+  end
+  
 end
