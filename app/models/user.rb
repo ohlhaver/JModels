@@ -8,6 +8,7 @@ class User < ActiveRecord::Base
   has_many :author_subscriptions, :as => :owner
   has_many :source_subscriptions, :as => :owner
   has_many :topic_subscriptions, :as => :owner
+  has_many :story_subscriptions, :as => :owner
   
   before_create :set_user_role
   before_create :set_user_preference
