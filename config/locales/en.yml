@@ -1,4 +1,11 @@
 en:
+  activerecord:
+    errors:
+      models: 
+        topic_subscription:
+           attributes:
+             search_keywords:
+               required: "can't be blank"
   prefs:
     email:
       daily: "Send Daily Digest"

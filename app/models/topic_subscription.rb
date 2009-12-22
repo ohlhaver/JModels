@@ -2,6 +2,7 @@ class TopicSubscription < ActiveRecord::Base
   
   belongs_to :owner, :polymorphic => true
   
+  validates_presence_of :name
   validates_uniqueness_of :name, :scope => [ :owner_type, :owner_id ]
   validate :validates_presence_of_search_keywords
   
@@ -69,8 +70,8 @@ class TopicSubscription < ActiveRecord::Base
   end
   
   def validates_presence_of_search_keywords
-    if search_all.blank? && search_any.blank? && search_exact.blank?
-      errors.add( :search_keyword, :required )
+    if search_all.blank? && search_any.blank? && search_exact_phrase.blank?
+      errors.add( :search_keywords, :required )
     end
   end
   
