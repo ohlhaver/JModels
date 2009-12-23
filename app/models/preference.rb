@@ -19,7 +19,9 @@ class Preference < ActiveRecord::Base
       :interface_language_id => :LanguageValues,
       :default_language_id => :LanguageValues,
       :cluster_preview => :ClusterPreviewValues,
-      :per_page => :PerPageValues
+      :headlines_per_cluster_group => :ClusterGroupValues,
+      :per_page => :PerPageValues,
+      :region_id => :RegionValues
     }
   
     EmailValues = [ 
@@ -74,14 +76,26 @@ class Preference < ActiveRecord::Base
       { :name => "prefs.lang.#{x.name.downcase}", :code => x.code, :id => x.id }
     }
     
+    RegionValues = Region.find(:all, :conditions => { :code => ['DE', 'AT', 'CH', 'INT'] }, :order => 'id' ).collect{ |x|
+      { :name => "prefs.country.#{x.code.downcase}", :code => x.code, :id => x.id }
+    }
+    
     ClusterPreviewValues = [ { :name => 1, :code => 1, :id => 1 }, { :name => 3, :code => 3, :id => 3 } ]
+    
+    ClusterGroupValues = [ { :name => 1, :code => 1, :id => 1 }, 
+      { :name => 2, :code => 2, :id => 2 },
+      { :name => 3, :code => 3, :id => 3 },
+      { :name => 4, :code => 4, :id => 4 },
+      { :name => 5, :code => 5, :id => 5 },
+      { :name => 6, :code => 6, :id => 6 }
+    ]
     
     PerPageValues = [ { :name => 10, :code => 10, :id => 10 }, { :name => 20, :code => 20, :id => 20 }, { :name => 30, :code => 30, :id => 30 },
       { :name => 40, :code => 40, :id => 40 },  { :name => 50, :code => 50, :id => 50 } ]
     
     DefaultValues = {
-      :default_language_id => LanguageValues.first.try(:[], :id),
-      :interface_language_id => LanguageValues.first.try(:[], :id),
+      #:default_language_id => LanguageValues.select{ |x| x[:code] == 'en' }.first.try(:[], :id),
+      #:interface_language_id => LanguageValues.select{ |x| x[:code] == 'en' }.first.try(:[], :id),
       :default_time_span => 1.month.to_i,
       :default_sort_criteria => 0,
       :image => 1,
@@ -91,29 +105,40 @@ class Preference < ActiveRecord::Base
       :topic_email => 0,
       :author_email => 2,
       :cluster_preview => 3,
+      :headlines_per_cluster_group => 2,
       :subscription_type => 0,
       :per_page => 10,
-      :search_language_ids => { LanguageValues.first.try(:[], :id) => '1' }
+      #:search_language_ids => { LanguageValues.select{ |x| x[:code] == 'en' }.first.try(:[], :id) => '1' },
+      :region_id => RegionValues.select{ |x| x[:code] == 'INT' }.first.try(:[], :id )
     }
+    
+  end
+  
+  unless method_defined?( :initialize_with_default_values )
+    
+    def initialize_with_default_values( attributes = {} )
+      attributes ||= {}
+      initialize_without_default_values( attributes.reverse_merge( DefaultValues ) )
+    end
+    
+    alias_method_chain :initialize, :default_values
     
   end
   
   class << self
     
-    unless method_defined?( :new_with_default_values )
-      
-      def new_with_default_values( attributes = {} )
-        attributes ||= {}
-        new_without_default_values( attributes.reverse_merge( DefaultValues ) )
-      end
-      
-      def create_with_default_values( attributes = {} )
-        create_without_default_values( attribtues.reverse_merge( DefaultValues ) )
-      end
-      
-      alias_method_chain :new, :default_values
-      alias_method_chain :create, :default_values
+    def default_region_id
+      DefaultValues[ :region_id ]
+    end
     
+    def default_language_id
+      DefaultValues[ :language_id ]
+    end
+    
+    def select_all( preference_name )
+      constant_name = Map[ preference_name.try(:to_sym) ]
+      return [] if constant_name.nil?
+      self.const_get( constant_name )
     end
     
     def for_select( preference_name )
@@ -123,14 +148,14 @@ class Preference < ActiveRecord::Base
       preferences_array.collect{ |x| [ ( x[:name].is_a?( String) ? I18n.t( x[:name] ) : x[:name] ), x[:id] ] }
     end
 
-    def value_by_name_and_code( preference_name, code )
+    def select_value_by_name_and_code( preference_name, code )
       constant_name = Map[ preference_name.try(:to_sym) ]
       return nil if constant_name.nil?
       preferences_array = self.const_get( constant_name )
       preferences_array.select{ |x| x[:code] == code }.first
     end
 
-    def value_by_name_and_id( preference_name, id )
+    def select_value_by_name_and_id( preference_name, id )
       constant_name = Map[ preference_name.try(:to_sym) ]
       return nil if constant_name.nil?
       preferences_array = self.const_get( constant_name )
@@ -140,6 +165,10 @@ class Preference < ActiveRecord::Base
   end
   
   belongs_to :owner, :polymorphic => true
+  
+  def reset_search_lang_prefs!
+    @search_lang_prefs = Array.new
+  end
   
   def search_language_ids=( language_ids )
     if language_ids.is_a?( Hash )

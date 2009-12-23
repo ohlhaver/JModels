@@ -33,11 +33,11 @@ class TopicSubscription < ActiveRecord::Base
     options.merge!( Story::Sort[ sort_criteria || owner.preference.default_sort_criteria ] )
     options[:with].merge!( :author_id => author_id )     if author_id
     options[:with].merge!( :category_id => category_id ) if category_id
-    options[:with].merge!( :source_id => source_id )     if source_id
-    if region_id
+    if region_id 
       source_ids = Region.find( :first, :conditions => { :id => region_id } , :include => :sources ).try(:source_ids)
       options[:with].merge!( :source_id => source_ids ) if source_ids
     end
+    options[:with].merge!( :source_id => source_id )     if source_id
     options[:with].merge!( :created_at => time_range )
     [ search_terms, options ]
   end

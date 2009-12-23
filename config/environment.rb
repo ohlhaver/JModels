@@ -76,7 +76,7 @@ if defined?( Rails ) && Rails.initialized?
   require 'algorithms'
   
   Dir[ File.join( RAILS_ROOT, '/config/locales/*.yml') ].each do |locale_file|
-    I18n.load_path.push( locale_file )
+    I18n.load_path.unshift( locale_file )
   end
   
   Dir[ File.join( RAILS_ROOT, '/vendor/plugins/*/init.rb') ].each do |plugin_file|
@@ -107,7 +107,7 @@ else
     config.gem( 'ts-delayed-delta', :lib => 'thinking_sphinx/deltas/delayed_delta', :version => '1.0.0' )
     config.gem( 'jcore', :version =>'>=1.0.5', :lib => 'jcore' )
     config.gem( 'algorithms', :version => '=0.3.0', :lib => 'algorithms' )
-    config.frameworks -= [ :active_resource, :action_mailer, :action_controller,  :action_view ]
+    config.frameworks -= [ :active_resource, :action_mailer ]
     config.routes_configuration_file = nil
     config.time_zone = 'UTC'
   end

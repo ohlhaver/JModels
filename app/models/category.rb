@@ -1,5 +1,9 @@
 class Category < ActiveRecord::Base
   
+  unless defined?( Default )
+    Default = [ "POL", "BUS", "CUL", "SCI", "TEC", "SPO", "MIX", "OPI" ]
+  end
+  
   validates_presence_of   :id, :name, :code
   validates_uniqueness_of :code
   
@@ -22,6 +26,10 @@ class Category < ActiveRecord::Base
   def self.prefered_category_id( category_ids )
     category_ids.sort!
     category_ids.first
+  end
+  
+  def default?
+    Default.include?( code )
   end
   
 end

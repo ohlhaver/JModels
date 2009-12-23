@@ -5,7 +5,12 @@ class MultiValuedPreference < ActiveRecord::Base
   end
   
   belongs_to :owner, :polymorphic => true
-  acts_as_list :scope => :owner
+  acts_as_list :scope => [ :owner, :preference_id, :tag ]
+  
+  #redefining scope condition # bugfix for the acts_as_list plugin
+  def scope_condition
+    self.class.send( :sanitize_sql_hash_for_conditions, { :owner_type => owner_type, :owner_id => owner_id, :preference_id => preference_id, :tag => tag } )
+  end
   
   validates_presence_of :value, :preference_id
   validates_uniqueness_of :value, :scope => [ :owner_type, :owner_id, :preference_id ]
@@ -23,7 +28,11 @@ class MultiValuedPreference < ActiveRecord::Base
   
   named_scope :preference, lambda{ |preference_name| 
     { :conditions => { :preference_id => PreferenceOptions[ preference_name.try(:to_sym) ] },
-      :order => 'position' }
+      :order => 'position ASC' }
+  }
+  
+  named_scope :tag, lambda { |tag|
+    tag ? { :conditions => { :tag => tag } } : { }
   }
   
   unless method_defined?( :save_with_destroy )
@@ -56,6 +65,12 @@ class MultiValuedPreference < ActiveRecord::Base
     end
     
   end
+  
+  def cluster_group
+    preference_id == PreferenceOptions[ :homepage_clusters ] ? ClusterGroup.find( :first, :conditions => { :id => value } ) : nil 
+  end
+  
+  protected
   
   def validates_presence_of_owner
     errors.add( :owner_id, :invalid ) unless owner( true )

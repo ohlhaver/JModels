@@ -9,9 +9,11 @@ class User < ActiveRecord::Base
   has_many :source_subscriptions, :as => :owner
   has_many :topic_subscriptions, :as => :owner
   has_many :story_subscriptions, :as => :owner
+  has_many :multi_valued_preferences, :as => :owner
   
   before_create :set_user_role
   before_create :set_user_preference
+  before_create :set_default_language
   
   before_validation :set_login_field_required
   validates_presence_of :name
@@ -50,19 +52,78 @@ class User < ActiveRecord::Base
     !third_party.blank?
   end
   
+  def region_id
+    preference.try( :region_id ) || Preference.default_region_id
+  end
+  
+  def region_id=( r )
+    set_user_preference
+    rid =  ( Preference.select_value_by_name_and_code( :region_id, r.to_s.upcase ) || 
+      Preference.select_value_by_name_and_id( :region_id, r.to_i ) ).try(:[], :id)
+    if rid
+      preference.region_id = rid
+    end
+  end
+  
+  def language_id
+    preference.try( :default_language_id ) || Preference.default_language_id
+  end
+  
+  def language_id=( l )
+    set_user_preference
+    lid =  ( Preference.select_value_by_name_and_code( :default_language_id, l ) || 
+      Preference.select_value_by_name_and_id( :default_language_id, l ) ).try(:[], :id)
+    return unless lid
+    preference.default_language_id = lid
+    preference.reset_search_lang_prefs!
+    preference.search_language_ids = { lid => '1' }
+    preference.interface_language_id = lid
+  end
+  
+  def tag
+    "Region:#{region_id}:#{language_id}"
+  end
+  
+  # If you are accessing the homepage cluster group for particular set of region and language
+  def homepage_cluster_groups
+    clusters = create_default_homepage_cluster_groups
+    clusters ||= ClusterGroup.homepage( self, :tag => tag )
+  end
+  
+  def homepage_cluster_group_preferences
+    create_default_homepage_cluster_groups
+    multi_valued_preferences.preference( :homepage_clusters ).tag( tag ).all
+  end
+  
   protected
+  
+  def homepage_cluster_groups_exist?
+    multi_valued_preferences.preference( :homepage_clusters ).tag( tag ).count > 0
+  end
+  
+  def create_default_homepage_cluster_groups
+    return nil if homepage_cluster_groups_exist?
+    tag = "Region:#{region_id}:#{language_id}"
+    clusters = ClusterGroup.homepage(:tag => tag ).all
+    clusters.each{ |c|  MultiValuedPreference.preference( :homepage_clusters ).create( :owner => self, :value => c.id, :tag => tag ) }
+  end
   
   def set_user_role
     self.user_role ||= UserRole.new
   end
   
   def set_user_preference
-    self.preference ||= Preference.new
+    self.preference ||= self.build_preference
   end
   
   def set_login_field_required
     self.login_field_required = self.third_party.blank?
     return true
+  end
+  
+  def set_default_language
+    return if self.preference.default_language_id
+    self.language_id = Region::DefaultLanguage[ Preference.select_value_by_name_and_id( :region_id, self.region_id )[:code] ] || 'en'
   end
   
 end
