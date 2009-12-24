@@ -6,6 +6,8 @@ class StoryAuthor < ActiveRecord::Base
   after_save :set_story_delta_flag
   after_destroy :set_story_delta_flag
   
+  set_primary_keys :story_id, :author_id
+  
   protected
   
   def set_delta_index_story
