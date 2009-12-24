@@ -107,7 +107,7 @@ else
     config.gem( 'ts-delayed-delta', :lib => 'thinking_sphinx/deltas/delayed_delta', :version => '1.0.0' )
     config.gem( 'jcore', :version =>'>=1.0.5', :lib => 'jcore' )
     config.gem( 'algorithms', :version => '=0.3.0', :lib => 'algorithms' )
-    config.frameworks -= [ :action_controller, :active_resource, :action_mailer ]
+    config.frameworks -= [ :active_resource, :action_mailer ]
     config.routes_configuration_file = nil
     config.time_zone = 'UTC'
   end
