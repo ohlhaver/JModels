@@ -48,6 +48,7 @@ class GroupGeneration < BackgroundService
       t.integer :keyword_id
       t.integer :frequency
     end
+    db.execute('DELETE FROM keyword_subscriptions WHERE story_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
     
     #
     # Select stories and select related excerpt keywords
@@ -58,6 +59,9 @@ class GroupGeneration < BackgroundService
       WHERE keyword_subscriptions.excerpt_frequency IS NOT NULL' )
         
     db.add_index :candidate_story_keywords, [ :keyword_id, :story_id ], :unique => true, :name => 'cdd_story_keywords_idx'
+    
+    db.execute('DELETE FROM candidate_group_similarities WHERE story1_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
+    db.execute('DELETE FROM candidate_group_similarities WHERE story2_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
     
     #
     # For Incremental Calculations to Speed Up Things

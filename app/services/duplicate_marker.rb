@@ -28,6 +28,9 @@ class DuplicateMarker < BackgroundService
     
     # Finding Duplicate Stories Inside the Story Group
     
+    db.execute('DELETE FROM candidate_similarities WHERE story1_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
+    db.execute('DELETE FROM candidate_similarities WHERE story2_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
+    
     StoryGroup.current_session.find_each do |group|
       story_ids = group.stories.all( :select => 'id' ).collect{ |x| x.id }
       story_ids.each do |s1_id|
