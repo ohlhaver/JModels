@@ -165,7 +165,7 @@ class GroupGeneration < BackgroundService
     db.execute( DB::Insert::Ignore + 'INTO candidate_groups ( id, story_count, source_count, language_id ) 
       SELECT story1_id, COUNT(*) AS story_count, COUNT( DISTINCT source_id ) AS source_count, language_id 
       FROM related_candidates 
-      LEFT OUTER JOIN candidate_stories ON ( candidate_stories.id = related_candidates.story2_id )
+      INNER JOIN candidate_stories ON ( candidate_stories.id = related_candidates.story2_id )
       GROUP BY story1_id HAVING story_count > 1 AND source_count > 1' )
     
   end
