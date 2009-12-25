@@ -219,7 +219,17 @@ class GroupGeneration < BackgroundService
     #
     # Removing Overlapping and Redundant Groups
     #
-    db.execute( 'DELETE FROM candidate_groups WHERE id NOT IN (' + @final_groups.collect{ |x| x['id'] }.join(',') +  ')')
+    final_group_ids = @final_groups.collect{ |x| x['id'] }
+    all_group_ids = db.select_values('SELECT id FROM candidate_groups')
+    redundant_group_ids = all_group_ids - final_group_ids
+    all_group_ids.clear
+    final_group_ids.clear
+    offset = 0
+    while redundant_group_ids[ offset ]
+      db.execute( 'DELETE FROM candidate_groups WHERE id IN (' + redundant_group_ids[ offset, 100 ].join(',') + ')')
+      offset += 100
+    end
+    #db.execute( 'DELETE FROM candidate_groups WHERE id NOT IN (' + @final_groups.collect{ |x| x['id'] }.join(',') +  ')')
     
   end
   
