@@ -1,5 +1,14 @@
 class Author < ActiveRecord::Base
   
+  serialize_with_options do
+    dasherize false
+  end
+  
+  serialize_with_options( :short ) do
+    dasherize false
+    only :id, :name
+  end
+  
   attr_accessor :skip_uniqueness_validation
   attr_accessor :skip_delta_callbacks
   

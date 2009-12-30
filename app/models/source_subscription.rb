@@ -1,5 +1,11 @@
 class SourceSubscription < ActiveRecord::Base
   
+  serialize_with_options do
+    dasherize false
+    includes :source => Source.serialization_configuration(:short)
+    except   :source_id, :owner_id, :owner_type, :category_id
+  end
+  
   belongs_to :owner, :polymorphic => true
   belongs_to :source
   

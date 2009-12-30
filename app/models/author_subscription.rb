@@ -1,5 +1,11 @@
 class AuthorSubscription < ActiveRecord::Base
   
+  serialize_with_options do
+    dasherize false
+    includes :author => Author.serialization_configuration(:short)
+    except   :author_id, :owner_id, :owner_type
+  end
+  
   attr_accessor :created_or_updated
   
   belongs_to :owner, :polymorphic => true

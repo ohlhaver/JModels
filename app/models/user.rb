@@ -80,14 +80,14 @@ class User < ActiveRecord::Base
     preference.interface_language_id = lid
   end
   
-  def tag
+  def tag(region_id = self.region_id, langauge_id = self.language_id)
     "Region:#{region_id}:#{language_id}"
   end
   
   # If you are accessing the homepage cluster group for particular set of region and language
-  def homepage_cluster_groups
+  def homepage_cluster_groups( region_id = self.region_id, language_id = self.language_id )
     clusters = create_default_homepage_cluster_groups
-    clusters ||= ClusterGroup.homepage( self, :tag => tag )
+    clusters ||= ClusterGroup.homepage( self, :tag => tag( region_id, language_id ) )
   end
   
   def homepage_cluster_group_preferences

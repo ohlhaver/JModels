@@ -2,6 +2,10 @@ de:
   activerecord:
     errors:
       models: 
+        author_subscription:
+          attributes:
+            preference:
+              required: "can't be blank"
         topic_subscription:
            attributes:
              search_keywords:

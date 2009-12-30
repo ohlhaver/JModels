@@ -1,10 +1,17 @@
 class MultiValuedPreference < ActiveRecord::Base
   
+  serialize_with_options do
+    dasherize false
+    map_include :cluster_group => :cluster_group_serialize
+    except  :owner_id, :owner_type, :position, :tag, :preference_id, :value
+  end
+  
   unless defined?( PreferenceOptions )
     PreferenceOptions = { :search_languages => 1, :homepage_clusters => 2 }
   end
   
   belongs_to :owner, :polymorphic => true
+  
   acts_as_list :scope => [ :owner, :preference_id, :tag ]
   
   #redefining scope condition # bugfix for the acts_as_list plugin
@@ -71,6 +78,10 @@ class MultiValuedPreference < ActiveRecord::Base
   end
   
   protected
+  
+  def cluster_group_serialize( options = {} )
+    cluster_group.to_xml( options )
+  end
   
   def validates_presence_of_owner
     errors.add( :owner_id, :invalid ) unless owner( true )

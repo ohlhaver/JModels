@@ -1,5 +1,11 @@
 class Preference < ActiveRecord::Base
   
+  serialize_with_options do
+    dasherize false
+    map_include :search_language_ids  => :search_languages_ids_for_serialize
+    except  :id, :owner_id, :owner_type
+  end
+  
   unless defined?( Preference::Map )
     
     Map = { 
@@ -209,6 +215,10 @@ class Preference < ActiveRecord::Base
   
   protected
   
+  def search_languages_ids_for_serialize( options = {} )
+    search_language_ids( :reload ).to_xml( options )
+  end
+  
   def save_search_language_ids
     @search_lang_prefs.try(:each){ |attrs| 
       mvp = MultiValuedPreference.preference(:search_languages).create( 
@@ -216,7 +226,7 @@ class Preference < ActiveRecord::Base
       )
       logger.info mvp.errors.full_messages
     }
-    @search_lang_prefs.clear
+    @search_lang_prefs.try(:clear)
   end
   
 end

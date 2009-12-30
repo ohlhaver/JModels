@@ -1,4 +1,14 @@
 class Source < ActiveRecord::Base
+  
+  serialize_with_options do
+    dasherize false
+  end
+  
+  serialize_with_options( :short ) do
+    dasherize false
+    only :id, :name
+  end
+  
   has_many :source_regions, :dependent => :delete_all
   has_many :regions, :through => :source_regions, :source => :region
   
