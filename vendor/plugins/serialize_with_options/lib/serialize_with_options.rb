@@ -98,7 +98,7 @@ module SerializeWithOptions
         set  = opts
         opts = {}
       else
-        set  = :default
+        set  = opts.delete( :set ) || :default
       end
 
       [set, opts]

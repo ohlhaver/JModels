@@ -2,6 +2,7 @@ class Author < ActiveRecord::Base
   
   serialize_with_options do
     dasherize false
+    except :default_rating, :default_preference, :delta
   end
   
   serialize_with_options( :short ) do
@@ -25,6 +26,7 @@ class Author < ActiveRecord::Base
     indexes :name, :as => :name, :sortable => true
     indexes aliases(:name), :as => :aliases
     has :is_agency
+    has :is_opinion
     has :id, :as => :author_id
     set_property :delta => :delayed
   end

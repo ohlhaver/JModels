@@ -6,6 +6,17 @@ class Preference < ActiveRecord::Base
     except  :id, :owner_id, :owner_type
   end
   
+  
+  serialize_with_options( :long ) do
+    column_names = [ :author_email, :blog, :cluster_preview, :default_language_id,
+      :default_sort_criteria, :default_time_span, :headlines_per_cluster_group,
+      :image, :interface_language_id, :opinion, :per_page, :region_id,
+      :subscription_type, :topic_email, :video, :search_language_ids ]
+    dasherize false
+    map_include column_names.inject({}){ |h,c| h.merge!( c => "#{c}_serialize".to_sym ) }
+    except *( column_names + [ :id, :owner_id, :owner_type ] )
+  end
+  
   unless defined?( Preference::Map )
     
     Map = { 
@@ -22,12 +33,16 @@ class Preference < ActiveRecord::Base
       :subscription_type => :SubscriptionValues,
       :time_span => :TimeRangeValues, 
       :default_time_span => :TimeRangeValues,
+      :language_id => :LanguageValues,
       :interface_language_id => :LanguageValues,
       :default_language_id => :LanguageValues,
       :cluster_preview => :ClusterPreviewValues,
       :headlines_per_cluster_group => :ClusterGroupValues,
       :per_page => :PerPageValues,
-      :region_id => :RegionValues
+      :region_id => :RegionValues,
+      :default_region_id => :RegionValues,
+      :search_language_id => :LanguageValues,
+      :search_language_ids => :LanguageValues
     }
   
     EmailValues = [ 
@@ -227,6 +242,23 @@ class Preference < ActiveRecord::Base
       logger.info mvp.errors.full_messages
     }
     @search_lang_prefs.try(:clear)
+  end
+  
+  unless method_defined?( :method_missing_with_serialize )
+    
+    def method_missing_with_serialize( sym, *args, &block )
+      if match = sym.to_s.match(/^(.+)_serialize$/)
+        value = send( match[1] )
+        value = value.is_a?( Array ) ? value.collect{ |x| self.class.select_value_by_name_and_id( match[1], x ) } : self.class.select_value_by_name_and_id( match[1], value )
+        options = args.first
+        value.to_xml( options.merge( :root => match[1] ), &block )
+      else
+        method_missing_without_serialize( sym, *args, &block )
+      end
+    end
+    
+    alias_method_chain :method_missing, :serialize
+    
   end
   
 end

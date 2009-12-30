@@ -1,7 +1,10 @@
 class Source < ActiveRecord::Base
   
+  named_scope :name_like, lambda{ |name| { :conditions => [ 'name LIKE ?', "#{name}%" ] } }
+  
   serialize_with_options do
     dasherize false
+    except :default_rating
   end
   
   serialize_with_options( :short ) do
