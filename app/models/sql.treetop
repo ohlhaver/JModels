@@ -1,0 +1,135 @@
+grammar SQL
+
+  rule string
+    delimiter? query {
+      def root
+        elements.last
+      end
+    }
+  end
+  
+  rule query
+    term:expression query:( delim:delimiter query:query )? <QueryString>
+  end
+  
+  rule expression
+     binary_expression / parenthesized_expression / unary_expression / literal 
+  end
+  
+  rule parenthesized_expression
+    ( ( "(" whitespace? expression:expression? whitespace? ")" ) / ( "(" whitespace? expression:expression ) / "(" / ")" ) {
+      def eval(env={})
+        respond_to?(:expression) ? expression.eval( env ) : ""
+      end
+    }
+  end
+  
+  rule binary_expression
+    or_expression / and_expression
+  end
+  
+  rule or_expression
+    operand_1:or_left_operand operator:or_op operand_2:expression <BinaryOperation>
+  end  
+  
+  rule and_expression
+    operand_1:left_operand operator:and_op operand_2:and_right_operand <BinaryOperation>
+  end
+  
+  rule left_operand
+    parenthesized_expression / unary_expression / literal
+  end
+  
+  rule right_operand
+    parenthesized_expression / binary_expression / unary_expression / literal
+  end
+  
+  rule or_left_operand
+    and_expression / parenthesized_expression / unary_expression / literal
+  end
+  
+  rule and_right_operand
+    parenthesized_expression / and_expression / unary_expression / literal
+  end
+  
+  rule unary_expression
+    operator:not_op operand:( parenthesized_expression / unary_expression / literal ) <UnaryOperation>
+  end
+  
+  rule literal
+    single_quoted_literal / double_quoted_literal / unquoted_literal / uncomplete_literal
+  end
+  
+  rule single_quoted_literal
+    single_quote text:((!single_quote .)*) single_quote
+  end
+  
+  rule double_quoted_literal
+    double_quote text:((!double_quote .)*) double_quote
+  end
+  
+  rule unquoted_literal
+    !non_word text:((!non_word .)*)
+  end
+  
+  rule uncomplete_literal
+    quote text:((!(quote/separator/"("/")") .)*)
+  end
+  
+  rule non_word
+    space /  separator / "(" / ")"
+  end
+  
+  rule quote
+    single_quote / double_quote
+  end
+  
+  rule not_op
+    (("NOT" whitespace) / "!" / "~") {
+      def apply( a )
+        "( !#{a} )"
+      end
+    }
+  end
+  
+  rule and_op
+    (( whitespace "AND" whitespace ) /  ( whitespace?  "&&" whitespace? ) / (  whitespace? "&" whitespace? )) { 
+      def apply( a, b)
+        "( #{a} & #{b} )"
+      end
+    }
+  end
+  
+  rule or_op
+    (( whitespace "OR" whitespace ) /  ( whitespace?  "||" whitespace? ) / (  whitespace? "|" whitespace? )) {
+      def apply( a, b )
+        "( #{a} | #{b} )"
+      end
+    }
+  end
+  
+  rule single_quote
+    "'"
+  end
+  
+  rule double_quote
+    '"'
+  end
+  
+  rule delimiter
+    ( space / separator )+
+  end
+  
+  rule whitespace
+    space+
+  end
+  
+  rule space
+    [ \n\r\t]
+  end
+  
+  rule separator
+    [\,]
+  end
+  
+end

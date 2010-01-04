@@ -123,7 +123,7 @@ class User < ActiveRecord::Base
   
   def set_default_language
     return if self.preference.default_language_id
-    self.language_id = Region::DefaultLanguage[ Preference.select_value_by_name_and_id( :region_id, self.region_id )[:code] ] || 'en'
+    self.language_id = Region::DefaultLanguage[ Preference.select_value_by_name_and_id( :region_id, self.region_id ).try( :[], :code ) ] || 'en'
   end
   
 end

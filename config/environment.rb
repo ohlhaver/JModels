@@ -74,6 +74,8 @@ if defined?( Rails ) && Rails.initialized?
   require 'jcore'
   gem( 'algorithms', :lib => 'algorithms', :version => '=0.3.0')
   require 'algorithms'
+  gem( 'treetop', :version => '>=1.4.3' )
+  require 'treetop'
   
   Dir[ File.join( RAILS_ROOT, '/config/locales/*.yml') ].each do |locale_file|
     I18n.load_path.unshift( locale_file )
@@ -107,6 +109,7 @@ else
     config.gem( 'ts-delayed-delta', :lib => 'thinking_sphinx/deltas/delayed_delta', :version => '1.0.0' )
     config.gem( 'jcore', :version =>'>=1.0.5', :lib => 'jcore' )
     config.gem( 'algorithms', :version => '=0.3.0', :lib => 'algorithms' )
+    config.gem( 'treetop', :version => '>=1.4.3' )
     config.frameworks -= [ :active_resource, :action_mailer ]
     config.routes_configuration_file = nil
     config.time_zone = 'UTC'

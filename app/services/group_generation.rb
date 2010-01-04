@@ -23,6 +23,8 @@ class GroupGeneration < BackgroundService
     
     archive_old_groups
     
+    cluster_group_mappings
+    
   end
   
   def finalize( options = {} )
@@ -265,6 +267,7 @@ class GroupGeneration < BackgroundService
       t.datetime :created_at        # story created at
       t.float    :quality_rating
       t.float    :blub_score        # blub value ( time decay + source_rating )
+      t.integer  :rank
     end
     
     db.execute('INSERT INTO candidate_group_stories ( group_id, story_id, source_id, category_id, master_id,
@@ -280,7 +283,15 @@ class GroupGeneration < BackgroundService
     # blub =  age*quality_value
     db.execute('UPDATE candidate_group_stories SET blub_score = ( 100 / POWER( 1 + TIMESTAMPDIFF( ' + DB::Timestamp::Hour + ', UTC_TIMESTAMP(), created_at ), 0.33 ) ) * quality_rating')
     
+    db.add_index( 'candidate_group_stories', [:group_id, :story_id ], :name => 'cdd_grp_stories_uniq_idx', :unique => true )
     db.add_index( 'candidate_group_stories', [:group_id, :blub_score], :name => 'cdd_grp_stories_idx' )
+    
+    db.select_all( 'SELECT cgs1.group_id, cgs1.story_id,  COALESCE( COUNT(*), 0 ) + 1 AS rank
+      FROM candidate_group_stories as cgs1 
+      LEFT OUTER JOIN candidate_group_stories as cgs2 ON ( cgs1.group_id = cgs2.group_id AND cgs1.blub_score < cgs2.blub_score )
+      GROUP BY cgs1.group_id, cgs1.story_id' ).each do | record |
+      db.execute("UPDATE candidate_group_stories SET rank = #{record['rank']} WHERE group_id = #{record['group_id']} AND story_id = #{record['story_id']}")
+    end
     
   end
   
@@ -346,7 +357,7 @@ class GroupGeneration < BackgroundService
       GROUP BY candidate_groups.id HAVING source_count > 1' )
     
     # Fetch all stories and group them by group_id
-    @group_stories = db.select_all( 'SELECT group_id, story_id, thumbnail_exists, source_id, created_at, quality_rating, blub_score, master_id 
+    @group_stories = db.select_all( 'SELECT group_id, story_id, thumbnail_exists, source_id, created_at, quality_rating, blub_score, master_id, rank 
       FROM candidate_group_stories ORDER BY group_id, blub_score' ).group_by{ |x| x['group_id'].to_i }
     
     # Fetch all pilot stories group by pilot_story_id
@@ -406,8 +417,8 @@ class GroupGeneration < BackgroundService
     session_ids = @session.id.to_s
     
     master_db.execute( MasterDB::Insert::Ignore + 'INTO story_group_membership_archives (
-        bj_session_id, group_id, story_id, source_id, created_at, quality_rating, blub_score
-      ) SELECT bj_session_id, group_id, story_id, source_id, created_at, quality_rating, blub_score
+        bj_session_id, group_id, story_id, source_id, created_at, quality_rating, blub_score, master_id
+      ) SELECT bj_session_id, group_id, story_id, source_id, created_at, quality_rating, blub_score, master_id
       FROM story_group_memberships WHERE bj_session_id NOT IN ('+ session_ids +')')
     
     #master_db.execute( 'DELETE FROM story_group_memberships WHERE bj_session_id NOT IN ('+ session_ids + ')' )
@@ -431,6 +442,30 @@ class GroupGeneration < BackgroundService
     
     master_db.execute( 'DELETE FROM story_groups WHERE bj_session_id NOT IN (' + session_ids + ')' )
     
+  end
+  
+  def cluster_group_mappings
+    ClusterGroup.find_each do |cluster_group|
+      ClusterGroupMembership.update_all( 'flagged=true', { :cluster_group_id => cluster_group.id } )
+      StoryGroup.find_each_for_cluster_group( cluster_group ) do |story_group|
+        cluster_group.memberships.create(  :flagged => false, :active => false, :story_group_id => story_group.id, :broadness_score => story_group.broadness_score )
+      end
+      rank = 1
+      offset = 0
+      loop do
+        cluster_group_memberships = ClusterGroupMembership.all( :conditions => { :cluster_group_id => cluster_group.id, :active => false }, 
+          :order => 'broadness_score DESC', :limit => 1000, :offset => offset )
+        break if cluster_group_memberships.empty?
+        cluster_group_memberships.each do |cluster_group_membership|
+          cluster_group_membership.update_attribute( :rank, rank )
+          rank += 1
+        end
+        offset += 1000
+        cluster_group_memberships.clear
+      end
+      ClusterGroupMembership.update_all( 'active=true', { :cluster_group_id => cluster_group.id, :active => false } )
+      ClusterGroupMembership.delete_all( { :flagged => true, :cluster_group_id => cluster_group.id } )
+    end
   end
 
 end

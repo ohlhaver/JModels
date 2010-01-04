@@ -148,6 +148,11 @@ class Preference < ActiveRecord::Base
   
   class << self
     
+    def default_language_id_for_region_id( region_id )
+      language_code = Region::DefaultLanguage[ Preference.select_value_by_name_and_id( :region_id, region_id ).try( :[], :code ) ] || 'en'
+      Preference.select_value_by_name_and_code( :language_id, language_code ).try(:[], :id ) || default_language_id
+    end
+    
     def default_region_id
       DefaultValues[ :region_id ]
     end

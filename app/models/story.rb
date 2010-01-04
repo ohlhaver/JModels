@@ -1,15 +1,17 @@
 class Story < ActiveRecord::Base
   
-  Sort = {
-    0 => { :with => { :master_id => 0 }, 
-      :sort_mode => :expr, :order => "@weight * quality_rating * (100/POW( 1 + (NOW() - created_at), 0.33 ) )" },
-    1 => { :with => { :master_id => 0 }, :without => { :group_id => 0 }, :group_by => 'group_id', :group_function => :attr,
-      :sort_mode => :expr, :order => "@weight * quality_rating * (100/POW( 1 + (NOW() - created_at), 0.33 ) )" },
-    2 => { :with => { :master_id => 0 },  
-      :sort_mode => :desc, :order => :created_at },
-    3 => { :with => { :master_id => 0 }, :without => { :group_id => 0 }, :group_by => 'group_id', :group_function => :attr, 
-      :sort_mode => :desc, :order => :created_at }
-  }
+  attr_accessor :authors_to_serialize
+  
+  serialize_with_options :short do
+    dasherize false
+    except :is_opinion, :is_video, :is_blog, :thumb_exists, :feed_id, :subscription_type, :thumbnail_exists, :created_at, :jcrawl_story_id, :delta, :quality_rating
+  end
+  
+  serialize_with_options  do
+    dasherize false
+    except :delta, :quality_rating, :jcrawl_story_id, :thumbnail_exists, :thumb_exists
+    map_include :authors => :authors_serialize
+  end
   
   belongs_to :source
   belongs_to :feed
@@ -65,7 +67,7 @@ class Story < ActiveRecord::Base
     has :is_video
     has :is_blog
     has :is_opinion
-    has :subscription_type
+    has "CASE subscription_type WHEN 'public' THEN 0 WHEN 'private' THEN 1 ELSE 2 END", :type => :integer, :as => :subscription_type
     has :feed_id
     has :source_id
     has :language_id
@@ -114,6 +116,10 @@ class Story < ActiveRecord::Base
   
   def find_or_initialize_story_metric
     self.story_metric ||= StoryMetric.new
+  end
+  
+  def authors_serialize( options = {} )
+    (authors_to_serialize || authors).to_xml( :set => :short , :root => options[:root], :builder => options[:builder], :skip_instruct=>true )
   end
   
 end

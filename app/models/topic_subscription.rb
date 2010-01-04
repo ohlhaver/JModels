@@ -1,5 +1,14 @@
 class TopicSubscription < ActiveRecord::Base
   
+  attr_accessor :stories_to_serialize
+  
+  serialize_with_options do
+    dasherize false
+    except :owner_id, :owner_type, :search_any, :search_all, :search_except, :search_exact_phrase, :region_id, :source_id, :author_id, :time_span, :sort_criteria, 
+      :category_id, :blog, :video, :opinion, :subscription_type, :story_search_hash
+    map_include :stories => :stories_serialize
+  end
+  
   belongs_to :owner, :polymorphic => true
   
   validates_presence_of :name
@@ -11,8 +20,13 @@ class TopicSubscription < ActiveRecord::Base
   belongs_to :source
   belongs_to :region
   
-  def stories( page = '1')
-    Story.search( *to_sphinx( page ) )
+  before_save :populate_story_search_hash
+  
+  serialize :story_search_hash
+  
+  def stories( params = {} )
+    attributes_hash = HashWithIndifferentAccess.new( attributes ) 
+    StorySearch.from_hash( owner, attributes_hash.merge!( params ), story_search_hash ){ |s| s.populate_options }.results
   end
   
   def filters
@@ -24,55 +38,23 @@ class TopicSubscription < ActiveRecord::Base
     return f
   end
   
-  def to_sphinx( page = '1' )
-    options = { 
-      :page => page || '1', 
-      :per_page => owner.preference.per_page, 
-      :match_mode => :extended
-    }
-    options.merge!( Story::Sort[ sort_criteria || owner.preference.default_sort_criteria ] )
-    options[:with].merge!( :author_id => author_id )     if author_id
-    options[:with].merge!( :category_id => category_id ) if category_id
-    if region_id 
-      source_ids = Region.find( :first, :conditions => { :id => region_id } , :include => :sources ).try(:source_ids)
-      options[:with].merge!( :source_id => source_ids ) if source_ids
-    end
-    options[:with].merge!( :source_id => source_id )     if source_id
-    options[:with].merge!( :created_at => time_range )
-    [ search_terms, options ]
-  end
-  
-  def search_terms
-    ( search_any_terms + search_all_terms + search_exact_phrase_terms + search_except_terms ).select{ |x| !x.blank? }.collect{ |x| "( #{x} )" }.join(' & ')
-  end
-  
   protected
   
-  def time_range
-    start = ( time_span || owner.preference.default_time_span ).seconds.from_now
-    start..Time.now
-  end
-  
-  def search_any_terms
-    Array( search_any.try( :split, /(\s+|\,)/ ).try( :select ){ |x| x =~ /\w+/ }.try(:join, ' | ') )
-  end
-  
-  def search_all_terms
-    search_all.try( :split, /(\s+|\,)/ ).try( :select ){ |x| x =~ /\w+/ } || []
-  end
-  
-  def search_exact_phrase_terms
-    search_exact_phrase.try( :split, /\,\s*/ ).try( :select ){ |x| x =~ /\w+/ }.try( :collect ){ |x| x.dump } || []
-  end
-  
-  def search_except_terms
-    search_except.try( :split, /(\s+|\,)/ ).try( :select ){ |x| x =~ /\w+/ }.try( :collect ){ |x| "!#{x}" } || []
+  def populate_story_search_hash
+    if( story_search_hash.blank? || search_all_changed? || search_any_changed? || search_exact_phrase_changed? ||
+      search_except_changed? )
+      self.story_search_hash = StorySearch.new( owner, :advance, attributes.symbolize_keys ).to_hash
+    end
   end
   
   def validates_presence_of_search_keywords
     if search_all.blank? && search_any.blank? && search_exact_phrase.blank?
       errors.add( :search_keywords, :required )
     end
+  end
+  
+  def stories_serialize( options = {} )
+    stories_to_serialize.to_xml( options )
   end
   
 end
