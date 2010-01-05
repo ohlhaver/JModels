@@ -7,7 +7,7 @@ class User < ActiveRecord::Base
   
   has_many :author_subscriptions, :as => :owner
   has_many :source_subscriptions, :as => :owner
-  has_many :topic_subscriptions, :as => :owner
+  has_many :topic_subscriptions, :as => :owner, :order => 'position ASC'
   has_many :story_subscriptions, :as => :owner
   has_many :multi_valued_preferences, :as => :owner
   

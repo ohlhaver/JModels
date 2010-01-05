@@ -44,7 +44,7 @@ class StorySearch
   attr_reader :string
   
   def initialize( user = user, mode = :simple, params = {} )
-    self.params = params
+    self.params = HashWithIndifferentAccess.new( params )
     self.mode = mode
     self.user = user
     if mode != :serialize
@@ -95,12 +95,12 @@ class StorySearch
   protected
   
   def page
-    params[:page] || 1
+    Integer( params[:page] || 1 ) rescue 1
   end
   
   def per_page
     @per_page ||= user.try( :preference ).try( :per_page ) || 10
-    params[:per_page] || @per_page
+    Integer( params[:per_page] || @per_page ) rescue 10
   end
   
   #public private paid

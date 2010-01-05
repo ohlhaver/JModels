@@ -11,6 +11,13 @@ class TopicSubscription < ActiveRecord::Base
   
   belongs_to :owner, :polymorphic => true
   
+  acts_as_list :scope => :owner
+  
+  #redefining scope condition # bugfix for the acts_as_list plugin
+  def scope_condition
+    self.class.send( :sanitize_sql_hash_for_conditions, { :owner_type => owner_type, :owner_id => owner_id } )
+  end
+  
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => [ :owner_type, :owner_id ]
   validate :validates_presence_of_search_keywords
@@ -36,6 +43,11 @@ class TopicSubscription < ActiveRecord::Base
     f <<  { :name => 'Source', :value => source.name } if source
     f <<  { :name => 'Category', :value => category.name } if category
     return f
+  end
+  
+  def advance?
+    ( !search_all.blank? || !search_exact_phrase.blank? || !search_except.blank? || sort_criteria || time_span || 
+      category_id || region_id || author_id || source_id || blog || video || opinion || subscription_type )
   end
   
   protected
