@@ -1,6 +1,7 @@
 class Story < ActiveRecord::Base
   
   attr_accessor :authors_to_serialize
+  attr_accessor :author_subscription_count
   
   serialize_with_options :short do
     dasherize false
@@ -36,12 +37,31 @@ class Story < ActiveRecord::Base
   validates_inclusion_of   :subscription_type, :in => %w(public private paid)
   
   after_destroy :delete_dependencies
+  after_create :check_and_insert_into_top_author_stories
   
   named_scope :language, lambda { |language| { :conditions => { :language_id => ( language.is_a?( Language ) ? language.id : language ) } } }
   named_scope :since, lambda{ |time|  { :conditions => [ 'stories.created_at > ?', time ] } }
   named_scope :non_duplicates, :conditions => 'stories.id NOT IN ( SELECT story_id FROM story_metrics WHERE master_id IS NOT NULL )'
   named_scope :duplicates, :conditions => 'stories.id IN ( SELECT story_id FROM story_metrics WHERE master_id IS NOT NULL )'
-  # last 24 hours Story.since(24.hours.ago).language(Language.find_by_code('de').id)  
+  # last 24 hours Story.since(24.hours.ago).language(Language.find_by_code('de').id)
+  
+  # Used by Background Algorithm to Generate Top Author Stories
+  named_scope :with_author_subscription_count, lambda{ 
+    { 
+      :select => 'stories.*, SUM( IF( ta.subscription_count > 2, 1, 0 ) ) AS top_author_count, SUM( ta.subscription_count ) AS author_subscription_count',
+      :joins => ' INNER JOIN story_authors ON ( story_authors.story_id = stories.id ) 
+        INNER JOIN bg_top_authors AS ta ON ( ta.author_id = story_authors.author_id ) ',
+      :group => 'stories.id',
+      :having => 'top_author_count > 0'
+    }
+  }
+  
+  # Used by Frontend Query to fetch top authors
+  named_scope :by_top_authors, lambda {
+    { :select => 'stories.*, tas.subscription_count AS author_subscription_count', 
+      :joins => "INNER JOIN bg_top_author_stories AS tas ON ( tas.story_id = stories.id AND tas.active = #{connection.quoted_true})", 
+      :order => 'tas.subscription_count DESC, stories.created_at DESC' }
+  }
   
   # particular story
   def duplicates( *args )
@@ -104,12 +124,29 @@ class Story < ActiveRecord::Base
   #   story_metric && story_metric.keyword_exists?
   # end
   
+  def author_subscription_count
+    write_attribute( :author_subscription_count, authors.collect( &:subscription_count ).sum ) unless has_attribute?( :author_subscription_count ) 
+    Integer( read_attribute( :author_subscription_count ) )
+  end
+  
+  def by_top_author?
+    authors.select( &:top_author? ).any?
+  end
+  
   def delete_dependencies
     StoryMetric.delete_all( { :story_id => self.id } )
     StoryContent.delete_all( { :story_id => self.id } )
     StoryAuthor.delete_all( { :story_id => self.id } )
     StoryThumbnail.delete_all( { :story_id => self.id } )
     StoryGroupMembership.delete_all( { :story_id => self.id } )
+  end
+  
+  def self.insert_into_top_author_stories( story_id, subscription_count, active = false)
+    if active
+      connection.execute( "INSERT INTO bg_top_author_stories (story_id, subscription_count, active ) VALUES ( #{story_id}, #{subscription_count}, #{connection.quoted_true})" )
+    else
+      connection.execute( "INSERT INTO bg_top_author_stories (story_id, subscription_count) VALUES( #{story_id}, #{subscription_count} )")
+    end rescue nil
   end
   
   protected
@@ -120,6 +157,12 @@ class Story < ActiveRecord::Base
   
   def authors_serialize( options = {} )
     (authors_to_serialize || authors).to_xml( :set => :short , :root => options[:root], :builder => options[:builder], :skip_instruct=>true )
+  end
+  
+  # Based on list of current top authors
+  def check_and_insert_into_top_author_stories
+    return if self.created_at < 24.hours.ago || !self.by_top_author?
+    self.class.insert_into_top_author_stories( self.id, self.author_subscription_count, true )
   end
   
 end

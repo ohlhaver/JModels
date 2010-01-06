@@ -18,6 +18,7 @@ class TopicSubscription < ActiveRecord::Base
     self.class.send( :sanitize_sql_hash_for_conditions, { :owner_type => owner_type, :owner_id => owner_id } )
   end
   
+  before_validation :populate_default_name
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => [ :owner_type, :owner_id ]
   validate :validates_presence_of_search_keywords
@@ -30,6 +31,8 @@ class TopicSubscription < ActiveRecord::Base
   before_save :populate_story_search_hash
   
   serialize :story_search_hash
+  
+  named_scope :home_group, lambda{ { :conditions => { :home_group => true } } }
   
   def stories( params = {} )
     attributes_hash = HashWithIndifferentAccess.new( attributes ) 
@@ -52,10 +55,15 @@ class TopicSubscription < ActiveRecord::Base
   
   protected
   
+  def populate_default_name
+    self.name = self.search_any if self.name.blank?
+    return true
+  end
+  
   def populate_story_search_hash
     if( story_search_hash.blank? || search_all_changed? || search_any_changed? || search_exact_phrase_changed? ||
       search_except_changed? )
-      self.story_search_hash = StorySearch.new( owner, :advance, attributes.symbolize_keys ).to_hash
+      self.story_search_hash = StorySearch.new( owner, :advance, attributes.symbolize_keys ).to_hash.delete_if{ |k,v| k == :options }
     end
   end
   

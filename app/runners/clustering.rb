@@ -30,6 +30,11 @@ class Clustering < BackgroundRunnerPool
       add_runner( 'Duplicate Marker Across Source', :run_once ) do
         DuplicateMarker.new( :logger => self.logger ).run( :with_session => true )
       end
+      
+      # Queries runs on the Tier2 MySQL DB rather than Background Mysql DB ( therefore running every 30 minutes rather than :run_forever )
+      add_runner( 'Top Author Stories', :run_once ) do
+        TopAuthorGeneration.new( :logger => self.logger ).run( :with_session => true )
+      end
     
     else
       
@@ -57,6 +62,12 @@ class Clustering < BackgroundRunnerPool
         unless $new_stories_count == 0
           DuplicateMarker.new( :logger => self.logger ).run( :with_session => true )
         end
+      end
+      
+      # Queries runs on the Tier2 MySQL DB rather than Background Mysql DB ( therefore running every hour rather than :run_forever )
+      # New top authors are calculated and top author stories is reset
+      add_runner( 'Top Author Stories', :run_every_hour ) do
+        TopAuthorGeneration.new( :logger => self.logger ).run( :with_session => true )
       end
     
     end

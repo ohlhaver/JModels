@@ -58,12 +58,12 @@ class StorySearch
     @options = { :with => { :master_id => 0 }, :without => {}, :match_mode => :extended }
     self.options[:without].merge!( :author_ids => 0 ) if self.mode == :author
     self.options[:without].merge!( :source_id => 0 ) if self.mode == :source
+    add_filter_author_ids
     add_sort_criteria 
     add_time_span
     add_blog_pref
     add_video_pref
     add_opinion_pref
-    add_filter_author_ids
     add_filter( :category_id )
     add_filter_region_id
     add_filter( :source_id )
@@ -120,6 +120,14 @@ class StorySearch
   end
   
   def add_filter_author_ids
+    params[:sort_criteria] = 2 if params[:sort_criteria].blank? && mode == :author
+    case( column_eval( :author_ids ) ) when 'all'
+      params[:author_ids] = self.user ? by_user_authors : 0 
+      if params[:cluster_group] == true
+        params[:per_page] = per_cluster_group 
+        params[:page] = 1
+      end
+    end
     attr_value = Array( column_eval( :author_ids ) || column_eval( :author_id ) )
     attr_value.collect!{ |x| x.to_i }
     options[:with].merge!( :author_ids => attr_value ) unless attr_value.blank?
@@ -164,9 +172,11 @@ class StorySearch
     case attr_value  when "0", 0
       self.options[:with].merge!( attr_name => 0 )
     when "1", 1
-      self.options[:order].try( :<<, "*IF( #{attr_name} = 0, 2, 0.5)" )
+      self.options[:order].send( :<<, "*IF( #{attr_name} = 0, 2, 0.5)" ) if self.options[:order].respond_to?( :<< )
     when "3", 3
-      self.options[:order].try( :<<, "*IF( #{attr_name} = 1, 2, 0.5)" )
+      self.options[:order].send( :<<, "*IF( #{attr_name} = 1, 2, 0.5)" ) if self.options[:order].respond_to?( :<< )
+    when "4", 4
+      self.options[:with].merge!( attr_name => 1 )
     end
   end
   
@@ -186,9 +196,9 @@ class StorySearch
   end
   
   def search_any_terms
-    stmt = ( @parser.parse( column_eval( :search_any ).to_s ).try( :root ).try( :eval ) || [] ).join(' | ')
-    stmt = "( #{stmt} )" unless stmt.blank?
-    Array( stmt.blank? ? nil : stmt )
+    terms = ( @parser.parse( column_eval( :search_any ).to_s ).try( :root ).try( :eval ) || [] )
+    terms = terms.size > 1 ? "( #{terms.join(' | ')} )" : terms.first
+    Array( terms.blank? ? nil : terms )
   end
   
   def search_all_terms
@@ -204,12 +214,21 @@ class StorySearch
   end
   
   def populate_advance_search_string
-    ( search_any_terms + search_all_terms + search_exact_phrase_terms + search_except_terms ).join(' & ')
+    terms = search_any_terms + search_all_terms + search_exact_phrase_terms + search_except_terms
+    ( terms.size > 1 ? "( #{terms.join(' & ')} )" : terms.first ) || ""
   end
   
   def column_eval( column_name )
     value = params[ column_name ]
     value.blank? ? nil : value
+  end
+  
+  def by_user_authors
+    self.user.author_subscriptions.subscribed.all( :select => 'author_id' ).collect( &:author_id )
+  end
+  
+  def per_cluster_group
+    Integer( params[:per_cluster_group] || @user.try(:preference).try( :headlines_per_cluster_group ) || 2 ) rescue 2
   end
   
 end

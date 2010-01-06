@@ -22,6 +22,24 @@ class Author < ActiveRecord::Base
   validates_uniqueness_of                     :name, :if => Proc.new{ |r| !r.skip_uniqueness_validation }
   validate_on_create :uniqueness_of_name_in_aliases, :if => Proc.new{ |r| !r.skip_uniqueness_validation }
   
+  named_scope :with_subscription_count, lambda{ 
+    { 
+      :select => 'authors.*, COUNT(*) AS subscription_count',
+      :joins => "INNER JOIN author_subscriptions ON ( author_subscriptions.author_id = authors.id AND author_subscriptions.subscribed = #{connection.quoted_true})",
+      :group => 'authors.id',
+      :conditions => { :is_agency => false }
+    }
+  }
+  
+  named_scope :top, lambda{
+    {
+      :select => 'authors.*, ta.subscription_count', 
+      :joins => "INNER JOIN bg_top_authors AS ta ON ( ta.author_id = authors.id AND ta.active = #{connection.quoted_true})",
+      :conditions => 'ta.subscription_count > 2', 
+      :order => 'ta.subscription_count DESC'
+    }
+  }
+  
   define_index do
     indexes :name, :as => :name, :sortable => true
     indexes aliases(:name), :as => :aliases
@@ -86,6 +104,19 @@ class Author < ActiveRecord::Base
   #
   def merge_authors( authors )
     Array(authors).each{ |author| merge_author(author) }
+  end
+  
+  def subscription_count
+    write_attribute( :subscription_count, self.class.subscription_count( self.id ) )  unless has_attribute?( :subscription_count )
+    Integer( read_attribute( :subscription_count ) )
+  end
+  
+  def top_author?
+    subscription_count > 2
+  end
+  
+  def self.subscription_count( author_id )
+    self.connection.select_value( "SELECT subscription_count FROM bg_top_authors WHERE author_id = #{author_id}" ) || "0"
   end
   
   protected

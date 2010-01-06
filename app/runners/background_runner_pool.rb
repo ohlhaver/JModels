@@ -20,6 +20,8 @@ class BackgroundRunner
       execute_once if last_run_at.nil? || last_run_at < 24.hours.ago
     when :run_every_hour
       execute_once if last_run_at.nil? || last_run_at < 1.hour.ago
+    when :run_every_30_minutes
+      execute_once if last_run_at.nil? || last_run_at < 30.minutes.ago
     else
       execute_once
     end
