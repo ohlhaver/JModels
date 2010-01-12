@@ -3,11 +3,12 @@ class BjSession < ActiveRecord::Base
   module Jobs
     
     unless defined?(BjSession::Jobs::CandidateGeneration)
-      CandidateGeneration = 1
-      DuplicateMarker     = 2 # Across Source
-      DuplicateDeletion   = 5 # Within Source
-      GroupGeneration     = 3
-      QualityRating       = 4
+      CandidateGeneration     = 1
+      DuplicateMarker         = 2 # Across Source
+      DuplicateDeletion       = 5 # Within Source
+      GroupGeneration         = 3
+      QualityRatingGeneration = 4
+      TopAuthorGeneration     = 6 
     end
     
   end

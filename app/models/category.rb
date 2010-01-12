@@ -2,6 +2,8 @@ class Category < ActiveRecord::Base
   
   unless defined?( Default )
     Default = [ "POL", "BUS", "CUL", "SCI", "TEC", "SPO", "MIX", "OPI" ]
+    Top = [ "POL", "BUS", "CUL", "SCI", "TEC", "OPI" ]
+    Map = { :top_stories_cluster_group => :Top, :default => :Default }
   end
   
   validates_presence_of   :id, :name, :code
@@ -11,6 +13,26 @@ class Category < ActiveRecord::Base
     @@categories_for_select = nil if reload
     @@categories_for_select ||= Category.all( :select => 'id, name' ).collect{ |x| [ x.name, x.id ] }
   end
+  
+  def self.hash_map( filter = :default, options = {} )
+    options.reverse_merge!( :keys => :symbol, :values => :id ) 
+    hash = Hash.new
+    constant_name = Category::Map[ filter.try( :to_sym ) ]
+    return hash  unless constant_name
+    Category.find( :all, :conditions => { :code => self.const_get( constant_name ) } ).each do | category |
+     key = ( options[:keys] == :symbol ? category.code.downcase.sym : category.code )
+     hash[ key ] = ( options[:values] == :record ) ? category : category.send( values )
+    end
+    return hash
+  end
+  
+  def self.collection( filter = :default )
+    map = hash_map( filter, :keys => :string, :values => :record )
+    return [] if map.blank?
+    constant_name = Category::Map[ filter.try( :to_sym ) ]
+    self.const_get( constant_name ).collect{ |code| map[ code ] }.select{ |category| !category.nil? }
+  end
+  
   
   def self.top_category_id( category_ids )
     return nil if category_ids.blank?

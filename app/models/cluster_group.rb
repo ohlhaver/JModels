@@ -42,14 +42,20 @@ class ClusterGroup < ActiveRecord::Base
     homepage( options ).all( :select => 'id, name' ).collect{ |x| [ x.name, x.id ] }
   end
   
-  def self.stories( cluster_group_ids, per_cluster_group = 2, per_cluster = 3 )
-    cluster_group_ids.push( { :limit => per_cluster_group, :offset => 0 } )
-    clusters = StoryGroup.active_session.by_cluster_group_ids( *cluster_group_ids ).all( 
-      :include => :top_stories )
-    cluster_group_ids.pop # popping out options parameter
-    StoryGroup.populate_stories_to_serialize( clusters, per_cluster )
-    clusters = clusters.group_by{ |x| x.send( :read_attribute, :cluster_group_id ) }
+  # Top Clusters are Removed From Other Cluster Groups
+  def self.stories( user, cluster_group_ids, per_cluster_group = 2, per_cluster = 3, top_clusters = [] )
+    clusters = []
+    unless cluster_group_ids.blank?
+      cluster_group_ids.push( { :limit => per_cluster_group, :exclude_cluster_ids => top_clusters.collect(&:id), :user => user } )
+      clusters = StoryGroup.active_session.by_cluster_group_ids( *cluster_group_ids ).all
+      cluster_group_ids.pop # popping out options parameter
+    end
+    top_clusters.inject( clusters ){ |ac,tc| ac.push( tc ) }
+    StoryGroup.populate_stories_to_serialize( user, clusters, per_cluster )
+    clusters = clusters.group_by{ |x| top_clusters.include?( x ) ? 'top' : x.send( :read_attribute, :cluster_group_id ) }
     cluster_groups = cluster_group_ids.collect{ |id| { :id => id.to_i , :clusters => clusters[ id ] } }
-    cluster_groups.delete_if{ |x| x[:clusters].blank? }
+    cluster_groups.insert( 0, { :id => 'top', :clusters => clusters[ 'top' ] } )
+    cluster_groups.delete_if{ |x| x[ :clusters ].blank? }
   end
+  
 end

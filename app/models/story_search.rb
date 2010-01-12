@@ -92,7 +92,12 @@ class StorySearch
     return object
   end
   
+  def inspect
+    "<StorySearch:#{object_id} #{string}>"
+  end
+  
   protected
+  
   
   def page
     Integer( params[:page] || 1 ) rescue 1
@@ -106,10 +111,10 @@ class StorySearch
   #public private paid
   def add_subscription_type
     attr_value = column_eval( :subscription_type ) || user.try( :preference ).try( :subscription_type )
-    case ( attr_value ) when '2', 2
-      options[:with].merge!( :subscription_type => [ 1, 2 ] )
-    when '3', 3
-      options[:with].merge!( :subscription_type => [ 1 ] )
+    case ( attr_value ) when '1', 1
+      options[:with].merge!( :subscription_type => [ 0, 1 ] )
+    when '2', 2
+      options[:with].merge!( :subscription_type => [ 0 ] )
     end
   end
   
@@ -144,16 +149,32 @@ class StorySearch
   
   def add_sort_criteria
     sort_criteria = column_eval( :sort_criteria ) ||  user.try( :preference ).try( :default_sort_criteria ) || Preference.select_value_by_name_and_code( :sort_criteria, :relevance )[ :id ]
+    options[:without].merge!( :ban_user_ids => user.id ) if self.user
     case( sort_criteria ) when "2", 2
       options.merge!(  :sort_mode => :desc, :order => :created_at )
     when "3", 3
       options.merge!(  :sort_mode => :desc, :order => :created_at, :group_by => 'group_id', :group_function => :attr )
       options[:without].merge!( :group_id => 0 )
     when "1", 1
-      options.merge!( :group_by => 'group_id', :group_function => :attr, :sort_mode => :expr, :order => "@weight * quality_rating * (100/POW( 1 + (NOW() - created_at), 0.33 ) )" )
+      options.merge!( :group_by => 'group_id', :group_function => :attr, :sort_mode => :expr, :order => relevance )
       options[:without].merge!( :group_id => 0 )
     else
-      options.merge!( :sort_mode => :expr, :order => "@weight * quality_rating * (100/POW( 1 + (NOW() - created_at), 0.33 ) )" )
+      options.merge!( :sort_mode => :expr, :order => relevance )
+    end
+  end
+  
+  def relevance
+    order = "@weight * (100/POW( 1 + IF( NOW() < created_at, 0, NOW() - created_at ), 0.33 ) ) * quality_rating" # sphinx_score * age * quality_rating
+    if @user && ( @user.author_subscription.count > 0 || @user.source_subscription.count > 0 )
+      "#{order} * 
+        IF( IN( source_high_user_ids, #{@user.id} ), IF( default_author_rating < 0, 3/quality_rating, (3 + default_author_rating)/(2*quality_rating) ), 1 ) *
+        IF( IN( source_normal_user_ids, #{@user.id} ), IF( default_author_rating < 0, 2/quality_rating, (2 + default_author_rating)/(2*quality_rating) ), 1 ) *
+        IF( IN( source_low_user_ids, #{@user.id} ), IF( default_author_rating < 0, 1/quality_rating, (1 + default_author_rating)/(2*quality_rating) ), 1 ) *
+        IF( IN( author_high_user_ids, #{@user.id} ), 3/quality_rating, 1 ) * 
+        IF( IN( author_normal_user_ids, #{@user.id} ), 2/quality_rating, 1 ) *
+        IF( IN( author_low_user_ids, #{@user.id} ), 1/quality_rating, 1 )".gsub(/\n|\r/, ' ').squeeze(' ')
+    else
+      order
     end
   end
   

@@ -57,7 +57,7 @@ class CandidateGeneration < BackgroundService
       
       Story.find_in_batches( :select => attributes_to_select, :joins => 'LEFT OUTER JOIN feed_categories ON ( feed_categories.feed_id = stories.feed_id ) 
           LEFT OUTER JOIN story_metrics ON ( story_metrics.story_id = stories.id ) LEFT OUTER JOIN languages ON ( languages.id = stories.language_id)', 
-        :conditions => [ 'created_at >= ? ', last_story_found_at ], :group => 'stories.id' ) do |story_batch|
+        :conditions => [ 'created_at >= ? AND quality_ratings_generated = ?', last_story_found_at, true ], :group => 'stories.id' ) do |story_batch|
         
         story_batch.each do |story|
           @story_titles[ story.id ] = story.title

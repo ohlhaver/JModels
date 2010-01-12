@@ -90,9 +90,21 @@ class User < ActiveRecord::Base
     clusters ||= ClusterGroup.homepage( self, :tag => tag( region_id, language_id ) )
   end
   
-  def homepage_cluster_group_preferences
+  def homepage_cluster_group_preferences( *args )
     create_default_homepage_cluster_groups
-    multi_valued_preferences.preference( :homepage_clusters ).tag( tag ).all
+    multi_valued_preferences.preference( :homepage_clusters ).tag( tag ).all( *args )
+  end
+  
+  def show_homepage_cluster_groups?
+    MultiValuedPreference.owner( self ).preference( :homepage_boxes ).first( 
+      :conditions => { :value => Preference.select_value_by_name_and_code( :homepage_boxes, :cluster_groups ).try( :[], :id ) } 
+    ) != nil
+  end
+  
+  def show_top_stories_cluster_group?
+    MultiValuedPreference.owner( self ).preference( :homepage_boxes ).first(
+      :conditions => { :value => Preference.select_value_by_name_and_code( :homepage_boxes, :top_stories_cluster_group ).try( :[], :id ) } 
+    ) != nil
   end
   
   protected

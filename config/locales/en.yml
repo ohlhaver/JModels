@@ -21,6 +21,12 @@ en:
       immediately: "Send Immediately"
       'off': "Turn Off Emails"
       weekly: "Send Weekly Digest"
+    homepage:
+      cluster_groups: "Cluster Groups"
+      my_authors: "My Authors"
+      my_topics: "My Topics"
+      top_stories: "Top Stories"
+      top_authors: "Top Authors"
     image:
       'off': "No Images"
       'on': "Show Images"

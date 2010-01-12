@@ -5,16 +5,10 @@ class StoryGroupArchive < ActiveRecord::Base
   attr_accessor :stories_to_serialize
   attr_accessor :authors_pool # global pool of authors, #used in case of serialization
   
-  serialize_with_options :custom do
-    dasherize false
-    except :bj_session_id, :created_at, :thumbnail_story_id, :thumbnail_exists, :top_keywords
-    map_include :top_keywords => :top_keywords_serialize, :stories => :stories_serialize
-  end
-  
   serialize_with_options do
     dasherize false
-    except :bj_session_id, :created_at, :thumbnail_story_id, :thumbnail_exists, :top_keywords
-    map_include :top_stories => :top_stories_serialize, :top_keywords => :top_keywords_serialize
+    except :bj_session_id, :created_at, :thumbnail_story_id, :thumbnail_exists, :top_keywords, :cluster_group_id
+    map_include :top_keywords => :top_keywords_serialize, :stories => :stories_serialize
   end
   
   serialize :top_keywords
@@ -37,7 +31,7 @@ class StoryGroupArchive < ActiveRecord::Base
   end
   
   def stories_serialize( options = {} )
-    stories_to_serialize ||= top_stories[0...3]
+    self.stories_to_serialize ||= top_stories[0...3]
     unless stories_to_serialize.blank?
       self.authors_pool ||= Author.find(:all, :select => 'authors.*, story_authors.story_id AS story_id', :joins => 'INNER JOIN story_authors ON ( story_authors.author_id = authors.id )', 
         :conditions => { :story_authors => { :story_id => stories_to_serialize.collect(&:id) } } ).group_by{ |a| a.send( :read_attribute, :story_id ).to_i }

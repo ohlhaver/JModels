@@ -42,8 +42,22 @@ class Preference < ActiveRecord::Base
       :region_id => :RegionValues,
       :default_region_id => :RegionValues,
       :search_language_id => :LanguageValues,
-      :search_language_ids => :LanguageValues
+      :search_language_ids => :LanguageValues,
+      :homepage_boxes => :HomePageBoxesValues,
+      :top_stories_cluster_group => :TopStoriesClusterGroupValues
     }
+    
+    TopStoriesClusterGroupValues = Category.collection( :top_stories_cluster_group ).collect{ |category|
+      { :name => "prefs.category.#{category.name.downcase}", :code => category.code.downcase.to_sym, :id => category.id }
+    }
+    
+    HomePageBoxesValues = [
+      { :name => 'prefs.homepage.top_stories',    :code => :top_stories_cluster_group, :id => 0 },
+      { :name => 'prefs.homepage.cluster_groups', :code => :cluster_groups, :id => 1 },
+      { :name => 'prefs.homepage.top_authors',    :code => :top_authors, :id => 2 },
+      { :name => 'prefs.homepage.my_authors',     :code => :my_authors, :id => 3 },
+      { :name => 'prefs.homepage.my_topics',      :code => :my_topics, :id => 4 }
+    ]
   
     EmailValues = [ 
       { :name => 'prefs.email.off',         :code => :off,          :id => 0 },
@@ -158,7 +172,7 @@ class Preference < ActiveRecord::Base
     end
     
     def default_language_id
-      DefaultValues[ :language_id ]
+      default_language_id_for_region_id( default_region_id )
     end
     
     def select_all( preference_name )
@@ -191,6 +205,8 @@ class Preference < ActiveRecord::Base
   end
   
   belongs_to :owner, :polymorphic => true
+  before_save :save_search_language_ids
+  before_create :create_homepage_box_prefs
   
   def reset_search_lang_prefs!
     @search_lang_prefs = Array.new
@@ -219,8 +235,6 @@ class Preference < ActiveRecord::Base
     search_language_ids.include?( language_id )
   end
   
-  before_save :save_search_language_ids
-  
   unless method_defined?( :method_missing_with_field_code )
     def method_missing_with_field_code( method_id, *args )
       attribute = method_id.to_s.match(/(.+)_code$/).try(:[], 1)
@@ -244,9 +258,24 @@ class Preference < ActiveRecord::Base
       mvp = MultiValuedPreference.preference(:search_languages).create( 
         attrs.merge( :owner_id => self.owner_id, :owner_type => self.owner_type ) 
       )
-      logger.info mvp.errors.full_messages
+      logger.info mvp.errors.full_messages if mvp.errors.any?
     }
     @search_lang_prefs.try(:clear)
+  end
+  
+  def create_homepage_box_prefs
+    # Preferences are created by default ( global preferences and are not customized per edition )
+    Preferences.select_all( :homepage_boxes ).each do |pref|
+      mvp = MultiValuedPreference.preference(:homepage_boxes).create( :owner_id => self.owner_id, :owner_type => self.owner_type, :value => pref['id'] )
+      logger.info mvp.errors.full_messages if mvp.errors.any?
+    end
+  end
+  
+  def create_top_section_prefs
+    Preference.select_all( :top_stories_cluster_group ).each do |pref|
+      mvp = MultiValuedPreference.preference( :top_stories_cluster_group ).create( :owner_id => self.owner_id, :owner_type => self.owner_type, :value => pref['id'] )
+      logger.info mvp.errors.full_messages if mvp.errors.any?
+    end
   end
   
   unless method_defined?( :method_missing_with_serialize )

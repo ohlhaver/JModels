@@ -54,15 +54,55 @@ class StoryGroup < ActiveRecord::Base
   named_scope :active_session, lambda{ { :conditions => { :bj_session_id => BjSession.current(BjSession::Jobs::GroupGeneration).try(:id) } } }
   
   named_scope :by_cluster_group_ids, lambda{ |*args|
-    options = args.last.is_a?( Hash ) ? args.pop : {}
-    options.reverse_merge!( :limit => 3, :offset => 0 )
-    rank_start = options[:offset].to_i
-    rank_end = rank_start + options[:limit].to_i
+    story_group_ids = story_group_ids( *args )
+    options = args.extract_options!
+    { 
+      :select => %Q( story_groups.*, cgm.broadness_score AS broadness_score, cgm.cluster_group_id ),
+      :joins => %Q( INNER JOIN cluster_group_memberships AS cgm ON ( cgm.story_group_id = story_groups.id AND cgm.active = #{connection.quoted_true} ) 
+        LEFT OUTER JOIN cluster_group_memberships AS cgm2 ON ( cgm2.cluster_group_id = cgm.cluster_group_id AND cgm2.active = #{connection.quoted_true} 
+          AND cgm.rank > cgm2.rank AND cgm2.story_group_id IN ( #{ story_group_ids.blank? ? 'NULL' : story_group_ids.join(',') } ) ) ),
+      :conditions => [ "cgm.cluster_group_id IN ( :cluster_group_ids ) AND cgm.story_group_id IN ( :story_group_ids )", 
+        { :cluster_group_ids => args, :story_group_ids => story_group_ids } ],
+      :group => 'cgm.cluster_group_id, cgm.story_group_id',
+      :having => "COUNT( cgm2.cluster_group_id ) < #{options[:limit] || 3}",
+      :order => 'cgm.rank DESC'
+    }
+  }
+  
+  named_scope :by_cluster_group_id, lambda{ |*args|
+    options = args.extract_options!
+    cluster_group_id = args.first || 'NULL'
+    user = options.delete(:user)
+    { 
+      :select => %Q( story_groups.*, cgm.broadness_score AS broadness_score, cgm.cluster_group_id ),
+      :joins => %Q( INNER JOIN cluster_group_memberships AS cgm ON ( cgm.story_group_id = story_groups.id AND cgm.active = #{connection.quoted_true} 
+        AND cgm.cluster_group_id = #{ args.first } ) ),
+      :conditions => [ :video, :opinion, :blog ].collect{ |x| vob_sql_value_for( 'story_groups', x, user ) }.select{ |x| !x.nil? }.join( ' AND ' ),
+      :order => 'cgm.rank ASC'
+    }
+  }
+  
+  named_scope :top_clusters, lambda{ |*args|
+    options = args.extract_options!
+    options.symbolize_keys!
+    options.delete_if{ |k,v| v.blank? }
+    user = options.delete(:user)
+    if user
+      category_ids = MultiValuedPreference.owner( user ).preference( :top_stories_cluster_group ).all( :select => 'value' ).collect( &:value )
+      options.reverse_merge!( :region_id => user.preference.region_id, :language_id => user.preference.default_language_id )
+    else
+      category_ids = Preference.select_all( :top_stories_cluster_group ).collect{ |s| s[:id] }
+      options.reverse_merge!( :region_id => Preference.default_region_id, :language_id => Preference.default_language_id )
+    end
+    cluster_ids = ClusterGroup.region( options[:region_id] ).language( options[:language_id] ).all( :select => 'id', 
+      :conditions => { :public => true, :category_id => category_ids } 
+    ).collect( &:id )
+    cluster_ids.push( 'NULL' ) if cluster_ids.blank?
     { 
       :select => %Q( story_groups.*, cgm.broadness_score AS broadness_score, cgm.cluster_group_id ),
       :joins => %Q( INNER JOIN cluster_group_memberships AS cgm ON ( cgm.story_group_id = story_groups.id AND cgm.active = #{connection.quoted_true} AND 
-        rank > #{connection.quote( rank_start )} AND rank <= #{connection.quote( rank_end ) } AND cgm.cluster_group_id IN (#{ args.join(',') }) ) ),
-      :order => 'cgm.rank ASC'
+        cgm.cluster_group_id IN (#{ cluster_ids.join(',') }) ) ),
+      :order => 'cgm.broadness_score DESC'
     }
   }
   
@@ -83,12 +123,23 @@ class StoryGroup < ActiveRecord::Base
       }, &block )
   end
   
-  def self.populate_stories_to_serialize( clusters, per_cluster = 3 )
+  #
+  # TODO: Sorted By relevance or time ( Cluster View )
+  #
+  def self.populate_stories_to_serialize( user, clusters, per_cluster = 3 )
+    # hash_map is top stories for each story group using personalized score if applicable
+    stories_hash_map = Story.hash_map_by_story_groups( clusters.collect( &:id ), user, per_cluster )
+    clusters.collect{ |cluster| cluster.stories_to_serialize = stories_hash_map[ cluster.id ]  }
+    # all_story_ids = clusters.inject([]){ |s,c| c.stories_to_serialize.nil? ? c.top_story_ids.inject(s){ |ss,ts| ss.push(ts) } : s }
+    # all_story_ids.uniq!
+    # user_quality_rating_hash_map = user && all_story_ids.any? ? StoryUserQualityRating.hash_map( user, all_story_ids ) : nil
+    # all_story_ids.clear
     story_ids = clusters.inject([]) do | acc, cluster| 
-      cluster.stories_to_serialize = cluster.top_stories[ 0...per_cluster ]
+      # cluster.stories_to_serialize ||= Story.personalize_for!( cluster.top_stories, user, user_quality_rating_hash_map )[ 0...per_cluster ]
       acc.push( cluster.stories_to_serialize(&:id) )
     end
     story_ids.flatten!
+    
     authors_pool = Author.find(:all, :select => 'authors.*, story_authors.story_id AS story_id', 
       :joins => 'INNER JOIN story_authors ON ( story_authors.author_id = authors.id )', 
       :conditions => { :story_authors => { :story_id => story_ids } } 
@@ -96,10 +147,44 @@ class StoryGroup < ActiveRecord::Base
     clusters.each{ |cluster| cluster.authors_pool = authors_pool }
   end
   
+  class << self 
+        
+    def vob_sql_value_for( table_name, attribute, user )
+      return nil unless user
+      column_name = "#{table_name}.#{attribute}_count"
+      case user.preference.send( attribute ) when 0 : "story_count > #{column_name} + 1" # Atleast Two Stories without preference
+      when 4 : "#{column_name} > 1" # Atleast Two Stories with preference
+      else nil end
+    end
+    
+    def story_group_ids( *args )
+      options = args.extract_options!
+      options[:limit] = Integer( options[:limit] || 3 ) rescue 3
+      user = options.delete( :user )
+      exclude_story_group_ids = options.delete( :exclude_cluster_ids ) || options.delete( :exclude_story_group_ids )
+      conditions = [ :video, :opinion, :blog ].collect{ |x| vob_sql_value_for( 'story_groups', x, user ) }.select{ |x| !x.nil? }
+      conditions.push( "cgm.cluster_group_id IN ( :cluster_group_ids )")
+      conditions_hash = { :cluster_group_ids => args }
+      if exclude_story_group_ids.try(:any?)
+        conditions.push( "cgm.story_group_id NOT IN ( :story_group_ids )" )
+        conditions_hash[ :story_group_ids ] = exclude_story_group_ids
+      end
+      conditions = sanitize_sql_for_conditions( [ conditions.join(' AND '), conditions_hash ] )
+      
+      connection.select_values(
+        %Q( SELECT GROUP_CONCAT(story_groups.id ORDER BY cgm.rank ASC SEPARATOR ',') AS ids 
+          FROM story_groups INNER JOIN cluster_group_memberships AS cgm ON ( cgm.story_group_id = story_groups.id AND cgm.active = #{connection.quoted_true} )
+          WHERE #{conditions} GROUP BY cgm.cluster_group_id
+        )
+      ).inject([]){ |s,group| group.split(',')[ 0, options[:limit] ].inject(s){ |ss, ii| ss.push(ii.to_i) } }
+    end
+    
+  end
+  
   protected
   
   def stories_serialize( options = {} )
-    stories_to_serialize ||= top_stories[0...3]
+    self.stories_to_serialize ||= top_stories[0...3]
     unless stories_to_serialize.blank?
       self.authors_pool ||= Author.find(:all, :select => 'authors.*, story_authors.story_id AS story_id', :joins => 'INNER JOIN story_authors ON ( story_authors.author_id = authors.id )', 
         :conditions => { :story_authors => { :story_id => stories_to_serialize.collect(&:id) } } ).group_by{ |a| a.send( :read_attribute, :story_id ).to_i }
