@@ -20,8 +20,12 @@ class BackgroundRunner
       execute_once if last_run_at.nil? || last_run_at < 24.hours.ago
     when :run_every_hour
       execute_once if last_run_at.nil? || last_run_at < 1.hour.ago
+    when :run_every_2_hours
+      execute_once if last_run_at.nil? || last_run_at < 2.hours.ago
     when :run_every_30_minutes
       execute_once if last_run_at.nil? || last_run_at < 30.minutes.ago
+    when :run_every_10_minutes
+      execute_once if last_run_at.nil? || last_run_at < 10.minutes.ago
     else
       execute_once
     end
@@ -37,6 +41,9 @@ class BackgroundRunner
     case (frequency) when :run_once : nil
     when :run_every_day : last_run_at + 24.hours + 1
     when :run_every_hour : last_run_at + 1.hour + 1
+    when :run_every_two_hours : last_run_at + 2.hours + 1
+    when :run_every_30_minutes : last_run_at + 30.minutes + 1
+    when :run_every_10_minutes : last_run_at + 10.minutes + 1
     else Time.now.utc end
   end
   

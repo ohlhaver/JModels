@@ -9,6 +9,7 @@ class BjSession < ActiveRecord::Base
       GroupGeneration         = 3
       QualityRatingGeneration = 4
       TopAuthorGeneration     = 6 
+      EmailNotification       = 7
     end
     
   end

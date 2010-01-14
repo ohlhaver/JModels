@@ -61,7 +61,8 @@ if defined?( Rails ) && Rails.initialized?
   RAILS_ROOT = File.expand_path( File.dirname(__FILE__) + '/..' )
   ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/models' )
   
-  
+  gem( "adzap-ar_mailer", :lib => 'action_mailer/ar_mailer', :source => 'http://gemcutter.com' )
+  require 'action_mailer/ar_mailer'
   gem( 'authlogic', :version => '2.1.3', :lib => 'authlogic' )
   require 'authlogic'
   gem( 'mislav-will_paginate', :version => '2.3.4', :lib => 'will_paginate', :source => 'http://gems.github.com' )
@@ -103,6 +104,7 @@ else
   require File.join(File.dirname(__FILE__), 'boot')
   
   Rails::Initializer.run do |config|
+    config.gem( "adzap-ar_mailer", :lib => 'action_mailer/ar_mailer', :source => 'http://gemcutter.com' )
     config.gem( 'authlogic', :version => '2.1.3', :lib => 'authlogic' )
     config.gem( 'mislav-will_paginate', :version => '2.3.4', :lib => 'will_paginate', :source => 'http://gems.github.com' )
     config.gem( 'thinking-sphinx-099', :lib => 'thinking_sphinx', :version => '1.3.2' )
@@ -110,7 +112,7 @@ else
     config.gem( 'jcore', :version =>'>=1.0.5', :lib => 'jcore' )
     config.gem( 'algorithms', :version => '=0.3.0', :lib => 'algorithms' )
     config.gem( 'treetop', :version => '>=1.4.3' )
-    config.frameworks -= [ :active_resource, :action_mailer ]
+    config.frameworks -= [ :active_resource ]
     config.routes_configuration_file = nil
     config.time_zone = 'UTC'
   end
@@ -119,3 +121,6 @@ else
   ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/runners' )
   
 end
+
+require 'action_mailer/ar_mailer'
+ActionMailer::Base.email_class = 'EnqueuedEmail'

@@ -10,6 +10,23 @@ en:
            attributes:
              search_keywords:
                required: "can't be blank"
+  email:
+    author:
+      body:
+        all_stories: "To find all articles by your favorite authors, follow the link below:\n{{url}}"
+        title: "You have got new articles by your subscribed authors"
+        turn_off_settings: "If you don't want to receive any further author emails, please select 'Off' below 'Author Emails' on this page:\n{{url}}"
+      subject: "New articles by your favorite authors"
+    body:
+      contact: "In case you experience any difficulties, please send us an email to:\n{{email}}"
+      dear_user: "Dear {{name}},"
+      regards: "Best Regards,\n{{name}}"
+    topic:
+      body:
+        all_stories: "To find all articles by your topic, follow the link below:\n{{url}}"
+        title: "You have got new articles by your topic: {{title}}"
+        turn_off_settings: "If you don't want to receive any further topic emails, please select 'Off' below 'Topic Emails' on this page:\n{{url}}"
+      subject: "New articles for your topic: {{title}}"
   prefs:
     country:
       at:  "Austria"

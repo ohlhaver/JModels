@@ -48,6 +48,16 @@ class User < ActiveRecord::Base
     
   end
   
+  named_scope :with_preference, lambda { 
+    { 
+      :include  => :preference
+    }
+  }
+  
+  def alert_monitor?
+    false # This will be true for Business Users
+  end
+  
   def third_party?
     !third_party.blank?
   end
@@ -63,6 +73,10 @@ class User < ActiveRecord::Base
     if rid
       preference.region_id = rid
     end
+  end
+  
+  def default_locale
+    Preference.select_value_by_name_and_id( :language_id, preference.try( :interface_language_id ) ).try( :[], :code ) || 'en'
   end
   
   def language_id

@@ -33,6 +33,7 @@ class TopicSubscription < ActiveRecord::Base
   serialize :story_search_hash
   
   named_scope :home_group, lambda{ { :conditions => { :home_group => true } } }
+  named_scope :email_alert, lambda{ { :conditions => { :email_alert => true } } }
   
   def stories( params = {} )
     attributes_hash = HashWithIndifferentAccess.new( attributes ) 

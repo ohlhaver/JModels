@@ -1,0 +1,17 @@
+development:
+  adapter: mysql
+  encoding: utf8
+  database: email_db
+  user: root
+  password: 
+  host: localhost
+  reconnect: true
+
+production:
+  adapter: mysql
+  encoding: utf8
+  database: email_db_prod
+  username: jurnalo
+  password: jp4t2db
+  host: 10.176.251.242
+  reconnect: true

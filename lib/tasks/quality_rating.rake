@@ -12,7 +12,8 @@ namespace :quality_rating do
       #STDOUT.reopen File.join( RAILS_ROOT, '/log/clustering.log' ), "a"
       STDOUT.reopen "/dev/null"
       STDERR.reopen STDOUT
-      ActiveRecord::Base.connection.reconnect!  
+      ActiveRecord::Base.connection.reconnect!
+      EnqueuedEmail.connection.reconnect!
       BackgroundServiceDB.connection.reconnect! # Due to fork and MySQL Gone Away
       quality_rating = QualityRating.new
       quality_rating.start

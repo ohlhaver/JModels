@@ -265,7 +265,7 @@ class Preference < ActiveRecord::Base
   
   def create_homepage_box_prefs
     # Preferences are created by default ( global preferences and are not customized per edition )
-    Preferences.select_all( :homepage_boxes ).each do |pref|
+    Preference.select_all( :homepage_boxes ).each do |pref|
       mvp = MultiValuedPreference.preference(:homepage_boxes).create( :owner_id => self.owner_id, :owner_type => self.owner_type, :value => pref['id'] )
       logger.info mvp.errors.full_messages if mvp.errors.any?
     end

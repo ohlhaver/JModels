@@ -165,7 +165,7 @@ class StorySearch
   
   def relevance
     order = "@weight * (100/POW( 1 + IF( NOW() < created_at, 0, NOW() - created_at ), 0.33 ) ) * quality_rating" # sphinx_score * age * quality_rating
-    if @user && ( @user.author_subscription.count > 0 || @user.source_subscription.count > 0 )
+    if @user && ( @user.author_subscriptions.count > 0 || @user.source_subscriptions.count > 0 )
       "#{order} * 
         IF( IN( source_high_user_ids, #{@user.id} ), IF( default_author_rating < 0, 3/quality_rating, (3 + default_author_rating)/(2*quality_rating) ), 1 ) *
         IF( IN( source_normal_user_ids, #{@user.id} ), IF( default_author_rating < 0, 2/quality_rating, (2 + default_author_rating)/(2*quality_rating) ), 1 ) *
@@ -180,8 +180,14 @@ class StorySearch
   
   def add_time_span
     return if column_eval( :time_span ) == 'skip'
-    timespan = Preference.select_value_by_name_and_code( :time_span, column_eval( :time_span ).try( :to_sym ) ) || user.try( :preference ).try( :default_time_span ) || Preference.select_value_by_name_and_code( :time_span, :last_month )[:id ]
-    options[:with].merge!( :created_at => ( (timespan.seconds.ago)..(Time.now) ) )
+    custom_time_range = column_eval( :custom_time_span )
+    if custom_time_range && custom_time_range.is_a?( Range ) && custom_time_range.first.is_a?( Time ) && custom_time_range.last.is_a?( Time )
+      options[:with].merge!( :created_at => custom_time_range )
+    else
+      timespan = Preference.select_value_by_name_and_code( :time_span, column_eval( :time_span ).try( :to_sym ) ) || user.try( :preference ).try( :default_time_span ) || Preference.select_value_by_name_and_code( :time_span, :last_month )[:id ]
+      start_time ||= timespan.seconds.ago
+      options[:with].merge!( :created_at => ( (start_time)..(Time.now) ) )
+    end
   end
   
   def add_language_ids

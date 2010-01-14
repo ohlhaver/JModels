@@ -1,0 +1,17 @@
+<%= t('email.body.dear_user', :name => @user.name ) %>
+
+<%= t("email.#{@alert}.body.title", :title => @title ) %>:
+
+<% @stories.each do |story| -%>
+<%= story.title %>
+<%= story.authors.collect( &:name ).join(', ') %>
+<%= url_for( :controller => 'stories', :action => 'show', :id => story, :host => 'www.jurnalo.com' ) %>
+<% end -%>
+
+<%= t("email.#{@alert}.body.all_stories", :url => @all_stories_link ) %>
+
+<%= t("email.#{@alert}.body.turn_off_settings", :url => url_for( :host => 'accounts.jurnalo.com', :controller => 'preferences', :action => 'index' ) ) %>
+
+<%= t("email.body.contact", :email => "jurnalo.user.service@jurnalo.com") %>
+
+<%= t("email.body.regards", :name => "www.jurnalo.com") %>
