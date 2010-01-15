@@ -34,11 +34,14 @@ class DuplicateMarker < BackgroundService
     StoryGroup.current_session.find_each do |group|
       story_ids = group.stories.all( :select => 'id' ).collect{ |x| x.id }
       story_ids.each do |s1_id|
+        break if exit?
         story_ids.each do |s2_id|
+          break if exit?
           db.execute( DB::Insert::Ignore + 'INTO candidate_similarities (story1_id, story2_id) VALUES (' + db.quote_and_merge( s1_id, s2_id ) + ')' )
         end
       end
     end
+    return if exit?
     
     # db.execute( 'UPDATE candidate_similarities SET frequency = ( SELECT s.frequency FROM shadow_candidate_similarities AS s 
     #   WHERE s.story1_id = candidate_similarities.story1_id AND s.story2_id = candidate_similarities.story2_id )' )
@@ -54,6 +57,7 @@ class DuplicateMarker < BackgroundService
     story_ids = db.select_values( 'SELECT story1_id FROM candidate_similarities WHERE frequency IS NULL GROUP BY story1_id' )
     
     story_ids.each do | story_id |
+      break if exit?
       db.execute( 'DELETE FROM story_keyword_ids' )
       db.execute(  DB::Insert::Ignore + 'INTO story_keyword_ids (id) SELECT keyword_id FROM keyword_subscriptions WHERE story_id = ' + db.quote( story_id ) )
       db.execute( 'UPDATE candidate_similarities SET frequency = ( SELECT COUNT(*) FROM story_keyword_ids 
@@ -61,6 +65,7 @@ class DuplicateMarker < BackgroundService
           WHERE story_id = candidate_similarities.story2_id ) 
         WHERE frequency IS NULL AND story1_id = ' + db.quote( story_id ) )
     end
+    return if exit?
     
     db.drop_table( 'story_keyword_ids' )
     
@@ -84,7 +89,7 @@ class DuplicateMarker < BackgroundService
         AND ( ss1.frequency / ( ss2.frequency + ss3.frequency - ss1.frequency )  >= 0.90 )' ) #  |A intersection B| / |A union B|
           
     db.add_index 'duplicate_groups', [ :story_id, :master_id ], :name => 'dup_grp_idx'
-    
+    return if exit?
     
     #
     # Step 3: Duplicate Stories with Incorrect Leader
@@ -105,6 +110,7 @@ class DuplicateMarker < BackgroundService
     end
     
     db.add_index 'duplicate_candidates', [:master_id, :frequency], :name => 'dup_cdd_idx'
+    return if exit?
     
     #
     # Step 4: Duplicate Stories with Correct Leader
@@ -125,6 +131,7 @@ class DuplicateMarker < BackgroundService
       db.execute( 'UPDATE duplicate_stories SET master_id = NULL WHERE master_id = id' )
       db.execute( DB::Insert::Ignore + 'INTO duplicate_stories (id, master_id) SELECT id, NULL FROM candidate_stories' )
     end
+    return if exit?
     
     #
     # Step 5: Candidate Stories Update
@@ -149,9 +156,9 @@ class DuplicateMarker < BackgroundService
   end
   
   def finalize( options = {} )
-    db.drop_table( 'duplicate_stories' )
-    db.drop_table( 'duplicate_candidates' )
-    db.drop_table( 'duplicate_groups' )
+    [ 'duplicate_stories', 'duplicate_candidates', 'duplicate_groups' ].each do |table|
+      db.drop_table table if db.table_exists?( table )
+    end
   end
   
 end

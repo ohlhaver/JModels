@@ -39,28 +39,28 @@ class Clustering < BackgroundRunnerPool
     else
       
       add_runner( 'Background Migrations', :run_every_day ) do
-        BackgroundMigration.new( :logger => self.logger ).run
+        BackgroundMigration.new( :logger => self.logger, :parent => self ).run
       end
     
       add_runner( 'Candidate Stories Generation', :run_forever ) do
-        CandidateGeneration.new( :logger => self.logger ).run( :with_session => true )
+        CandidateGeneration.new( :logger => self.logger, :parent => self ).run( :with_session => true )
       end
     
       add_runner( 'Duplicate Deletion Within Source', :run_forever ) do
         unless $new_stories_count == 0
-          DuplicateDeletion.new( :logger => self.logger ).run( :with_session => true )
+          DuplicateDeletion.new( :logger => self.logger, :parent => self ).run( :with_session => true )
         end
       end
     
       add_runner( 'Story Groups Generation', :run_forever ) do
         unless $new_stories_count == 0
-          GroupGeneration.new( :logger => self.logger ).run( :with_session => true )
+          GroupGeneration.new( :logger => self.logger, :parent => self ).run( :with_session => true )
         end
       end
       
       add_runner( 'Duplicate Marker Across Source', :run_forever ) do
         unless $new_stories_count == 0
-          DuplicateMarker.new( :logger => self.logger ).run( :with_session => true )
+          DuplicateMarker.new( :logger => self.logger, :parent => self ).run( :with_session => true )
         end
       end
       

@@ -39,6 +39,11 @@ class BackgroundService
     @parent
   end
   
+  def exit?
+    @exitable ||= !parent.nil? && parent.respond_to?( :exit? ) 
+    @exitable ? parent.send( :exit? ) : false
+  end
+  
   def master_db
     @master_db
   end

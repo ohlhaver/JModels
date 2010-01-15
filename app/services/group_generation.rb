@@ -5,26 +5,34 @@ class GroupGeneration < BackgroundService
   
   def start( options = {} )
     
+    return if exit?
     populate_candidate_story_keywords # pre step to find related stories
     
+    return if exit?
     find_and_populate_candidate_groups_per_story # greedy group formation
     
+    return if exit?
     reduce_candidate_groups_to_relevant_candidate_groups # optimal group formation
     
     return if @final_groups.empty? # No groups found
     
+    return if exit?
     populate_candidate_group_memberships
     
+    return if exit?
     populate_top_3_keywords_per_candidate_group
     
+    return if exit?
     @session ||= BjSession.create( :job_id => self.job_id )
-    
     populate_story_groups_table_from_final_groups
-    
-    archive_old_groups
-    
-    cluster_group_mappings
-    
+    bm = Benchmark.measure {
+      archive_old_groups
+    }
+    logger.info("Archiving Old Groups\n" + Benchmark::Tms::CAPTION + (bm).to_s)
+    bm = Benchmark.measure {
+      cluster_group_mappings
+    }
+    logger.info("Cluster Group Mappings\n" + Benchmark::Tms::CAPTION + (bm).to_s)
   end
   
   def finalize( options = {} )
@@ -442,6 +450,12 @@ class GroupGeneration < BackgroundService
     
     master_db.execute( 'DELETE FROM story_groups WHERE bj_session_id NOT IN (' + session_ids + ')' )
     
+    # LIMITING THE STORY GROUP ARCHIVES
+    min = StoryGroupArchive.minimum( :bj_session_id )
+    max = StoryGroupArchive.maximum( :bj_session_id )
+    target = (max.to_i + min.to_i)/2 
+    StoryGroupArchive.delete_all( "bj_session_id < #{target}" )
+    StoryGroupMembershipArchive.delete_all( "bj_session_id < #{target}" )
   end
   
   def cluster_group_mappings
