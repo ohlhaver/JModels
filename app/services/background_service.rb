@@ -44,6 +44,11 @@ class BackgroundService
     @exitable ? parent.send( :exit? ) : false
   end
   
+  def benchmark( title, &block)
+    bm = Benchmark.measure( &block )
+    logger.info("#{title}\n" + Benchmark::Tms::CAPTION + (bm).to_s)
+  end
+  
   def master_db
     @master_db
   end
@@ -86,7 +91,7 @@ class BackgroundService
     @session.update_attributes( :duration => self.duration, :running => false ) if options[:with_session]
     if options[:with_benchmark]
       session_str = @session ? "Session: #{@session.id}\n" : "\n"
-      logger.info( "Background Service Benchmark: #{self.class.name}: " + Benchmark::Tms::CAPTION + (@start_bm + @finalize_bm).to_s )
+      logger.info( "Background Service Benchmark: #{self.class.name}:\n" + Benchmark::Tms::CAPTION + (@start_bm + @finalize_bm).to_s )
     end
   end
   

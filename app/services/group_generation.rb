@@ -6,10 +6,12 @@ class GroupGeneration < BackgroundService
   def start( options = {} )
     
     return if exit?
-    populate_candidate_story_keywords # pre step to find related stories
+    benchmark( 'Populate Candidate Group Similarities' ){ populate_candidate_story_keywords }
+     # pre step to find related stories
     
     return if exit?
-    find_and_populate_candidate_groups_per_story # greedy group formation
+    benchmark( 'Greedy Group Formation' ){ find_and_populate_candidate_groups_per_story }
+     # greedy group formation
     
     return if exit?
     reduce_candidate_groups_to_relevant_candidate_groups # optimal group formation
@@ -24,15 +26,9 @@ class GroupGeneration < BackgroundService
     
     return if exit?
     @session ||= BjSession.create( :job_id => self.job_id )
-    populate_story_groups_table_from_final_groups
-    bm = Benchmark.measure {
-      archive_old_groups
-    }
-    logger.info("Archiving Old Groups\n" + Benchmark::Tms::CAPTION + (bm).to_s)
-    bm = Benchmark.measure {
-      cluster_group_mappings
-    }
-    logger.info("Cluster Group Mappings\n" + Benchmark::Tms::CAPTION + (bm).to_s)
+    benchmark( 'Master DB Story Group' ){ populate_story_groups_table_from_final_groups }
+    benchmark( 'Archiving Old Group' ){ archive_old_groups }
+    benchmark( 'Cluster Group Mappings' ){ cluster_group_mappings }
   end
   
   def finalize( options = {} )
@@ -102,12 +98,15 @@ class GroupGeneration < BackgroundService
           end if old_story_ids_in_a_group.any?
         end
       end
-    
+      
       new_story_ids.clear
-    
-      db.transaction do
-        pair_hash.each do | s1_id, s1_hash |
+      min_frequency = db.select_value( 'SELECT MIN(COALESCE(cluster_threshold,5)) FROM languages;').to_i
+      
+      
+      pair_hash.each do | s1_id, s1_hash |
+        db.transaction do
           s1_hash.each do | s2_id, frequency |
+            next if s1_id != s2_id && frequency < min_frequency
             db.execute( DB::Insert::Ignore + 'INTO candidate_group_similarities (story1_id, story2_id, frequency ) VALUES( ' +
               db.quote_and_merge( s1_id, s2_id, frequency ) + ')' )
           end
@@ -116,7 +115,7 @@ class GroupGeneration < BackgroundService
       
     end
     
-    logger.info( 'Candidate Group Similarities Table: ' + db.select_value('SELECT COUNT(*) FROM candidate_story_keywords') + ' Rows' )
+    logger.info( 'Candidate Group Similarities Table: ' + db.select_value('SELECT COUNT(*) FROM candidate_group_similarities') + ' Rows' )
     
   end
   
