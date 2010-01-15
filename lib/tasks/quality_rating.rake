@@ -31,7 +31,7 @@ namespace :quality_rating do
     puts "Quality Rating Service Stopped"
   end
   
-  desc "Restart Jurnalo Clustering Process"
+  desc "Restart Jurnalo Quality Rating Process"
   task :restart => [ :stop, :start ] do
   end
   
