@@ -74,7 +74,7 @@ class QualityRatingGeneration < BackgroundService
     
     # These are generated once when used in incremental format
     unless story.quality_ratings_generated?
-      story.source_quality_rating = ( source_quality_ratings_count < 10 ?  story.source.default_preference : ( source_quality_ratings_sum.to_f / source_quality_ratings_count ) )
+      story.source_quality_rating = ( source_quality_ratings_count < 10 ?  story.source.try(:default_preference) : ( source_quality_ratings_sum.to_f / source_quality_ratings_count ) )
       story.quality_rating = story.author_quality_rating || story.source_quality_rating || 1
       story.quality_ratings_generated ||= true
       delete_useless_records( story )
