@@ -1,5 +1,3 @@
-require 'sql'
-
 class Treetop::Runtime::SyntaxNode
   def eval(env={})
     text_value

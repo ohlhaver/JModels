@@ -117,6 +117,8 @@ else
     config.time_zone = 'UTC'
   end
   
+  require 'sql' #StorySearch Initialize Bug
+  
   ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/services' )
   ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/runners' )
   
