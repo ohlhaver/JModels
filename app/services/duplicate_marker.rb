@@ -147,7 +147,7 @@ class DuplicateMarker < BackgroundService
           a_union_b_frequency = pair_hash[s1_id][s1_id] + pair_hash[s2_id][s2_id] - a_int_b_frequency
           next if (a_int_b_frequency.to_f / a_union_b_frequency.to_f) < 0.90
           db.execute( DB::Insert::Ignore + 'INTO candidate_similarities (story1_id, story2_id, frequency ) VALUES( ' +
-            db.quote_and_merge( s1_id, s2_id, frequency ) + ')' )
+            db.quote_and_merge( s1_id, s2_id, pair_hash[s1_id][s1_id] ) + ')' ) ## Inserting s1 frequency
         end
       end
     end
