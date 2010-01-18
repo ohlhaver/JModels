@@ -102,7 +102,6 @@ class GroupGeneration < BackgroundService
       new_story_ids.clear
       min_frequency = db.select_value( 'SELECT MIN(COALESCE(cluster_threshold,5)) FROM languages;').to_i
       
-      
       pair_hash.each do | s1_id, s1_hash |
         db.transaction do
           s1_hash.each do | s2_id, frequency |
