@@ -12,8 +12,6 @@ class DuplicateMarker < BackgroundService
     
     populate_candidate_story_keywords
     
-    return if exit?
-    
     #
     # Step 3: Duplicate Stories with Incorrect Leader
     #
@@ -33,7 +31,6 @@ class DuplicateMarker < BackgroundService
     end
     
     db.add_index 'duplicate_candidates', [:master_id, :frequency], :name => 'dup_cdd_idx'
-    return if exit?
     
     #
     # Step 4: Duplicate Stories with Correct Leader
@@ -54,7 +51,6 @@ class DuplicateMarker < BackgroundService
       db.execute( 'UPDATE duplicate_stories SET master_id = NULL WHERE master_id = id' )
       db.execute( DB::Insert::Ignore + 'INTO duplicate_stories (id, master_id) SELECT id, NULL FROM candidate_stories' )
     end
-    return if exit?
     
     #
     # Step 5: Candidate Stories Update
@@ -198,9 +194,7 @@ class DuplicateMarker < BackgroundService
     StoryGroup.current_session.find_each do |group|
       story_ids = group.stories.all( :select => 'id' ).collect{ |x| x.id }
       story_ids.each do |s1_id|
-        break if exit?
         story_ids.each do |s2_id|
-          break if exit?
           db.execute( DB::Insert::Ignore + 'INTO candidate_similarities (story1_id, story2_id) VALUES (' + db.quote_and_merge( s1_id, s2_id ) + ')' )
         end
       end

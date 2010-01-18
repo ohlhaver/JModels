@@ -201,26 +201,47 @@ class GroupGeneration < BackgroundService
     @final_groups = []
     
     # Ruby Processing is Used
+    # bm = Benchmark.measure {
+    #   grouped_stories.each{ |h| h.merge!( 'story_count' => h['story_count'].to_i, 'story_ids' => h['story_ids'].split(',') ) }
+    #   heap = Containers::Heap.new( grouped_stories ){ |x, y| ( x['story_count'] <=> y['story_count'] ) == 1 }
+    #   while( group = heap.pop ) # Maximum story_count
+    #     @final_groups << group
+    #     heap.clear # Remove all elements
+    #     grouped_stories.each{ |x|
+    #       if x == group || group['story_ids'].include?( x['id'] )
+    #         x['delete'] = true
+    #         next
+    #       end
+    #       story_ids = x['story_ids'] - group['story_ids']
+    #       x.merge!( 'story_ids' => story_ids, 'story_count' => story_ids.size )
+    #       heap.push( x ) if story_ids.size > 1
+    #     }
+    #     grouped_stories.delete_if{ |x| x['delete'] || x['story_count'] < 2  }
+    #   end
+    # }
+    #
+    # logger.info("Heap Based Group Selection Performance: Found #{@final_groups.size} Groups\n" + Benchmark::Tms::CAPTION + (bm).to_s)
+    #
     bm = Benchmark.measure {
       grouped_stories.each{ |h| h.merge!( 'story_count' => h['story_count'].to_i, 'story_ids' => h['story_ids'].split(',') ) }
-      heap = Containers::Heap.new( grouped_stories ){ |x, y| ( x['story_count'] <=> y['story_count'] ) == 1 }
-      while( group = heap.pop ) # Maximum story_count
-        @final_groups << group
-        heap.clear # Remove all elements
-        grouped_stories.each{ |x|
-          if x == group || group['story_ids'].include?( x['id'] )
-            x['delete'] = true
-            next
-          end
-          story_ids = x['story_ids'] - group['story_ids']
-          x.merge!( 'story_ids' => story_ids, 'story_count' => story_ids.size )
-          heap.push( x ) if story_ids.size > 1
-        }
-        grouped_stories.delete_if{ |x| x['delete'] || x['story_count'] < 2  }
-      end
+      grouped_stories = grouped_stories.sort_by{ |x| -x['story_count'] }
+      group_ids = Hash.new # Group that has been freezed
+      story_ids = Hash.new # Stories that has been assigned a group
+      grouped_stories.each{ |group|
+        next if group_ids[ group['id'] ]
+        group['story_ids'].delete_if{ |x| story_ids[x] }
+        if group['story_ids'].size > 1
+          group_ids[ group['id'] ] = true
+          group['story_ids'].each{ |x| story_ids[x] = true }
+          @final_groups << group if group['story_ids']
+        end
+      }
+      group_ids.clear
+      story_ids.clear
+      grouped_stories.clear
     }
     
-    logger.info("Heap Based Group Selection Performance: Found #{@final_groups.size} Groups\n" + Benchmark::Tms::CAPTION + (bm).to_s)
+    logger.info("Greedy Heuristic Performance: Found #{@final_groups.size} Groups\n" + Benchmark::Tms::CAPTION + (bm).to_s)
     
     return if @final_groups.empty?
     
