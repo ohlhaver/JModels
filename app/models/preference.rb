@@ -266,7 +266,7 @@ class Preference < ActiveRecord::Base
   def create_homepage_box_prefs
     # Preferences are created by default ( global preferences and are not customized per edition )
     Preference.select_all( :homepage_boxes ).collect do |pref|
-      mvp = MultiValuedPreference.preference(:homepage_boxes).create( :owner_id => self.owner_id, :owner_type => self.owner_type, :value => pref['id'] )
+      mvp = MultiValuedPreference.preference(:homepage_boxes).create( :owner_id => self.owner_id, :owner_type => self.owner_type, :value => pref[:id] )
       logger.info mvp.errors.full_messages if mvp.errors.any?
       mvp
     end
@@ -274,7 +274,7 @@ class Preference < ActiveRecord::Base
   
   def create_top_section_prefs
     Preference.select_all( :top_stories_cluster_group ).collect do |pref|
-      mvp = MultiValuedPreference.preference( :top_stories_cluster_group ).create( :owner_id => self.owner_id, :owner_type => self.owner_type, :value => pref['id'] )
+      mvp = MultiValuedPreference.preference( :top_stories_cluster_group ).create( :owner_id => self.owner_id, :owner_type => self.owner_type, :value => pref[:id] )
       logger.info mvp.errors.full_messages if mvp.errors.any?
       mvp
     end
