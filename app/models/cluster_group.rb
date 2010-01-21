@@ -45,7 +45,9 @@ class ClusterGroup < ActiveRecord::Base
   # Top Clusters are Removed From Other Cluster Groups
   def self.stories( user, cluster_group_ids, per_cluster_group = 2, per_cluster = 3, top_clusters = [] )
     clusters = []
+    cluster_names = {}
     unless cluster_group_ids.blank?
+      cluster_names = ClusterGroup.find(:all, :select => 'id, name', :conditions => { :id => cluster_group_ids } ).inject({}){ |s,r| s.merge!( r.id => r.name ); s }
       cluster_group_ids.push( { :limit => per_cluster_group, :exclude_cluster_ids => top_clusters.collect(&:id), :user => user } )
       clusters = StoryGroup.active_session.by_cluster_group_ids( *cluster_group_ids ).all
       cluster_group_ids.pop # popping out options parameter
@@ -53,8 +55,8 @@ class ClusterGroup < ActiveRecord::Base
     top_clusters.inject( clusters ){ |ac,tc| ac.push( tc ) }
     StoryGroup.populate_stories_to_serialize( user, clusters, per_cluster )
     clusters = clusters.group_by{ |x| top_clusters.include?( x ) ? 'top' : x.send( :read_attribute, :cluster_group_id ) }
-    cluster_groups = cluster_group_ids.collect{ |id| { :id => id.to_i , :clusters => clusters[ id ] } }
-    cluster_groups.insert( 0, { :id => 'top', :clusters => clusters[ 'top' ] } )
+    cluster_groups = cluster_group_ids.collect{ |id| { :id => id.to_i , :name => cluster_names[ id.to_i ], :clusters => clusters[ id ] } }
+    cluster_groups.insert( 0, { :id => 'top', :name => 'Top Stories', :clusters => clusters[ 'top' ] } )
     cluster_groups.delete_if{ |x| x[ :clusters ].blank? }
   end
   
