@@ -186,7 +186,7 @@ class StorySearch
     else
       timespan = Preference.select_value_by_name_and_code( :time_span, column_eval( :time_span ).try( :to_sym ) ) || user.try( :preference ).try( :default_time_span ) || Preference.select_value_by_name_and_code( :time_span, :last_month )[:id ]
       start_time ||= timespan.seconds.ago
-      options[:with].merge!( :created_at => ( (start_time)..(Time.now) ) )
+      options[:with].merge!( :created_at => ( (start_time)..(Time.now.utc) ) )
     end
   end
   
