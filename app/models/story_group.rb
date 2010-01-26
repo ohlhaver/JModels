@@ -5,6 +5,7 @@ class StoryGroup < ActiveRecord::Base
   
   attr_accessor :stories_to_serialize
   attr_accessor :authors_pool # global pool of authors, #used in case of serialization
+  attr_accessor :sources_pool # global pool of sources, #used in case of serialization
   
   serialize_with_options do
     dasherize false
@@ -130,21 +131,19 @@ class StoryGroup < ActiveRecord::Base
     # hash_map is top stories for each story group using personalized score if applicable
     stories_hash_map = Story.hash_map_by_story_groups( clusters.collect( &:id ), user, per_cluster )
     clusters.collect{ |cluster| cluster.stories_to_serialize = stories_hash_map[ cluster.id ]  }
-    # all_story_ids = clusters.inject([]){ |s,c| c.stories_to_serialize.nil? ? c.top_story_ids.inject(s){ |ss,ts| ss.push(ts) } : s }
-    # all_story_ids.uniq!
-    # user_quality_rating_hash_map = user && all_story_ids.any? ? StoryUserQualityRating.hash_map( user, all_story_ids ) : nil
-    # all_story_ids.clear
-    story_ids = clusters.inject([]) do | acc, cluster| 
+    story_ids, source_ids = clusters.inject([[], []]) do | acc, cluster| 
       # cluster.stories_to_serialize ||= Story.personalize_for!( cluster.top_stories, user, user_quality_rating_hash_map )[ 0...per_cluster ]
-      acc.push( cluster.stories_to_serialize(&:id) )
+      cluster.stories_to_serialize.inject(acc){ |aac, story| aac.first.push( story.id ); aac.last.push( story.source_id ); aac }
     end
-    story_ids.flatten!
+    source_ids.uniq!
     
     authors_pool = Author.find(:all, :select => 'authors.*, story_authors.story_id AS story_id', 
       :joins => 'INNER JOIN story_authors ON ( story_authors.author_id = authors.id )', 
       :conditions => { :story_authors => { :story_id => story_ids } } 
     ).group_by{ |a| a.send( :read_attribute, :story_id ).to_i }
-    clusters.each{ |cluster| cluster.authors_pool = authors_pool }
+    
+    sources_pool = Source.find(:all, :conditions => { :id => source_ids }).inject({}){ |map, source| map[source.id] = source; map }
+    clusters.each{ |cluster| cluster.authors_pool = authors_pool; cluster.sources_pool = sources_pool }
   end
   
   class << self 
@@ -188,7 +187,8 @@ class StoryGroup < ActiveRecord::Base
     unless stories_to_serialize.blank?
       self.authors_pool ||= Author.find(:all, :select => 'authors.*, story_authors.story_id AS story_id', :joins => 'INNER JOIN story_authors ON ( story_authors.author_id = authors.id )', 
         :conditions => { :story_authors => { :story_id => stories_to_serialize.collect(&:id) } } ).group_by{ |a| a.send( :read_attribute, :story_id ).to_i }
-      stories_to_serialize.each{ |story| story.authors_to_serialize = self.authors_pool[ story.id ] || [] }
+      self.sources_pool ||= Source.find(:all, :conditions => { :id => stories_to_serialize.collect( &:source_id ).uniq } ).inject({}){ |map, source| map[ source.id ] = source; map }
+      stories_to_serialize.each{ |story| story.authors_to_serialize = self.authors_pool[ story.id ] || []; story.source_to_serialize = self.sources_pool[ story.source_id ] }
     end
     stories_to_serialize.to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct=>true )
   end

@@ -3,7 +3,9 @@ class StoryGroupArchive < ActiveRecord::Base
   set_primary_key :group_id
   
   attr_accessor :stories_to_serialize
+  
   attr_accessor :authors_pool # global pool of authors, #used in case of serialization
+  attr_accessor :sources_pool # gloable pool of sources, #used in case of serialization
   
   serialize_with_options do
     dasherize false
@@ -35,7 +37,8 @@ class StoryGroupArchive < ActiveRecord::Base
     unless stories_to_serialize.blank?
       self.authors_pool ||= Author.find(:all, :select => 'authors.*, story_authors.story_id AS story_id', :joins => 'INNER JOIN story_authors ON ( story_authors.author_id = authors.id )', 
         :conditions => { :story_authors => { :story_id => stories_to_serialize.collect(&:id) } } ).group_by{ |a| a.send( :read_attribute, :story_id ).to_i }
-      stories_to_serialize.each{ |story| story.authors_to_serialize = self.authors_pool[ story.id ] || [] }
+      self.sources_pool ||= Source.find(:all, :conditions => { :id => stories_to_serialize.collect( &:source_id ).uniq } ).inject({}){ |map, source| map[ source.id ] = source; map }
+      stories_to_serialize.each{ |story| story.authors_to_serialize = self.authors_pool[ story.id ] || []; story.source_to_serialize = self.sources_pool[ story.source_id ] }
     end
     stories_to_serialize.to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct=>true )
   end

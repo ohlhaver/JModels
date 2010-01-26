@@ -42,8 +42,8 @@ class User < ActiveRecord::Base
     config.validates_length_of_email_field_options( :within => 6..255 )
     config.validates_uniqueness_of_email_field_options
     config.logged_in_timeout( 30.minutes )
-    config.perishable_token_valid_for( 24.hours )
-    
+    #config.perishable_token_valid_for( 24.hours )
+    config.disable_perishable_token_maintenance( true )
     config.session_class( 'UserSession'.constantize )
     
   end
@@ -94,18 +94,27 @@ class User < ActiveRecord::Base
     preference.interface_language_id = lid
   end
   
-  def tag(region_id = self.region_id, langauge_id = self.language_id)
+  def tag(region_id = nil, language_id = nil)
+    region_id ||= self.region_id
+    language_id ||= self.language_id
     "Region:#{region_id}:#{language_id}"
   end
   
   # If you are accessing the homepage cluster group for particular set of region and language
-  def homepage_cluster_groups( region_id = self.region_id, language_id = self.language_id )
-    clusters = create_default_homepage_cluster_groups
-    clusters ||= ClusterGroup.homepage( self, :tag => tag( region_id, language_id ) )
+  def homepage_cluster_groups( region_id = nil, language_id = nil )
+    tag = self.tag( region_id, language_id )
+    clusters = create_default_homepage_cluster_groups( tag )
+    clusters ||= ClusterGroup.homepage( self, :tag => tag )
   end
   
   def homepage_cluster_group_preferences( *args )
-    create_default_homepage_cluster_groups
+    options = args.extract_options!
+    region_id = options.delete( :region_id )
+    language_id = options.delete( :language_id )
+    tag = self.tag( region_id, language_id )
+    logger.info(['-'*80, tag, '-'*80])
+    args.push( options )
+    create_default_homepage_cluster_groups( tag )
     multi_valued_preferences.preference( :homepage_clusters ).tag( tag ).all( *args )
   end
   
@@ -123,14 +132,13 @@ class User < ActiveRecord::Base
   
   protected
   
-  def homepage_cluster_groups_exist?
+  def homepage_cluster_groups_exist?( tag = self.tag )
     multi_valued_preferences.preference( :homepage_clusters ).tag( tag ).count > 0
   end
   
-  def create_default_homepage_cluster_groups
-    return nil if homepage_cluster_groups_exist?
-    tag = "Region:#{region_id}:#{language_id}"
-    clusters = ClusterGroup.homepage(:tag => tag ).all
+  def create_default_homepage_cluster_groups( tag = self.tag )
+    return nil if homepage_cluster_groups_exist?( tag )
+    clusters = ClusterGroup.homepage( :tag => tag ).all
     clusters.each{ |c|  MultiValuedPreference.preference( :homepage_clusters ).create( :owner => self, :value => c.id, :tag => tag ) }
   end
   

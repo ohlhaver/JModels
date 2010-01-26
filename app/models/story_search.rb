@@ -77,7 +77,7 @@ class StorySearch
   end
   
   def results
-    Story.search( string, options.merge( :page => page, :per_page => per_page, :include => :authors ) )
+    Story.search( string, options.merge( :page => page, :per_page => per_page, :include => [ :source, :authors ] ) )
   end
   
   def to_hash
@@ -100,12 +100,14 @@ class StorySearch
   
   
   def page
-    Integer( params[:page] || 1 ) rescue 1
+    p = Integer( params[:page] || 1 ) rescue 1
+    params[:preview].to_s == '1' ? 1 : p
   end
   
   def per_page
     @per_page ||= user.try( :preference ).try( :per_page ) || 10
-    Integer( params[:per_page] || @per_page ) rescue 10
+    pp = Integer( params[:per_page] || @per_page ) rescue 10
+    params[:preview].to_s == '1' ? per_cluster_group : pp
   end
   
   #public private paid
@@ -127,11 +129,7 @@ class StorySearch
   def add_filter_author_ids
     params[:sort_criteria] = 2 if params[:sort_criteria].blank? && mode == :author
     case( column_eval( :author_ids ) ) when 'all'
-      params[:author_ids] = self.user ? by_user_authors : 0 
-      if params[:cluster_group] == true
-        params[:per_page] = per_cluster_group 
-        params[:page] = 1
-      end
+      params[:author_ids] = self.user ? by_user_authors : 0
     end
     attr_value = Array( column_eval( :author_ids ) || column_eval( :author_id ) )
     attr_value.collect!{ |x| x.to_i }
@@ -191,7 +189,9 @@ class StorySearch
   end
   
   def add_language_ids
-    language_ids = user.try( :preference ).try( :search_language_ids ) || Preference.default_language_id_for_region_id( column_eval( :region_id ) || -1 )
+    language_ids = column_eval( :language_id )
+    language_ids = ( language_ids.blank? ? nil : Integer( language_ids ) rescue nil )
+    language_ids ||= user.try( :preference ).try( :search_language_ids ) || Preference.default_language_id_for_region_id( column_eval( :region_id ) || -1 )
     options[:with].merge!( :language_id => language_ids )
   end
   

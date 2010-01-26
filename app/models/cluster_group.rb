@@ -55,7 +55,7 @@ class ClusterGroup < ActiveRecord::Base
     top_clusters.inject( clusters ){ |ac,tc| ac.push( tc ) }
     StoryGroup.populate_stories_to_serialize( user, clusters, per_cluster )
     clusters = clusters.group_by{ |x| top_clusters.include?( x ) ? 'top' : x.send( :read_attribute, :cluster_group_id ) }
-    cluster_groups = cluster_group_ids.collect{ |id| { :id => id.to_i , :name => cluster_names[ id.to_i ], :clusters => clusters[ id ] } }
+    cluster_groups = cluster_group_ids.collect{ |id| { :id => id.to_i , :name => cluster_names[ id.to_i ], :clusters => clusters[ id.to_s ] } }
     cluster_groups.insert( 0, { :id => 'top', :name => 'Top Stories', :clusters => clusters[ 'top' ] } )
     cluster_groups.delete_if{ |x| x[ :clusters ].blank? }
   end

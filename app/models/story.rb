@@ -1,6 +1,7 @@
 class Story < ActiveRecord::Base
   
   attr_accessor :authors_to_serialize
+  attr_accessor :source_to_serialize
   attr_accessor :author_subscription_count
   
   serialize_with_options :short do
@@ -10,8 +11,8 @@ class Story < ActiveRecord::Base
   
   serialize_with_options  do
     dasherize false
-    except :delta, :quality_rating, :jcrawl_story_id, :thumbnail_exists, :thumb_exists
-    map_include :authors => :authors_serialize
+    except :delta, :quality_rating, :jcrawl_story_id, :thumbnail_exists, :thumb_exists, :quality_ratings_generated, :author_quality_rating, :source_quality_rating
+    map_include :authors => :authors_serialize, :source => :source_serialize
   end
   
   belongs_to :source
@@ -359,7 +360,11 @@ class Story < ActiveRecord::Base
   end
   
   def authors_serialize( options = {} )
-    (authors_to_serialize || authors).to_xml( :set => :short , :root => options[:root], :builder => options[:builder], :skip_instruct=>true )
+    ( self.authors_to_serialize || self.authors ).to_xml( :set => :short , :root => options[:root], :builder => options[:builder], :skip_instruct=>true )
+  end
+  
+  def source_serialize( options = {} )
+    ( self.source_to_serialize || self.source ).to_xml( :set => :short, :root => options[:root], :builder => options[:builder], :skip_instruct => true )
   end
   
   # Based on list of current top authors
