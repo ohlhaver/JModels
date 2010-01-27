@@ -78,16 +78,18 @@ class StorySearch
   
   def results
     stories = Story.search( string, options.merge( :page => page, :per_page => per_page, :include => [ :source, :authors ] ) )
-    if clustered?
-      group_ids_map = stories.results[:matches].inject({}){ |map,x| map[ x[:attributes]['story_id'] ] = x[:attributes]['group_id']; map }
-      group_ids = group_ids_map.values.select(&:nonzero?).uniq
-      if group_ids.any?
-        story_groups = StoryGroup.all( :conditions => { :id => group_ids } )
-        StoryGroupArchive.all( :conditions => { :group_id => group_ids } ).inject( story_groups ){ |col, item| col.push( item ) }
+    group_ids_map = stories.results[:matches].inject({}){ |map,x| map[ x[:attributes]['story_id'] ] = x[:attributes]['group_id']; map }
+    group_ids = group_ids_map.values.select(&:nonzero?).uniq
+    if group_ids.any?
+      story_groups = StoryGroup.all( :conditions => { :id => group_ids } )
+      StoryGroupArchive.all( :conditions => { :group_id => group_ids } ).inject( story_groups ){ |col, item| col.push( item ) }
+      if clustered?
         StoryGroup.populate_stories_to_serialize( user, story_groups, per_cluster - 1, group_ids_map.keys )
-        story_group_map = story_groups.inject({}){ |map,grp| map[grp.id] = grp; map }
-        stories.each{ |story| story.group_to_serialize = story_group_map[ group_ids_map[ story.id ] ] }
+      else
+        story_groups.each{ |group| group.stories_to_serialize = [] }
       end
+      story_group_map = story_groups.inject({}){ |map,grp| map[grp.id] = grp; map }
+      stories.each{ |story| story.group_to_serialize = story_group_map[ group_ids_map[ story.id ] ] }
     end
     return stories
   end
