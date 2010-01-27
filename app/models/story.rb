@@ -2,6 +2,7 @@ class Story < ActiveRecord::Base
   
   attr_accessor :authors_to_serialize
   attr_accessor :source_to_serialize
+  attr_accessor :group_to_serialize
   attr_accessor :author_subscription_count
   
   serialize_with_options :short do
@@ -12,7 +13,7 @@ class Story < ActiveRecord::Base
   serialize_with_options  do
     dasherize false
     except :delta, :quality_rating, :jcrawl_story_id, :thumbnail_exists, :thumb_exists, :quality_ratings_generated, :author_quality_rating, :source_quality_rating
-    map_include :authors => :authors_serialize, :source => :source_serialize
+    map_include :authors => :authors_serialize, :source => :source_serialize, :cluster => :group_serialize
   end
   
   belongs_to :source
@@ -123,11 +124,13 @@ class Story < ActiveRecord::Base
     has :source_id
     has :language_id
     has "COALESCE(stories.quality_rating, 1)", :type => :integer, :as => :quality_rating
-    has "COALESCE(author_quality_rating, -1)", :type => :float, :as => :default_author_rating
-    has "COALESCE(source_quality_rating, -1)", :type => :float, :as => :default_source_rating
+    has "COALESCE(stories.author_quality_rating, -1)", :type => :float, :as => :default_author_rating
+    has "COALESCE(stories.source_quality_rating, -1)", :type => :float, :as => :default_source_rating
     has story_metric(:master_id), :as => :master_id
     has story_authors(:author_id), :as => :author_ids
-    has story_group_membership(:group_id), :as => :group_id
+    #has "CRC32(CONCAT(format, title))", :as => :group_num, :type => :integer
+    has story_group_membership( :group_id ), :as => :group_id, :type => :integer
+    has "CRC32( IFNULL( CONCAT( 'GROUP', story_group_memberships.group_id ), CONCAT('STORY', stories.id ) ) )", :as => :cluster_id, :type => :integer
     
     # User Specific Quality Ratings
     has ban_quality_ratings( :user_id ),           :as => :ban_user_ids,            :source => :query
@@ -237,16 +240,19 @@ class Story < ActiveRecord::Base
       "( 100 / POW(1 + IF( UTC_TIMESTAMP() > stories.created_at, UTC_TIMESTAMP() - stories.created_at, 0 ), 0.33 ) )"
     end
     
-    def hash_map_by_story_groups( story_group_ids, user = nil, per_cluster = 3 )
+    def hash_map_by_story_groups( story_group_ids, user = nil, per_cluster = 3, story_ids_to_skip = [] )
+      conditions = story_ids_to_skip.blank? ? nil : [ 'stories.id NOT IN (?)', story_ids_to_skip ]
       sgs = story_group_ids( *story_group_ids ).all( 
         :select => %Q(stories.id, sgm.group_id),  
-        :user => user
+        :user => user,
+        :conditions => conditions
       ).group_by{ |story| story.read_attribute( :group_id ).to_i }
       story_group_archive_ids = story_group_ids - sgs.keys
       unless story_group_archive_ids.blank?
         sgsa = story_group_archive_ids( *story_group_archive_ids ).all( 
           :select => %Q(stories.id, sgm.group_id),  
-          :user => user
+          :user => user,
+          :conditions => conditions
         ).group_by{ |story| story.read_attribute( :group_id ).to_i }
         sgs.merge!( sgsa )
       end
@@ -365,6 +371,10 @@ class Story < ActiveRecord::Base
   
   def source_serialize( options = {} )
     ( self.source_to_serialize || self.source ).to_xml( :set => :short, :root => options[:root], :builder => options[:builder], :skip_instruct => true )
+  end
+  
+  def group_serialize( options = {} )
+    self.group_to_serialize.to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct => true )
   end
   
   # Based on list of current top authors

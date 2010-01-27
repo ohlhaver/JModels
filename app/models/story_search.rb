@@ -77,7 +77,19 @@ class StorySearch
   end
   
   def results
-    Story.search( string, options.merge( :page => page, :per_page => per_page, :include => [ :source, :authors ] ) )
+    stories = Story.search( string, options.merge( :page => page, :per_page => per_page, :include => [ :source, :authors ] ) )
+    if clustered?
+      group_ids_map = stories.results[:matches].inject({}){ |map,x| map[ x[:attributes]['story_id'] ] = x[:attributes]['group_id']; map }
+      group_ids = group_ids_map.values.select(&:nonzero?).uniq
+      if group_ids.any?
+        story_groups = StoryGroup.all( :conditions => { :id => group_ids } )
+        StoryGroupArchive.all( :conditions => { :group_id => group_ids } ).inject( story_groups ){ |col, item| col.push( item ) }
+        StoryGroup.populate_stories_to_serialize( user, story_groups, per_cluster - 1, group_ids_map.keys )
+        story_group_map = story_groups.inject({}){ |map,grp| map[grp.id] = grp; map }
+        stories.each{ |story| story.group_to_serialize = story_group_map[ group_ids_map[ story.id ] ] }
+      end
+    end
+    return stories
   end
   
   def to_hash
@@ -98,6 +110,9 @@ class StorySearch
   
   protected
   
+  def clustered?
+    @clustered == true
+  end
   
   def page
     p = Integer( params[:page] || 1 ) rescue 1
@@ -151,11 +166,11 @@ class StorySearch
     case( sort_criteria ) when "2", 2
       options.merge!(  :sort_mode => :desc, :order => :created_at )
     when "3", 3
-      options.merge!(  :sort_mode => :desc, :order => :created_at, :group_by => 'group_id', :group_function => :attr )
-      options[:without].merge!( :group_id => 0 )
+      @clustered = true
+      options.merge!(  :sort_mode => :desc, :order => :created_at, :group_by => 'cluster_id', :group_function => :attr )
     when "1", 1
-      options.merge!( :group_by => 'group_id', :group_function => :attr, :sort_mode => :expr, :order => relevance )
-      options[:without].merge!( :group_id => 0 )
+      @clustered = true
+      options.merge!( :group_by => 'cluster_id', :group_function => :attr, :sort_mode => :expr, :order => relevance )
     else
       options.merge!( :sort_mode => :expr, :order => relevance )
     end
@@ -256,6 +271,10 @@ class StorySearch
   
   def per_cluster_group
     Integer( params[:per_cluster_group] || @user.try(:preference).try( :headlines_per_cluster_group ) || 2 ) rescue 2
+  end
+  
+  def per_cluster
+    Integer( params[:per_cluster] || @user.try(:preference).try( :cluster_preview ) || 3 ) rescue 3
   end
   
 end

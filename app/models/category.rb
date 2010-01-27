@@ -1,7 +1,7 @@
 class Category < ActiveRecord::Base
   
   unless defined?( Default )
-    Default = [ "POL", "BUS", "CUL", "SCI", "TEC", "SPO", "MIX" ]
+    Default = [ "POL", "BUS", "CUL", "SCI", "TEC", "SPO", "MIX", "OPI" ]
     Top = [ "POL", "BUS", "CUL", "SCI", "TEC", "OPI" ]
     Map = { :top_stories_cluster_group => :Top, :default => :Default }
   end
