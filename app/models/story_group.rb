@@ -113,7 +113,7 @@ class StoryGroup < ActiveRecord::Base
   #
   def self.find_each_for_cluster_group( cluster_group, &block)
      source_ids = cluster_group.perspective.source_ids
-     StoryGroup.find_each( {
+     find_each( {
         :select => 'story_groups.*, COUNT( DISTINCT source_id ) + ( COUNT( * ) / 100 ) AS broadness_score',
         :joins => 'LEFT OUTER JOIN story_group_memberships AS sgm ON ( sgm.group_id = story_groups.id)',
         :conditions  => { :sgm => { :source_id => source_ids }, 

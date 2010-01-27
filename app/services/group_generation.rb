@@ -27,8 +27,10 @@ class GroupGeneration < BackgroundService
     return if exit?
     @session ||= BjSession.create( :job_id => self.job_id )
     benchmark( 'Master DB Story Group' ){ populate_story_groups_table_from_final_groups }
-    benchmark( 'Archiving Old Group' ){ archive_old_groups }
+    
     benchmark( 'Cluster Group Mappings' ){ cluster_group_mappings }
+    
+    benchmark( 'Archiving Old Group' ){ archive_old_groups }
   end
   
   def finalize( options = {} )
@@ -393,7 +395,7 @@ class GroupGeneration < BackgroundService
     #  WHERE story_id IN (' + pilot_story_ids.join(',') + ')' ).group_by{ |x| x['story_id'].to_i }
     #pilot_story_ids = nil
     
-    StoryGroup.transaction do
+    #StoryGroup.transaction do
       @final_groups.each do | group_attributes |
         
         category_ids = group_attributes.delete( 'category_ids' ).to_s.split(',').collect!{ |x| x.to_i }
@@ -428,10 +430,8 @@ class GroupGeneration < BackgroundService
             group.memberships << StoryGroupMembership.new( story_attributes.merge!( :bj_session_id => @session.id ) )
           }
         end
-      end
+      #end
     end
-    
-    @session.update_attributes( :running => false )
     
     @pilot_stories = []
     @group_stories = []
@@ -452,7 +452,7 @@ class GroupGeneration < BackgroundService
     more_entries = true
     while more_entries
       more_entries = false
-      StoryGroupMembership.find( :all, :conditions => "bj_session_id NOT IN ( #{session_ids} )", :limit => 100 ).each do |sgm|
+      StoryGroupMembership.find( :all, :conditions => "bj_session_id NOT IN ( #{session_ids} )", :limit => 1000 ).each do |sgm|
         sgm.destroy
         more_entries ||= true
       end
@@ -480,7 +480,7 @@ class GroupGeneration < BackgroundService
   def cluster_group_mappings
     ClusterGroup.find_each do |cluster_group|
       ClusterGroupMembership.update_all( 'flagged=true', { :cluster_group_id => cluster_group.id } )
-      StoryGroup.find_each_for_cluster_group( cluster_group ) do |story_group|
+      StoryGroup.by_session( @session ).find_each_for_cluster_group( cluster_group ) do |story_group|
         cluster_group.memberships.create(  :flagged => false, :active => false, :story_group_id => story_group.id, :broadness_score => story_group.broadness_score )
       end
       rank = 1
@@ -496,9 +496,10 @@ class GroupGeneration < BackgroundService
         offset += 1000
         cluster_group_memberships.clear
       end
-      ClusterGroupMembership.update_all( 'active=true', { :cluster_group_id => cluster_group.id, :active => false } )
-      ClusterGroupMembership.delete_all( { :flagged => true, :cluster_group_id => cluster_group.id } )
     end
+    ClusterGroupMembership.update_all( 'active=true', { :active => false } )
+    @session.update_attributes( :running => false )
+    ClusterGroupMembership.delete_all( { :flagged => true } )
   end
 
 end
