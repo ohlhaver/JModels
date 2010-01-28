@@ -76,21 +76,17 @@ class StorySearch
     else ( @parser.parse( params[:q] || '' ).try(:root).try(:eval) || [] ).join(' ') end
   end
   
+  def facets
+    Story.facets( string, options )
+  end
+  
   def results
+    relevance = options.delete( :relevance )
+    options[:set_select] = "*, #{relevance} AS relevance" if relevance
     stories = Story.search( string, options.merge( :page => page, :per_page => per_page, :include => [ :source, :authors ] ) )
-    group_ids_map = stories.results[:matches].inject({}){ |map,x| map[ x[:attributes]['story_id'] ] = x[:attributes]['group_id']; map }
-    group_ids = group_ids_map.values.select(&:nonzero?).uniq
-    if group_ids.any?
-      story_groups = StoryGroup.all( :conditions => { :id => group_ids } )
-      StoryGroupArchive.all( :conditions => { :group_id => group_ids } ).inject( story_groups ){ |col, item| col.push( item ) }
-      if clustered?
-        StoryGroup.populate_stories_to_serialize( user, story_groups, per_cluster - 1, group_ids_map.keys )
-      else
-        story_groups.each{ |group| group.stories_to_serialize = [] }
-      end
-      story_group_map = story_groups.inject({}){ |map,grp| map[grp.id] = grp; map }
-      stories.each{ |story| story.group_to_serialize = story_group_map[ group_ids_map[ story.id ] ] }
-    end
+    options.delete( :set_select ) if relevance
+    options[:relevance] = relevance if relevance
+    populate_cluster_info( stories )
     return stories
   end
   
@@ -111,6 +107,22 @@ class StorySearch
   end
   
   protected
+  
+  def populate_cluster_info( stories )
+    group_ids_map = stories.results[:matches].inject({}){ |map,x| map[ x[:attributes]['story_id'] ] = x[:attributes]['group_id']; map }
+    group_ids = group_ids_map.values.select(&:nonzero?).uniq
+    if group_ids.any?
+      story_groups = StoryGroup.all( :conditions => { :id => group_ids } )
+      StoryGroupArchive.all( :conditions => { :group_id => group_ids } ).inject( story_groups ){ |col, item| col.push( item ) }
+      if clustered?
+        StoryGroup.populate_stories_to_serialize( user, story_groups, per_cluster - 1, group_ids_map.keys )
+      else
+        story_groups.each{ |group| group.stories_to_serialize = [] }
+      end
+      story_group_map = story_groups.inject({}){ |map,grp| map[grp.id] = grp; map }
+      stories.each{ |story| story.group_to_serialize = story_group_map[ group_ids_map[ story.id ] ] }
+    end
+  end
   
   def clustered?
     @clustered == true
@@ -169,12 +181,12 @@ class StorySearch
       options.merge!(  :sort_mode => :desc, :order => :created_at )
     when "3", 3
       @clustered = true
-      options.merge!(  :sort_mode => :desc, :order => :created_at, :group_by => 'cluster_id', :group_function => :attr )
+      options.merge!( :group_by => 'cluster_id', :group_function => :attr, :group_clause => 'created_at DESC', :order => 'created_at DESC', :sort_mode => :extended )
     when "1", 1
       @clustered = true
-      options.merge!( :group_by => 'cluster_id', :group_function => :attr, :sort_mode => :expr, :order => relevance )
+      options.merge!( :relevance => relevance, :group_function => :attr, :group_clause => 'relevance DESC', :order => 'relevance DESC', :sort_mode => :extended )
     else
-      options.merge!( :sort_mode => :expr, :order => relevance )
+      options.merge!( :relevance => relevance, :sort_mode => :extended, :order => 'relevance DESC' )
     end
   end
   
@@ -216,9 +228,9 @@ class StorySearch
     case attr_value  when "0", 0
       self.options[:with].merge!( attr_name => 0 )
     when "1", 1
-      self.options[:order].send( :<<, "*IF( #{attr_name} = 0, 2, 0.5)" ) if self.options[:order].respond_to?( :<< )
+      self.options[:relevance].send( :<<, "*IF( #{attr_name} = 0, 2, 0.5)" ) if self.options[:relevance]
     when "3", 3
-      self.options[:order].send( :<<, "*IF( #{attr_name} = 1, 2, 0.5)" ) if self.options[:order].respond_to?( :<< )
+      self.options[:relevance].send( :<<, "*IF( #{attr_name} = 1, 2, 0.5)" ) if self.options[:relevance]
     when "4", 4
       self.options[:with].merge!( attr_name => 1 )
     end

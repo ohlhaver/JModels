@@ -36,11 +36,10 @@ class Story < ActiveRecord::Base
   has_one    :story_metric
   has_one    :story_thumbnail
   
-  has_one  :story_group_membership, :order => 'bj_session_id DESC'
-  has_one  :story_group, :through => :story_group_membership, :source => :story_group
-  
   has_many :story_group_memberships
   has_many :story_groups, :through => :story_group_memberships, :source => :story_group
+  
+  has_one  :active_story_group_membership, :class_name => 'StoryGroupMembership::Active'
   
   has_one    :thumbnail, :through => :story_thumbnail, :source => :thumbnail
 
@@ -116,21 +115,20 @@ class Story < ActiveRecord::Base
     # Attributes over which search results can be limited
     has :id, :as => :story_id
     has :created_at
-    has :is_video
-    has :is_blog
-    has :is_opinion
+    has :is_video, :facet => true
+    has :is_blog, :facet => true
+    has :is_opinion, :facet => true
     has "CASE subscription_type WHEN 'public' THEN 0 WHEN 'private' THEN 1 ELSE 2 END", :type => :integer, :as => :subscription_type
     has :feed_id
     has :source_id
-    has :language_id
+    has :language_id, :facet => true
     has "COALESCE(stories.quality_rating, 1)", :type => :integer, :as => :quality_rating
     has "COALESCE(stories.author_quality_rating, -1)", :type => :float, :as => :default_author_rating
     has "COALESCE(stories.source_quality_rating, -1)", :type => :float, :as => :default_source_rating
     has story_metric(:master_id), :as => :master_id
     has story_authors(:author_id), :as => :author_ids
-    #has "CRC32(CONCAT(format, title))", :as => :group_num, :type => :integer
-    has story_group_membership( :group_id ), :as => :group_id, :type => :integer
-    has "CRC32( IFNULL( CONCAT( 'GROUP', story_group_memberships.group_id ), CONCAT('STORY', stories.id ) ) )", :as => :cluster_id, :type => :integer
+    has active_story_group_membership(:group_id), :as => :group_id, :type => :integer, :facet => true
+    has "CRC32( IFNULL( CONCAT( 'GROUP', active_story_group_memberships.group_id ), CONCAT('STORY', stories.id ) ) )", :as => :cluster_id, :type => :integer
     
     # User Specific Quality Ratings
     has ban_quality_ratings( :user_id ),           :as => :ban_user_ids,            :source => :query

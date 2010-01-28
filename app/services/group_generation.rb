@@ -448,15 +448,15 @@ class GroupGeneration < BackgroundService
       ) SELECT bj_session_id, group_id, story_id, source_id, created_at, quality_rating, blub_score, master_id
       FROM story_group_memberships WHERE bj_session_id NOT IN ('+ session_ids +')')
     
-    #master_db.execute( 'DELETE FROM story_group_memberships WHERE bj_session_id NOT IN ('+ session_ids + ')' )
-    more_entries = true
-    while more_entries
-      more_entries = false
-      StoryGroupMembership.find( :all, :conditions => "bj_session_id NOT IN ( #{session_ids} )", :limit => 1000 ).each do |sgm|
-        sgm.destroy
-        more_entries ||= true
-      end
-    end
+    master_db.execute( 'DELETE FROM story_group_memberships WHERE bj_session_id NOT IN ('+ session_ids + ')' )
+    # more_entries = true
+    # while more_entries
+    #   more_entries = false
+    #   StoryGroupMembership.find( :all, :conditions => "bj_session_id NOT IN ( #{session_ids} )", :limit => 1000 ).each do |sgm|
+    #     sgm.destroy
+    #     more_entries ||= true
+    #   end
+    # end
     master_db.execute( MasterDB::Insert::Ignore + 'INTO story_group_archives ( 
         group_id, bj_session_id, pilot_story_id, category_id, 
         language_id, top_keywords, story_count, source_count, 

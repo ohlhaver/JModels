@@ -92,6 +92,10 @@ if defined?( Rails ) && Rails.initialized?
     require model_file
   end
   
+  Dir[ File.join( RAILS_ROOT, 'lib/**/*.rb' ) ].each do |lib_file|
+    require lib_file
+  end
+  
   ActiveSupport::Dependencies.load_paths.shift
   ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/services' )
   
@@ -118,6 +122,7 @@ else
   end
   
   require 'sql' #StorySearch Initialize Bug
+  require 'thinking_sphinx_fix'
   
   ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/services' )
   ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/runners' )
@@ -126,3 +131,4 @@ end
 
 require 'action_mailer/ar_mailer'
 ActionMailer::Base.email_class = 'EnqueuedEmail'
+
