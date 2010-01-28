@@ -9,8 +9,9 @@ class StoryGroupArchive < ActiveRecord::Base
   
   serialize_with_options do
     dasherize false
-    except :bj_session_id, :created_at, :thumbnail_story_id, :thumbnail_exists, :top_keywords, :cluster_group_id
+    except :bj_session_id, :created_at, :thumbnail_story_id, :thumbnail_exists, :top_keywords, :cluster_group_id, :group_id
     map_include :top_keywords => :top_keywords_serialize, :stories => :stories_serialize
+    map :id => :group_id
   end
   
   serialize :top_keywords
