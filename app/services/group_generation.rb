@@ -470,11 +470,12 @@ class GroupGeneration < BackgroundService
     master_db.execute( 'DELETE FROM story_groups WHERE bj_session_id NOT IN (' + session_ids + ')' )
     
     # LIMITING THE STORY GROUP ARCHIVES
+    target = BjSession.find(:first, :conditions => [ 'created_at < ?', 24.hours.ago ], :order => 'created_at DESC')
     min = StoryGroupArchive.minimum( :bj_session_id )
-    max = StoryGroupArchive.maximum( :bj_session_id )
-    target = (max.to_i + min.to_i)/2 
-    StoryGroupArchive.delete_all( "bj_session_id < #{target}" )
-    StoryGroupMembershipArchive.delete_all( "bj_session_id < #{target}" )
+    if target && target.id >= min
+      StoryGroupArchive.delete_all( "bj_session_id < #{target.id}" )
+      StoryGroupMembershipArchive.delete_all( "bj_session_id < #{target.id}" )
+    end
   end
   
   def cluster_group_mappings
