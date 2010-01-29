@@ -85,7 +85,9 @@ class StorySearch
     options[:set_select] = "*, #{relevance} AS relevance" if relevance
     stories = Story.search( string, options.merge( :page => page, :per_page => per_page, :include => [ :source, :authors ] ) )
     options.delete( :set_select ) if relevance
-    stories.facets = Story.facets( string, options ).delete_if{ |k,v| k == :group_id }
+    stories.facets = Story.facets( string, { :with => options[:with], :without => options[:without], 
+      :match_mode => options[:match_mode], :conditions => options[:conditions], :facets => [:is_opinion, :is_blog, :is_video] }
+    )
     options[:relevance] = relevance if relevance
     populate_cluster_info( stories )
     return stories
