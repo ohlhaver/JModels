@@ -1,5 +1,7 @@
 ThinkingSphinx::Search.class_eval do
   
+  attr_accessor :facets
+  
   def client
     client = config.client
     
