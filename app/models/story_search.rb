@@ -41,6 +41,7 @@ class StorySearch
   attr_accessor :user
   attr_accessor :mode # :serialize, :simple, :advance
   attr_reader :options
+  attr_reader :facet_options
   attr_reader :string
   
   def initialize( user = user, mode = :simple, params = {} )
@@ -61,14 +62,20 @@ class StorySearch
     add_filter_author_ids
     add_sort_criteria 
     add_time_span
-    add_blog_pref
-    add_video_pref
-    add_opinion_pref
     add_filter( :category_id )
     add_filter_region_id
     add_filter( :source_id )
     add_subscription_type
     add_language_ids
+    @facet_options = { :with => self.options[:with].dup, 
+      :without => self.options[:without].dup, 
+      :match_mode => :extended, 
+      :facets => [:is_opinion, :is_blog, :is_video] 
+    }
+    @facet_options.merge!( :group_function => options[:group_function], :group_by => options[:group_by] ) if options[:group_by]
+    add_blog_pref
+    add_video_pref
+    add_opinion_pref
   end
   
   def populate_string
@@ -77,7 +84,7 @@ class StorySearch
   end
   
   def facets
-    Story.facets( string, options )
+    Story.facets( string, facet_options )
   end
   
   def results
@@ -85,10 +92,8 @@ class StorySearch
     options[:set_select] = "*, #{relevance} AS relevance" if relevance
     stories = Story.search( string, options.merge( :page => page, :per_page => per_page, :include => [ :source, :authors ] ) )
     options.delete( :set_select ) if relevance
-    stories.facets = Story.facets( string, { :with => options[:with], :without => options[:without], 
-      :match_mode => options[:match_mode], :conditions => options[:conditions], :facets => [:is_opinion, :is_blog, :is_video] }
-    )
     options[:relevance] = relevance if relevance
+    stories.facets = self.facets
     populate_cluster_info( stories )
     return stories
   end
@@ -187,7 +192,7 @@ class StorySearch
       options.merge!( :group_by => 'cluster_id', :group_function => :attr, :group_clause => 'created_at DESC', :order => 'created_at DESC', :sort_mode => :extended )
     when "1", 1
       @clustered = true
-      options.merge!( :relevance => relevance, :group_function => :attr, :group_clause => 'relevance DESC', :order => 'relevance DESC', :sort_mode => :extended )
+      options.merge!( :relevance => relevance, :group_function => :attr, :group_by => 'cluster_id', :group_clause => 'relevance DESC', :order => 'relevance DESC', :sort_mode => :extended )
     else
       options.merge!( :relevance => relevance, :sort_mode => :extended, :order => 'relevance DESC' )
     end
