@@ -130,7 +130,7 @@ class StoryGroup < ActiveRecord::Base
   def self.populate_stories_to_serialize( user, clusters, per_cluster = 3, story_ids_to_skip = [])
     # hash_map is top stories for each story group using personalized score if applicable
     stories_hash_map = Story.hash_map_by_story_groups( clusters.collect( &:id ), user, per_cluster, story_ids_to_skip )
-    clusters.collect{ |cluster| cluster.stories_to_serialize = stories_hash_map[ cluster.id ]  }
+    clusters.collect{ |cluster| cluster.stories_to_serialize = stories_hash_map[ cluster.id ] || [] }
     story_ids, source_ids = clusters.inject([[], []]) do | acc, cluster| 
       # cluster.stories_to_serialize ||= Story.personalize_for!( cluster.top_stories, user, user_quality_rating_hash_map )[ 0...per_cluster ]
       cluster.stories_to_serialize.inject(acc){ |aac, story| aac.first.push( story.id ); aac.last.push( story.source_id ); aac }
