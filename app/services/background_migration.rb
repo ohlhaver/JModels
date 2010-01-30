@@ -30,7 +30,7 @@ class BackgroundMigration < BackgroundService
         t.boolean  :keyword_exists
         t.boolean  :thumbnail_exists
         t.float    :quality_rating
-        t.datetime :created_at
+        t.timestamp :created_at
       end
       db.add_index :candidate_stories, :title_hash
     end

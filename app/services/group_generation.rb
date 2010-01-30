@@ -293,7 +293,7 @@ class GroupGeneration < BackgroundService
       t.boolean  :is_blog
       t.boolean  :is_opinion
       t.boolean  :thumbnail_exists
-      t.datetime :created_at        # story created at
+      t.timestamp :created_at        # story created at
       t.float    :quality_rating
       t.float    :blub_score        # blub value ( time decay + source_rating )
       t.integer  :rank
