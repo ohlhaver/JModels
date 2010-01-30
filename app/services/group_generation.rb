@@ -310,14 +310,16 @@ class GroupGeneration < BackgroundService
     db.drop_table( 'tmp_group_stories_map' )
     
     # blub =  age*quality_value
-    db.execute('UPDATE candidate_group_stories SET blub_score = ( 100 / POWER( 1 + TIMESTAMPDIFF( ' + DB::Timestamp::Hour + ', UTC_TIMESTAMP(), created_at ), 0.33 ) ) * quality_rating')
+    db.execute('UPDATE candidate_group_stories SET blub_score = ( 100 / POWER( 1 + 
+      IF( UTC_TIMESTAMP() > created_at, TIMESTAMPDIFF( HOUR, created_at, UTC_TIMESTAMP() ),  0 ), 0.33 ) ) * quality_rating')
     
     db.add_index( 'candidate_group_stories', [:group_id, :story_id ], :name => 'cdd_grp_stories_uniq_idx', :unique => true )
     db.add_index( 'candidate_group_stories', [:group_id, :blub_score], :name => 'cdd_grp_stories_idx' )
     
-    db.select_all( 'SELECT cgs1.group_id, cgs1.story_id,  COALESCE( COUNT(*), 0 ) + 1 AS rank
+    db.select_all( 'SELECT cgs1.group_id, cgs1.story_id,  COALESCE( COUNT( cgs2.story_id ), 0 ) + 1 AS rank
       FROM candidate_group_stories as cgs1 
-      LEFT OUTER JOIN candidate_group_stories as cgs2 ON ( cgs1.group_id = cgs2.group_id AND cgs1.blub_score < cgs2.blub_score )
+      LEFT OUTER JOIN candidate_group_stories as cgs2 ON ( cgs1.group_id = cgs2.group_id AND 
+        ( cgs1.blub_score < cgs2.blub_score OR ( cgs1.blub_score = cgs2.blub_score && cgs1.created_at < cgs2.created_at ) ) )
       GROUP BY cgs1.group_id, cgs1.story_id' ).each do | record |
       db.execute("UPDATE candidate_group_stories SET rank = #{record['rank']} WHERE group_id = #{record['group_id']} AND story_id = #{record['story_id']}")
     end
@@ -338,7 +340,7 @@ class GroupGeneration < BackgroundService
     
     db.execute( DB::Insert::Ignore + 'INTO candidate_group_keywords ( group_id, keyword_id, score )
       SELECT t.group_id, t.keyword_id, t.score FROM ( 
-        SELECT candidate_groups.id AS group_id, keyword_id, ( COUNT( frequency ) * SUM( frequency ) ) AS score FROM candidate_groups
+        SELECT candidate_groups.id AS group_id, keyword_id, COALESCE( COUNT( frequency )*SUM( frequency ), 0 ) AS score FROM candidate_groups
         INNER JOIN candidate_group_stories ON ( candidate_group_stories.group_id = candidate_groups.id ) 
         INNER JOIN candidate_story_keywords ON ( candidate_story_keywords.story_id = candidate_group_stories.story_id )
         GROUP BY candidate_story_keywords.keyword_id
@@ -351,14 +353,26 @@ class GroupGeneration < BackgroundService
       t.string :keywords
     end
     
+    # debug = db.select_all( 'SELECT k1.group_id AS gid, keywords.name AS name, k1.score AS score, COUNT( k2.keyword_id ) AS count
+    #   FROM candidate_group_keywords AS k1
+    #   LEFT OUTER JOIN candidate_group_keywords AS k2 ON ( k2.group_id = k1.group_id AND 
+    #   ( k1.score < k2.score OR ( k1.score = k2.score AND k1.keyword_id < k2.keyword_id ) ) )
+    #   LEFT OUTER JOIN keywords ON ( keywords.id = k1.keyword_id )
+    #   GROUP BY k1.keyword_id 
+    #   ORDER BY k1.group_id ASC, k1.score DESC')
+    # 
+    # debug.each{ |record|
+    #   puts "#{record['gid']}\t#{record['name']}\t#{record['score']}\t#{record['count']}"
+    # }
+    
     db.execute( 'INSERT INTO candidate_group_top_keywords ( id, keywords ) 
         SELECT t.group_id, GROUP_CONCAT( keywords.name ) 
         FROM ( SELECT  k1.*
           FROM candidate_group_keywords AS k1
           LEFT OUTER JOIN candidate_group_keywords AS k2 ON ( k2.group_id = k1.group_id AND 
-            ( k2.score > k1.score OR ( k2.score = k1.score AND k2.keyword_id < k1.keyword_id ) ) )
+          ( k1.score < k2.score OR ( k1.score = k2.score AND k1.keyword_id < k2.keyword_id ) ) )
           GROUP BY k1.keyword_id
-          HAVING COUNT(*) < 3 
+          HAVING COUNT( k2.keyword_id ) < 3 
           ORDER BY k1.group_id ASC, k1.score DESC ) AS t 
         LEFT OUTER JOIN keywords ON ( keywords.id = t.keyword_id ) GROUP BY t.group_id' )
     

@@ -235,7 +235,7 @@ class Story < ActiveRecord::Base
     end
 
     def age_sql_value
-      "( 100 / POW(1 + IF( UTC_TIMESTAMP() > stories.created_at, UTC_TIMESTAMP() - stories.created_at, 0 ), 0.33 ) )"
+      "( 100 / POW(1 + IF( UTC_TIMESTAMP() > stories.created_at, TIMESTAMPDIFF(HOUR, stories.created_at, UTC_TIMESTAMP()),  0 ), 0.33 ) )"
     end
     
     def hash_map_by_story_groups( story_group_ids, user = nil, per_cluster = 3, story_ids_to_skip = [] )
@@ -341,7 +341,8 @@ class Story < ActiveRecord::Base
   
   def age_value( ref = Time.now )
     diff = ref > created_at ? (ref - created_at).to_f : 0.0
-    100 / ( ( 1 + diff ) ** 0.33 )
+    diff_in_hours = ( diff / 3600 ).to_i
+    100 / ( ( 1 + diff_in_hours ) ** 0.33 )
   end
   
   def subscription_value_for( user )

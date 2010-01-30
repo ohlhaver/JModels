@@ -57,25 +57,11 @@ class StorySearch
   
   def populate_options
     @options = { :with => { :master_id => 0 }, :without => {}, :match_mode => :extended }
-    self.options[:without].merge!( :author_ids => 0 ) if self.mode == :author
-    self.options[:without].merge!( :source_id => 0 ) if self.mode == :source
-    add_filter_author_ids
-    add_sort_criteria 
-    add_time_span
-    add_filter( :category_id )
-    add_filter_region_id
-    add_filter( :source_id )
-    add_subscription_type
-    add_language_ids
-    @facet_options = { :with => self.options[:with].dup, 
-      :without => self.options[:without].dup, 
-      :match_mode => :extended, 
-      :facets => [:is_opinion, :is_blog, :is_video] 
-    }
-    @facet_options.merge!( :group_function => options[:group_function], :group_by => options[:group_by] ) if options[:group_by]
-    add_blog_pref
-    add_video_pref
-    add_opinion_pref
+    case( self.mode ) when :author, :source
+      send( "populate_#{self.mode}_options" )
+    else
+      populate_search_options
+    end
   end
   
   def populate_string
@@ -84,7 +70,7 @@ class StorySearch
   end
   
   def facets
-    Story.facets( string, facet_options )
+    @facet_options ? Story.facets( string, facet_options ) : {}
   end
   
   def results
@@ -115,6 +101,43 @@ class StorySearch
   end
   
   protected
+  
+  def populate_author_options
+    self.options[:without].merge!( :author_ids => 0 )
+    self.params[:sort_criteria] = 2
+    add_filter_author_ids
+    add_sort_criteria 
+    add_time_span
+  end
+  
+  def populate_source_options
+    self.options[:without].merge!( :source_id => 0 )
+    self.params[:sort_criteria] = 2
+    add_filter( :source_id )
+    add_sort_criteria 
+    add_time_span
+    add_filter( :category_id )
+  end
+  
+  def populate_search_options
+    add_filter_author_ids
+    add_sort_criteria 
+    add_time_span
+    add_filter( :category_id )
+    add_filter_region_id
+    add_filter( :source_id )
+    add_subscription_type
+    add_language_ids
+    @facet_options = { :with => self.options[:with].dup, 
+      :without => self.options[:without].dup, 
+      :match_mode => :extended, 
+      :facets => [:is_opinion, :is_blog, :is_video] 
+    }
+    @facet_options.merge!( :group_function => options[:group_function], :group_by => options[:group_by] ) if options[:group_by]
+    add_blog_pref
+    add_video_pref
+    add_opinion_pref
+  end
   
   def populate_cluster_info( stories )
     group_ids_map = stories.results[:matches].inject({}){ |map,x| map[ x[:attributes]['story_id'] ] = x[:attributes]['group_id']; map }
