@@ -19,7 +19,9 @@ class Story < ActiveRecord::Base
   belongs_to :source
   belongs_to :feed
   belongs_to :language
-
+  
+  has_many :feed_categories, :foreign_key => 'feed_id', :primary_key => 'feed_id'
+  
   has_many  :story_authors
   has_many  :authors, :through => :story_authors, :source => :author
   
@@ -119,8 +121,9 @@ class Story < ActiveRecord::Base
     has :is_blog, :facet => true
     has :is_opinion, :facet => true
     has "CASE subscription_type WHEN 'public' THEN 0 WHEN 'private' THEN 1 ELSE 2 END", :type => :integer, :as => :subscription_type
-    has :feed_id
+    
     has :source_id
+    has feed_categories( :category_id ), :as => :category_id
     has :language_id, :facet => true
     has "COALESCE(stories.quality_rating, 1)", :type => :integer, :as => :quality_rating
     has "COALESCE(stories.author_quality_rating, -1)", :type => :float, :as => :default_author_rating

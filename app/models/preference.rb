@@ -44,11 +44,16 @@ class Preference < ActiveRecord::Base
       :search_language_id => :LanguageValues,
       :search_language_ids => :LanguageValues,
       :homepage_boxes => :HomePageBoxesValues,
-      :top_stories_cluster_group => :TopStoriesClusterGroupValues
+      :top_stories_cluster_group => :TopStoriesClusterGroupValues,
+      :category_id => :CategoryValues
+    }
+    
+    CategoryValues = Category.collection( :default ).collect{ |category|
+      { :name => "prefs.category.#{category.name.underscore}", :code => category.code.downcase.to_sym, :id => category.id }
     }
     
     TopStoriesClusterGroupValues = Category.collection( :top_stories_cluster_group ).collect{ |category|
-      { :name => "prefs.category.#{category.name.downcase}", :code => category.code.downcase.to_sym, :id => category.id }
+      { :name => "prefs.category.#{category.name.underscore}", :code => category.code.downcase.to_sym, :id => category.id }
     }
     
     HomePageBoxesValues = [

@@ -2,6 +2,7 @@ class Feed < ActiveRecord::Base
   belongs_to :source
   belongs_to :language
   has_many   :feed_categories
+  
   has_many   :categories, :through => :feed_categories, :source => :category
 
   validates_presence_of    :id, :url, :subscription_type, :language_id, :source_id
