@@ -243,14 +243,16 @@ class Story < ActiveRecord::Base
       sgs = story_group_ids( *story_group_ids ).all( 
         :select => %Q(stories.id, sgm.group_id),  
         :user => user,
-        :conditions => conditions
+        :conditions => conditions,
+        :order => 'sgm.rank ASC'
       ).group_by{ |story| story.read_attribute( :group_id ).to_i }
       story_group_archive_ids = story_group_ids - sgs.keys
       unless story_group_archive_ids.blank?
         sgsa = story_group_archive_ids( *story_group_archive_ids ).all( 
           :select => %Q(stories.id, sgm.group_id),  
           :user => user,
-          :conditions => conditions
+          :conditions => conditions,
+          :order => 'sgm.rank ASC'
         ).group_by{ |story| story.read_attribute( :group_id ).to_i }
         sgs.merge!( sgsa )
       end

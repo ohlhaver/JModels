@@ -61,12 +61,12 @@ class StoryGroup < ActiveRecord::Base
       :select => %Q( story_groups.*, cgm.broadness_score AS broadness_score, cgm.cluster_group_id ),
       :joins => %Q( INNER JOIN cluster_group_memberships AS cgm ON ( cgm.story_group_id = story_groups.id AND cgm.active = #{connection.quoted_true} ) 
         LEFT OUTER JOIN cluster_group_memberships AS cgm2 ON ( cgm2.cluster_group_id = cgm.cluster_group_id AND cgm2.active = #{connection.quoted_true} 
-          AND cgm.rank > cgm2.rank AND cgm2.story_group_id IN ( #{ story_group_ids.blank? ? 'NULL' : story_group_ids.join(',') } ) ) ),
+          AND cgm.rank < cgm2.rank AND cgm2.story_group_id IN ( #{ story_group_ids.blank? ? 'NULL' : story_group_ids.join(',') } ) ) ),
       :conditions => [ "cgm.cluster_group_id IN ( :cluster_group_ids ) AND cgm.story_group_id IN ( :story_group_ids )", 
         { :cluster_group_ids => args, :story_group_ids => story_group_ids } ],
       :group => 'cgm.cluster_group_id, cgm.story_group_id',
       :having => "COUNT( cgm2.cluster_group_id ) < #{options[:limit] || 3}",
-      :order => 'cgm.rank DESC'
+      :order => 'cgm.rank ASC'
     }
   }
   
