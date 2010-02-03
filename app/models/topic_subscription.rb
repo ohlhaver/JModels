@@ -4,9 +4,9 @@ class TopicSubscription < ActiveRecord::Base
   
   serialize_with_options do
     dasherize false
-    except :owner_id, :owner_type, :search_any, :search_all, :search_except, :search_exact_phrase, :region_id, :source_id, :author_id, :time_span,
-      :category_id, :blog, :video, :opinion, :story_search_hash
+    except :owner_id, :owner_type, :story_search_hash
     map_include :stories => :stories_serialize
+    map :advanced => :advance?
   end
   
   belongs_to :owner, :polymorphic => true

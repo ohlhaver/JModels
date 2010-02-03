@@ -200,7 +200,8 @@ class StorySearch
     region_id = column_eval( :region_id )
     region_id = nil if region_id == -1 
     if region_id 
-      source_ids = Region.find( :first, :conditions => { :id => region_id } , :include => :sources ).try(:source_ids)
+      region = Region.find( :first, :conditions => { :id => region_id } )
+      source_ids = region.sources.collect( &:id )
       options[:with].merge!( :source_id => source_ids ) if source_ids
     end
   end
