@@ -255,7 +255,7 @@ class Story < ActiveRecord::Base
           :select => %Q(stories.id, sgm.group_id),  
           :user => user,
           :conditions => conditions,
-          :order => 'sgm.rank ASC'
+          :order => 'sgm.blub_score DESC'
         ).group_by{ |story| story.read_attribute( :group_id ).to_i }
         sgs.merge!( sgsa )
       end
