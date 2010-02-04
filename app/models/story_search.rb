@@ -117,6 +117,11 @@ class StorySearch
     add_sort_criteria 
     add_time_span
     add_filter( :category_id )
+    @facet_options = { :with => self.options[:with].dup, 
+      :without => self.options[:without].dup, 
+      :match_mode => :extended, 
+      :facets => [:category_id] 
+    }
   end
   
   def populate_search_options
