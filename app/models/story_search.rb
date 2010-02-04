@@ -37,6 +37,28 @@ end
 
 class StorySearch
   
+  class Collection < Array
+    
+    attr_accessor :facets
+    
+    def total_pages
+      nil
+    end
+    
+    def next_page
+      nil
+    end
+    
+    def current_page
+      nil
+    end
+    
+    def previous_page
+      nil
+    end
+    
+  end
+  
   attr_accessor :params
   attr_accessor :user
   attr_accessor :mode # :serialize, :simple, :advance
@@ -70,17 +92,25 @@ class StorySearch
   end
   
   def facets
-    @facet_options ? Story.facets( string, facet_options ) : {}
+    facets = @facet_options ? Story.facets( string, facet_options ) : {}
+    count_options = facet_options.dup
+    count_options[:with] = count_options[:with].merge( { :class_crc => 'Story'.to_crc32 } )
+    total_count = ThinkingSphinx.count( count_options )
+    facets.merge!( :count => { :all => total_count } )
+    return facets
   end
   
   def results
-    relevance = options.delete( :relevance )
-    options[:set_select] = "*, #{relevance} AS relevance" if relevance
-    stories = Story.search( string, options.merge( :page => page, :per_page => per_page, :include => [ :source, :authors ] ) )
-    options.delete( :set_select ) if relevance
-    options[:relevance] = relevance if relevance
+    stories = StorySearch::Collection.new
+    if per_page > 0
+      relevance = options.delete( :relevance )
+      options[:set_select] = "*, #{relevance} AS relevance" if relevance
+      stories = Story.search( string, options.merge( :page => page, :per_page => per_page, :include => [ :source, :authors ] ) )
+      options.delete( :set_select ) if relevance
+      options[:relevance] = relevance if relevance
+      populate_cluster_info( stories )
+    end
     stories.facets = self.facets
-    populate_cluster_info( stories )
     return stories
   end
   
@@ -108,6 +138,11 @@ class StorySearch
     add_filter_author_ids
     add_sort_criteria 
     add_time_span
+    @facet_options = { :with => self.options[:with].dup, 
+      :without => self.options[:without].dup, 
+      :match_mode => :extended, 
+      :facets => [] 
+    }
   end
   
   def populate_source_options
