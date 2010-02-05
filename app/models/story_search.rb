@@ -93,9 +93,14 @@ class StorySearch
   
   def facets
     facets = @facet_options ? Story.facets( string, facet_options ) : {}
-    count_options = facet_options.dup
-    count_options[:with] = count_options[:with].merge( { :class_crc => 'Story'.to_crc32 } )
-    total_count = ThinkingSphinx.count( count_options )
+    # Trick to get the count
+    total_count = if facets[:is_opinion].nil? then
+      count_options = facet_options.dup
+      count_options[:facets] = [ :is_opinion ]
+      Story.facets( string, count_options )[:is_opinion].values.sum
+    else
+      facets[:is_opinion].values.sum
+    end
     facets.merge!( :count => { :all => total_count } )
     return facets
   end
@@ -141,7 +146,7 @@ class StorySearch
     @facet_options = { :with => self.options[:with].dup, 
       :without => self.options[:without].dup, 
       :match_mode => :extended, 
-      :facets => [] 
+      :facets => [:is_opinion] 
     }
   end
   
@@ -283,8 +288,10 @@ class StorySearch
     if custom_time_range && custom_time_range.is_a?( Range ) && custom_time_range.first.is_a?( Time ) && custom_time_range.last.is_a?( Time )
       options[:with].merge!( :created_at => custom_time_range )
     else
-      timespan = Preference.select_value_by_name_and_code( :time_span, column_eval( :time_span ).try( :to_sym ) ) || user.try( :preference ).try( :default_time_span ) || Preference.select_value_by_name_and_code( :time_span, :last_month )[:id ]
-      start_time ||= timespan.seconds.ago
+      timespan = Preference.select_value_by_name_and_id( :time_span, column_eval( :time_span ).try( :to_i ) ).try( :[], :id ) ||
+        user.try( :preference ).try( :default_time_span ) || 
+        Preference.select_value_by_name_and_code( :time_span, :last_month )[:id ]
+      start_time = timespan.seconds.ago
       options[:with].merge!( :created_at => ( (start_time)..(Time.now.utc) ) )
     end
   end
