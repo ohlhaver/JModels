@@ -35,7 +35,10 @@ class ClusterGroup < ActiveRecord::Base
     options = args.last.is_a?( Hash ) ? args.pop : {}
     owner = ( args.empty? || args.first.nil? ) ? User.find(:first, :conditions => { :login => 'jadmin' } ) : args.first
     cluster_group_ids = MultiValuedPreference.preference( :homepage_clusters ).owner( owner ).tag( options[:tag] ).collect{ |x| x.value }
-    { :conditions => { :id => cluster_group_ids } }
+    position = 0
+    position_statement = cluster_group_ids.inject([]){ |s,i| position += 1;s.push( "WHEN #{i} THEN #{position}");  }
+    position_statement = "CASE (id) #{position_statement.join(' ')} END AS position"
+    { :select => "*, #{position_statement}", :conditions => { :id => cluster_group_ids }, :order => 'position ASC' }
   }
   
   def self.for_select( options = {} )
