@@ -186,6 +186,14 @@ class Preference < ActiveRecord::Base
       self.const_get( constant_name )
     end
     
+    def select_all_homepage_cluster_group( region_id=nil, language_id=nil)
+      region_id = select_value_by_name_and_id( :region_id, region_id.to_i ).try( :[], :id ) || default_region_id
+      language_id = select_value_by_name_and_id( :language_id, language_id.to_i ).try( :[], :id ) || default_language_id_for_region_id( region_id )
+      tag = "Region:#{region_id}:#{language_id}"
+      cluster_groups = ClusterGroup.for_select( :tag => tag )
+      cluster_groups.collect{ |x| { :id => x.last, :name => "prefs.category.#{x.first.underscore}", :code => x.first.underscore } }
+    end
+    
     def for_select( preference_name )
       constant_name = Map[ preference_name.try(:to_sym) ]
       return [] if constant_name.nil?

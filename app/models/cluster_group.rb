@@ -38,7 +38,7 @@ class ClusterGroup < ActiveRecord::Base
     position = 0
     position_statement = cluster_group_ids.inject([]){ |s,i| position += 1;s.push( "WHEN #{i} THEN #{position}");  }
     position_statement = "CASE (id) #{position_statement.join(' ')} END AS position"
-    { :select => "*, #{position_statement}", :conditions => { :id => cluster_group_ids }, :order => 'position ASC' }
+    { :select => "*, #{position_statement}", :conditions => { :id => cluster_group_ids } }
   }
   
   def self.for_select( options = {} )

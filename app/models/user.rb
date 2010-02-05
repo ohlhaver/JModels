@@ -104,7 +104,7 @@ class User < ActiveRecord::Base
   def homepage_cluster_groups( region_id = nil, language_id = nil )
     tag = self.tag( region_id, language_id )
     clusters = create_default_homepage_cluster_groups( tag )
-    clusters ||= ClusterGroup.homepage( self, :tag => tag )
+    clusters ||= ClusterGroup.homepage( self, :tag => tag ).all( :order => 'position ASC' )
   end
   
   def homepage_cluster_group_preferences( *args )
