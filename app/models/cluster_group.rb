@@ -46,21 +46,47 @@ class ClusterGroup < ActiveRecord::Base
   end
   
   # Top Clusters are Removed From Other Cluster Groups
+  # Opinions are Top Authors so they must be removed but order must be maintained
   def self.stories( user, cluster_group_ids, per_cluster_group = 2, per_cluster = 3, top_clusters = [] )
     clusters = []
     cluster_names = {}
+    opinions = nil
+    opinions_stories = []
     unless cluster_group_ids.blank?
       cluster_names = ClusterGroup.find(:all, :select => 'id, name', :conditions => { :id => cluster_group_ids } ).inject({}){ |s,r| s.merge!( r.id => r.name ); s }
-      cluster_group_ids.push( { :limit => per_cluster_group, :exclude_cluster_ids => top_clusters.collect(&:id), :user => user } )
-      clusters = StoryGroup.active_session.by_cluster_group_ids( *cluster_group_ids ).all
-      cluster_group_ids.pop # popping out options parameter
+      args = cluster_group_ids.dup
+      opinions = self.get_opinions!( args )
+      args.push( { :limit => per_cluster_group, :exclude_cluster_ids => top_clusters.collect(&:id), :user => user } )
+      clusters = StoryGroup.active_session.by_cluster_group_ids( *args ).all
     end
     top_clusters.inject( clusters ){ |ac,tc| ac.push( tc ) }
     StoryGroup.populate_stories_to_serialize( user, clusters, per_cluster )
     clusters = clusters.group_by{ |x| top_clusters.include?( x ) ? 'top' : x.send( :read_attribute, :cluster_group_id ) }
-    cluster_groups = cluster_group_ids.collect{ |id| { :id => id.to_i , :name => cluster_names[ id.to_i ], :clusters => clusters[ id.to_s ] } }
+    opinion_stories = yield( opinions ) if block_given? && opinions
+    cluster_groups = cluster_group_ids.collect{ |id|
+      id = id.to_i 
+      if opinions && opinions.id == id
+        { :id => id, :name => cluster_names[ id ], :stories => opinions_stories }
+      else
+        { :id => id, :name => cluster_names[ id ], :clusters => clusters[ id.to_s ] } 
+      end
+    }
     cluster_groups.insert( 0, { :id => 'top', :name => 'Top Stories', :clusters => clusters[ 'top' ] } )
-    cluster_groups.delete_if{ |x| x[ :clusters ].blank? }
+    cluster_groups.delete_if{ |x| x[ :clusters ].blank? && x[ :stories ].blank? }
+  end
+  
+  def opinions?
+    category_id = Preference.select_value_by_name_and_code( :category_id, :opi ).try( :[], :id )
+    self.category_id == category_id
+  end
+  
+  protected
+  
+  def self.get_opinions!( cluster_group_ids )
+    category_id = Preference.select_value_by_name_and_code( :category_id, :opi ).try( :[], :id )
+    opinion = ClusterGroup.find( :first, :conditions => { :id => cluster_group_ids, :category_id => category_id } )
+    cluster_group_ids.delete_if{ |x| x.to_s == opinion.id.to_s } if opinion
+    return opinion
   end
   
 end
