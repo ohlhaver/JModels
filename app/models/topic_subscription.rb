@@ -5,7 +5,7 @@ class TopicSubscription < ActiveRecord::Base
   serialize_with_options do
     dasherize false
     except :owner_id, :owner_type, :story_search_hash
-    map_include :stories => :stories_serialize
+    map_include :stories => :stories_serialize, :author => :author_serialize, :source => :source_serialize
     map :advanced => :advance?
   end
   
@@ -55,6 +55,14 @@ class TopicSubscription < ActiveRecord::Base
   end
   
   protected
+  
+  def author_serialize( options = {} )
+    self.author.to_xml( :set => :short , :root => options[:root], :builder => options[:builder], :skip_instruct=>true )
+  end
+  
+  def source_serialize( options = {} )
+    self.source.to_xml( :set => :short, :root => options[:root], :builder => options[:builder], :skip_instruct => true )
+  end
   
   def populate_default_name
     self.name = self.search_any if self.name.blank?
