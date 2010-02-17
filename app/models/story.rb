@@ -221,9 +221,9 @@ class Story < ActiveRecord::Base
   # SQL Expressions Used To Generate Dynamic Query to Include User Preferences
   class << self 
         
-    def vob_sql_value_for( attribute, user )
+    def vob_sql_value_for( attribute, user, override = nil )
       column_name = "is_#{attribute}"
-      case user.preference.send( attribute ) when 0 : "IF( stories.#{column_name}, 0, 1 )"
+      case ( override || user.preference.send( attribute ) ) when 0 : "IF( stories.#{column_name}, 0, 1 )"
       when 1 : "IF( stories.#{column_name}, 0.5, 2 )"
       when 3 : "IF( stories.#{column_name}, 2, 0.5 )"
       when 4 : "IF( stories.#{column_name}, 1, 0 )"
@@ -281,12 +281,15 @@ class Story < ActiveRecord::Base
     def find_with_personalize( *args )
       options = args.extract_options!
       user = options.delete(:user) || options.delete('user')
+      blog = options.delete(:blog) # overriding user blog value
+      video = options.delete(:video)  # overriding user video value
+      opinion  = options.delete(:opinion) # overriding user opinion value
       if user
         score_statement = age_sql_value.dup
         score_statement << "*COALESCE( story_user_quality_ratings.quality_rating, COALESCE( stories.quality_rating, 1) )"
-        score_statement << "*#{vob_sql_value_for( :video, user )}"
-        score_statement << "*#{vob_sql_value_for( :opinion, user )}"
-        score_statement << "*#{vob_sql_value_for( :blog, user )}"
+        score_statement << "*#{vob_sql_value_for( :video, user, video )}"
+        score_statement << "*#{vob_sql_value_for( :opinion, user, opinion )}"
+        score_statement << "*#{vob_sql_value_for( :blog, user, blog )}"
         score_statement << "*#{subscription_sql_value_for( user )}"
         score_conditions  = "COALESCE( story_user_quality_ratings.quality_rating, COALESCE( stories.quality_rating, 1) ) > 0"
         score_conditions << " AND #{vob_sql_value_for( :video, user )} > 0"
