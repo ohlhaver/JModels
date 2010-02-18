@@ -35,7 +35,7 @@ class Author < ActiveRecord::Base
     {
       :select => 'authors.*, ta.subscription_count', 
       :joins => "INNER JOIN bg_top_authors AS ta ON ( ta.author_id = authors.id AND ta.active = #{connection.quoted_true})",
-      :conditions => 'ta.subscription_count > 2', 
+      :conditions => 'ta.subscription_count > 0', 
       :order => 'ta.subscription_count DESC'
     }
   }
