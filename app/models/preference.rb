@@ -221,6 +221,21 @@ class Preference < ActiveRecord::Base
   before_save :save_search_language_ids
   before_create :create_homepage_box_prefs
   
+  # virtual attribute default_edition_id
+  
+  def default_edition_id
+    rc = self.class.select_value_by_name_and_id( :region_id, self.region_id ).try(:[], :code)
+    lc = self.class.select_value_by_name_and_id( :language_id, self.default_language_id ).try( :[], :code )
+    rc && lc ? "#{rc.downcase}-#{lc}" : "int-en"
+  end
+  
+  def default_edition_id=(edition_string)
+    rc, lc = edition_string.split("-")
+    return unless ( lc && rc )
+    self.region_id = self.class.select_value_by_name_and_code( :region_id, rc.upcase ).try(:[], :id)
+    self.default_language_id = self.class.select_value_by_name_and_code( :language_id, lc ).try(:[], :id)
+  end
+  
   def reset_search_lang_prefs!
     @search_lang_prefs = Array.new
   end
