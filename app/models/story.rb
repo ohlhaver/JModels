@@ -181,7 +181,7 @@ class Story < ActiveRecord::Base
     if active
       connection.execute( "INSERT INTO bg_top_author_stories (story_id, subscription_count, active ) VALUES ( #{story_id}, #{subscription_count}, #{connection.quoted_true})" )
     else
-      connection.execute( "INSERT INTO bg_top_author_stories (story_id, subscription_count) VALUES( #{story_id}, #{subscription_count} )")
+      connection.execute( "INSERT INTO bg_top_author_stories (story_id, subscription_count, active ) VALUES( #{story_id}, #{subscription_count}, #{connection.quoted_false})")
     end rescue nil
   end
   

@@ -6,7 +6,7 @@ class TopAuthorGeneration < BackgroundService
     master_db.execute( 'DELETE FROM bg_top_authors WHERE active = ' + master_db.quoted_false )
     Author.with_subscription_count.find_each do | author |
       return if exit?
-      master_db.execute( 'INSERT INTO bg_top_authors( author_id, subscription_count ) VALUES (' + master_db.quote_and_merge( author.id, author.subscription_count ) + ')')
+      master_db.execute( 'INSERT INTO bg_top_authors( author_id, subscription_count, active ) VALUES (' + master_db.quote_and_merge( author.id, author.subscription_count, master_db.quoted_false ) + ')')
     end
     master_db.execute( 'DELETE FROM bg_top_authors WHERE active = ' + master_db.quoted_true )
     master_db.execute( 'UPDATE bg_top_authors SET active = ' + master_db.quoted_true )
