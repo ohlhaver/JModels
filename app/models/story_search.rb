@@ -211,7 +211,7 @@ class StorySearch
   
   def per_page
     @per_page ||= user.try( :preference ).try( :per_page ) || 10
-    pp = Integer( params[:per_page] || @per_page ) rescue 10
+    pp = Integer( column_eval( :per_page ) || @per_page ) rescue 10
     params[:preview].to_s == '1' ? per_cluster_group : pp
   end
   
@@ -363,11 +363,11 @@ class StorySearch
   end
   
   def per_cluster_group
-    Integer( params[:per_cluster_group] || @user.try(:preference).try( :headlines_per_cluster_group ) || 2 ) rescue 2
+    Integer( column_eval( :per_cluster_group ) || @user.try(:preference).try( :headlines_per_cluster_group ) || 2 ) rescue 2
   end
   
   def per_cluster
-    Integer( params[:per_cluster] || @user.try(:preference).try( :cluster_preview ) || 3 ) rescue 3
+    Integer( column_eval( :per_cluster ) || @user.try(:preference).try( :cluster_preview ) || 3 ) rescue 3
   end
   
 end
