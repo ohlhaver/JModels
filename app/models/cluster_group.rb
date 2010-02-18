@@ -62,7 +62,7 @@ class ClusterGroup < ActiveRecord::Base
     top_clusters.inject( clusters ){ |ac,tc| ac.push( tc ) }
     StoryGroup.populate_stories_to_serialize( user, clusters, per_cluster )
     clusters = clusters.group_by{ |x| top_clusters.include?( x ) ? 'top' : x.send( :read_attribute, :cluster_group_id ) }
-    opinion_stories = yield( opinions ) if block_given? && opinions
+    opinions_stories = yield( opinions ) if block_given? && opinions
     cluster_groups = cluster_group_ids.collect{ |id|
       id = id.to_i 
       if opinions && opinions.id == id
