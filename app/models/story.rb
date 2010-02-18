@@ -76,9 +76,10 @@ class Story < ActiveRecord::Base
   }
   
   # Used by Background Algorithm to Generate Top Author Stories
+  # Subscription Count is changed here as well as in Authors.top function
   named_scope :with_author_subscription_count, lambda{ 
     { 
-      :select => 'stories.*, SUM( IF( ta.subscription_count > 2, 1, 0 ) ) AS top_author_count, MAX( ta.subscription_count ) AS author_subscription_count',
+      :select => 'stories.*, SUM( IF( ta.subscription_count > 0, 1, 0 ) ) AS top_author_count, MAX( ta.subscription_count ) AS author_subscription_count',
       :joins => ' INNER JOIN story_authors ON ( story_authors.story_id = stories.id ) 
         INNER JOIN bg_top_authors AS ta ON ( ta.author_id = story_authors.author_id ) ',
       :group => 'stories.id',
