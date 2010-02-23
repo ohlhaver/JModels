@@ -130,8 +130,14 @@ class Preference < ActiveRecord::Base
       { :name => 6, :code => 6, :id => 6 }
     ]
     
-    PerPageValues = [ { :name => 10, :code => 10, :id => 10 }, { :name => 20, :code => 20, :id => 20 }, { :name => 30, :code => 30, :id => 30 },
-      { :name => 40, :code => 40, :id => 40 },  { :name => 50, :code => 50, :id => 50 } ]
+    PerPageValues = [ 
+      { :name => 5, :code => 5, :id => 5 }, 
+      { :name => 10, :code => 10, :id => 10 },
+      { :name => 15, :code => 15, :id => 15 },
+      { :name => 20, :code => 20, :id => 20 },
+      { :name => 25, :code => 25, :id => 25 },
+      { :name => 30, :code => 30, :id => 30 }
+    ]
     
     DefaultValues = {
       #:default_language_id => LanguageValues.select{ |x| x[:code] == 'en' }.first.try(:[], :id),
