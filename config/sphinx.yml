@@ -92,6 +92,6 @@ development:
 production:
   address: 10.176.238.247
   port: 3312
-  #enable_star: true
-  #searchd_file_path: /home/deploy/apps/JModel/shared/sphinx_indices
-  #charset_type: utf-8
+justus:
+  address: 67.23.42.240
+  port: 3312

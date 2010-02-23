@@ -28,3 +28,12 @@ production:
     password: jp4t2db
     host: 10.176.243.221
     reconnect: true
+    
+justus:
+  adapter: mysql
+  encoding: utf8
+  database: background_db_prod
+  username: jurnalo
+  password: jp4t2db
+  host: 174.143.175.195
+  reconnect: true
