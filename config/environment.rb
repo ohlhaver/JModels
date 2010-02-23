@@ -60,6 +60,7 @@ if defined?( Rails ) && Rails.initialized?
   Object.send( :remove_const, :RAILS_ROOT )
   RAILS_ROOT = File.expand_path( File.dirname(__FILE__) + '/..' )
   ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/models' )
+  ActiveSupport::Dependencies.load_once_paths.insert( 0, RAILS_ROOT + '/app/models' )
   
   gem( "adzap-ar_mailer", :version => '2.1.5', :lib => 'action_mailer/ar_mailer', :source => 'http://gemcutter.com' )
   require 'action_mailer/ar_mailer'
@@ -98,6 +99,7 @@ if defined?( Rails ) && Rails.initialized?
   
   ActiveSupport::Dependencies.load_paths.shift
   ActiveSupport::Dependencies.load_paths.insert( 0, RAILS_ROOT + '/app/services' )
+  ActiveSupport::Dependencies.load_once_paths.insert( 0, RAILS_ROOT + '/app/services' )
   
   Object.send( :remove_const, :RAILS_ROOT )
   RAILS_ROOT = RAILS_ROOT_ORIGINAL
