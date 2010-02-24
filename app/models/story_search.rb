@@ -282,6 +282,9 @@ class StorySearch
     end
   end
   
+  #
+  # Sphinx Bug: Delta Index created_at is 5 hours ahead not sure why.
+  #
   def add_time_span
     return if column_eval( :time_span ) == 'skip'
     custom_time_range = column_eval( :custom_time_span )
@@ -292,7 +295,7 @@ class StorySearch
         user.try( :preference ).try( :default_time_span ) || 
         Preference.select_value_by_name_and_code( :time_span, :last_month )[:id ]
       start_time = timespan.seconds.ago
-      options[:with].merge!( :created_at => ( (start_time)..(Time.now.utc) ) )
+      options[:with].merge!( :created_at => ( (start_time)..(Time.now.utc+5.hours) ) )
     end
   end
   
