@@ -57,7 +57,7 @@ class GroupGeneration < BackgroundService
       t.integer :frequency
     end
     db.execute('DELETE FROM keyword_subscriptions WHERE story_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
-    db.execute('DELETE FROM keyword_subscriptions WHERE story_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE candidate_stories.master_id IS NOT NULL )')
+    #db.execute('DELETE FROM keyword_subscriptions WHERE story_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE candidate_stories.master_id IS NOT NULL )')
     
     #
     # Select stories and select related excerpt keywords
@@ -65,12 +65,14 @@ class GroupGeneration < BackgroundService
     db.execute( 'INSERT INTO candidate_story_keywords ( story_id, keyword_id, frequency ) 
       SELECT keyword_subscriptions.story_id, keyword_subscriptions.keyword_id, keyword_subscriptions.excerpt_frequency
       FROM keyword_subscriptions INNER JOIN candidate_stories ON ( candidate_stories.id = keyword_subscriptions.story_id )
-      WHERE keyword_subscriptions.excerpt_frequency IS NOT NULL' )
+      WHERE keyword_subscriptions.excerpt_frequency IS NOT NULL AND candidate_stories.master_id IS NULL' )
         
     db.add_index :candidate_story_keywords, [ :keyword_id, :story_id ], :unique => true, :name => 'cdd_story_keywords_idx'
     
     db.execute('DELETE FROM candidate_group_similarities WHERE story1_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
     db.execute('DELETE FROM candidate_group_similarities WHERE story2_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
+    db.execute('DELETE FROM candidate_group_similarities WHERE story1_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories WHERE candidate_stories.master_id IS NOT NULL )')
+    db.execute('DELETE FROM candidate_group_similarities WHERE story2_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories WHERE candidate_stories.master_id IS NOT NULL )')
     
     #
     # For Incremental Calculations to Speed Up Things
