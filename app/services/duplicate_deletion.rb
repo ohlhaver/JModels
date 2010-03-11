@@ -2,26 +2,64 @@
 class DuplicateDeletion < BackgroundService
   
   def start( options = {} )
-    @duplicates_found = 0
-    duplicate_titles = db.select_values( 'SELECT GROUP_CONCAT(id) FROM candidate_stories GROUP BY title_hash, source_id HAVING COUNT(*) > 1' )
-    duplicate_titles.each do |story_ids|
-      break if exit?
-      # if two strings are same there hash value will be same but not vice versa
-      # therefore title hash match do have false positives
-      # select stories and group them by titles
-      stories = master_db.select_all( 'SELECT id, title FROM stories WHERE id IN (' + story_ids + ')').group_by{ |x| x['title'] }
-      stories.each do | title, stories |
-        next if stories.size < 2
-        remove_duplicate_titles_from( stories.collect{ |x| x['id'] } )
-      end
-    end
-    logger.info( 'Duplicates Deleted: ' + @duplicates_found.to_s )
+    delete_duplicates_within_source( options )
+    mark_duplicates_across_source( options )
   end
   
   def finalize( options = {} )
   end
   
   protected
+  
+  def mark_duplicates_across_source( options )
+    @duplicates_found = 0
+    duplicate_titles = db.select_values( 'SELECT GROUP_CONCAT(id) FROM candidate_stories WHERE master_id IS NULL GROUP BY title_hash ASC HAVING COUNT(*) > 1' )
+    duplicate_titles.each do |story_ids|
+      break if exit?
+      # if two strings are same there hash value will be same but not vice versa
+      # therefore title hash match do have false positives
+      # select stories and group them by titles
+      duplicate_stories = master_db.select_all( 'SELECT id, title FROM stories WHERE id IN (' + story_ids + ') ORDER BY created_at ASC').group_by{ |story| story['title'] }
+      duplicate_stories.each do | title, stories |
+        next if stories.size < 2
+        mark_duplicates( stories.collect{ |x| x['id'] } )
+      end
+    end
+    logger.info( 'Duplicates Marked: ' + @duplicates_found.to_s )
+  end
+  
+  def mark_duplicates( story_ids )
+    master_id = story_ids.shift
+    master_story_metric = StoryMetric.find( :first, :conditions => { :story_id => master_id } )
+    if master_story_metric.try(:master_id)
+      story_ids.unshift( master_id )
+      master_id = master_story_metric.master_id
+      story_ids.delete( master_id )
+    end
+    db.execute( "UPDATE candidate_stories 
+      SET master_id = #{master_id} WHERE id IN ( #{story_ids.join(',')} )" )
+    story_ids.each do |story_id|
+      StoryMetric.create_or_update( :story_id => story_id, :master_id => master_id )
+      @duplicates_found += 1
+    end
+  end
+  
+  def delete_duplicates_within_source( options )
+    @duplicates_found = 0
+    duplicate_titles = db.select_values( 'SELECT GROUP_CONCAT(id) FROM candidate_stories WHERE master_id IS NULL GROUP BY title_hash, source_id HAVING COUNT(*) > 1' )
+    duplicate_titles.each do |story_ids|
+      break if exit?
+      # if two strings are same there hash value will be same but not vice versa
+      # therefore title hash match do have false positives
+      # select stories and group them by titles
+      duplicate_stories = master_db.select_all( 'SELECT id, title FROM stories WHERE id IN (' + story_ids + ')').group_by{ |story| story['title'] }
+      duplicate_stories.each do | title, stories |
+        next if stories.size < 2
+        remove_duplicate_titles_from( stories.collect{ |x| x['id'] } )
+      end
+    end
+    logger.info( 'Duplicates Deleted: ' + @duplicates_found.to_s )
+  end
   
   def remove_duplicate_titles_from( story_ids )
     stories = ( Story.find( story_ids ) rescue [] )

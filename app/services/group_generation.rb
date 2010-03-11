@@ -14,15 +14,15 @@ class GroupGeneration < BackgroundService
      # greedy group formation
     
     return if exit?
-    reduce_candidate_groups_to_relevant_candidate_groups # optimal group formation
+    benchmark( 'Final Group Formation'){ reduce_candidate_groups_to_relevant_candidate_groups }# optimal group formation
     
     return if @final_groups.empty? # No groups found
     
     return if exit?
-    populate_candidate_group_memberships
+    benchmark( 'Group Memberships Generation' ){ populate_candidate_group_memberships }
     
     return if exit?
-    populate_top_3_keywords_per_candidate_group
+    benchmark( 'Top Keyword Generation' ){ populate_top_3_keywords_per_candidate_group }
     
     return if exit?
     @session ||= BjSession.create( :job_id => self.job_id )
@@ -57,6 +57,7 @@ class GroupGeneration < BackgroundService
       t.integer :frequency
     end
     db.execute('DELETE FROM keyword_subscriptions WHERE story_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
+    db.execute('DELETE FROM keyword_subscriptions WHERE story_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE candidate_stories.master_id IS NOT NULL )')
     
     #
     # Select stories and select related excerpt keywords
@@ -75,7 +76,7 @@ class GroupGeneration < BackgroundService
     # For Incremental Calculations to Speed Up Things
     #
     new_story_ids = db.select_values( 'SELECT id FROM candidate_stories LEFT OUTER JOIN candidate_group_similarities 
-      ON ( story1_id = story2_id AND story1_id = id ) WHERE story1_id IS NULL' ).group_by{ |x| x }
+      ON ( story1_id = story2_id AND story1_id = id ) WHERE story1_id IS NULL AND candidate_stories.master_id IS NULL' ).group_by{ |x| x }
       
     unless new_story_ids.blank?
       
@@ -274,11 +275,16 @@ class GroupGeneration < BackgroundService
       t.integer :story_id
     end
     
-    db.transaction do
-      @final_groups.each do | group|
-        group_id = group['id'].to_s
+    @final_groups.each do | group|
+      group_id = group['id'].to_s
+      db.transaction do
         group['story_ids'].each do |story_id|
           db.execute( DB::Insert::Ignore + 'INTO tmp_group_stories_map (group_id, story_id) VALUES(' + group_id + ',' + story_id.to_s + ')')
+          # 
+          # duplicate_ids = db.select_values( "SELECT id, master_id FROM candidate_stories WHERE master_id IN #{story_id}" ) || []
+          # duplicate_ids.each{ |dup_story_id| 
+          #   db.execute( DB::Insert::Ignore + 'INTO tmp_group_stories_map (group_id, story_id) VALUES(' + group_id + ',' + dup_story_id.to_s + ')') 
+          # }
         end
       end
     end
@@ -396,8 +402,8 @@ class GroupGeneration < BackgroundService
         MAX(thumbnail_exists) AS thumbnail_exists
       FROM candidate_groups
       LEFT OUTER JOIN candidate_group_top_keywords ON ( candidate_group_top_keywords.id = candidate_groups.id )
-      INNER JOIN candidate_group_stories ON ( candidate_group_stories.group_id = candidate_groups.id )
-      GROUP BY candidate_groups.id HAVING source_count > 1' )
+      INNER JOIN candidate_group_stories ON ( candidate_group_stories.group_id = candidate_groups.id AND candidate_group_stories.master_id IS NULL)
+      GROUP BY candidate_groups.id HAVING source_count > 1 AND story_count > 1' )
     
     # Fetch all stories and group them by group_id
     @group_stories = db.select_all( 'SELECT group_id, story_id, thumbnail_exists, source_id, created_at, quality_rating, blub_score, master_id, rank 

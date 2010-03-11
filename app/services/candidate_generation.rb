@@ -41,7 +41,7 @@ class CandidateGeneration < BackgroundService
     if last_story_found_at.nil? || last_story_found_at < 24.hours.ago( time )
       last_story_found_at = 24.hours.ago( time )
     else
-      last_story_found_at -= 5.minutes # 5.minutes backlog
+      last_story_found_at -= 4.hours # 4 hours backlog ( Robos can be delayed and out of sync )
     end
     
     attributes = [ :id, :title_hash, :language_id, :source_id, :category_id, :is_video, :is_blog, :is_opinion, :thumbnail_exists, :quality_rating, :master_id, :created_at, :keyword_exists ]
