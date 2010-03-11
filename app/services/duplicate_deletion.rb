@@ -46,7 +46,7 @@ class DuplicateDeletion < BackgroundService
   
   def delete_duplicates_within_source( options )
     @duplicates_found = 0
-    duplicate_titles = db.select_values( 'SELECT GROUP_CONCAT(id) FROM candidate_stories WHERE master_id IS NULL GROUP BY title_hash, source_id HAVING COUNT(*) > 1' )
+    duplicate_titles = db.select_values( 'SELECT GROUP_CONCAT(id) FROM candidate_stories GROUP BY title_hash, source_id HAVING COUNT(*) > 1' )
     duplicate_titles.each do |story_ids|
       break if exit?
       # if two strings are same there hash value will be same but not vice versa
