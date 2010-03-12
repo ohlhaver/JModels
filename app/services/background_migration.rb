@@ -33,6 +33,7 @@ class BackgroundMigration < BackgroundService
         t.timestamp :created_at
       end
       db.add_index :candidate_stories, :title_hash
+      db.add_index :candidate_stories, :master_id
     end
     
     unless db.table_exists?( :keywords )

@@ -52,15 +52,13 @@ class CandidateGeneration < BackgroundService
       
     column_names = attributes.join(', ')
     new_stories_count = 0
-    
-    db.transaction do
       
-      Story.find_in_batches( :select => attributes_to_select, :joins => 'LEFT OUTER JOIN feed_categories ON ( feed_categories.feed_id = stories.feed_id ) 
-          LEFT OUTER JOIN story_metrics ON ( story_metrics.story_id = stories.id ) LEFT OUTER JOIN languages ON ( languages.id = stories.language_id)', 
-        :conditions => [ 'created_at >= ? AND quality_ratings_generated = ?', last_story_found_at, true ], :group => 'stories.id' ) do |story_batch|
-        
-        break if exit?
-        
+    Story.find_in_batches( :select => attributes_to_select, :joins => 'LEFT OUTER JOIN feed_categories ON ( feed_categories.feed_id = stories.feed_id ) 
+        LEFT OUTER JOIN story_metrics ON ( story_metrics.story_id = stories.id ) LEFT OUTER JOIN languages ON ( languages.id = stories.language_id)', 
+      :conditions => [ 'created_at >= ? AND quality_ratings_generated = ?', last_story_found_at, true ], :group => 'stories.id' ) do |story_batch|
+      
+      #break if exit?
+      db.transaction do
         story_batch.each do |story|
           @story_titles[ story.id ] = story.title
           # storing title hash for duplicate deletion within a source
@@ -68,17 +66,16 @@ class CandidateGeneration < BackgroundService
           @story_languages[ story.id ] = { :code => story.send( :read_attribute, :language_code ), :id => story.language_id }
           db.execute( DB::Insert::Ignore + 'INTO candidate_stories ( ' +  column_names + ') VALUES(' + story.to_csv( *attributes ) + ')' )
         end
-        new_stories_count += db.select_value('SELECT COUNT(*) FROM candidate_stories WHERE keyword_exists = ' + db.quoted_false ).to_i
-        generate_keywords_for_stories
-        
-        @story_titles.clear
-        @story_languages.clear
       end
+      new_stories_count += db.select_value('SELECT COUNT(*) FROM candidate_stories WHERE keyword_exists = ' + db.quoted_false ).to_i
+      generate_keywords_for_stories
       
-      clear_cache!
-      clear_old_stories( 24.hours.ago( time ) - 5.minutes ) # Delete stories older then 24 hours ago from now 
-      
+      @story_titles.clear
+      @story_languages.clear
     end
+    
+    clear_cache!
+    clear_old_stories( 24.hours.ago( time ) - 5.minutes ) # Delete stories older then 24 hours ago from now 
     logger.info( 'New Candidates Stories Count: ' + new_stories_count.to_s )
     logger.info( 'Total Candidate Stories Count: ' + db.select_value( 'SELECT COUNT(*) FROM candidate_stories' ) )
     $new_stories_count = new_stories_count
@@ -101,10 +98,12 @@ class CandidateGeneration < BackgroundService
         language_code =  @story_languages[ story_content.story_id ][:code].to_s
         language_id = @story_languages[ story_content.story_id ][:id].to_s
         keywords = JCore::Keyword.collection( @story_titles[ story_content.story_id ] + ' ' + story_content.body, language_code )
-        keywords.each do |keyword|
-          keyword_id = get_keyword_id( keyword, language_id )
-          db.execute( DB::Insert::Ignore + 'INTO keyword_subscriptions ( keyword_id, story_id, frequency, excerpt_frequency) 
-            VALUES(' + db.quote_and_merge( keyword_id, story_content.story_id, keywords.rank( keyword ), keywords.rank( keyword, :selected ) )  + ')')
+        db.transaction do
+          keywords.each do |keyword|
+            keyword_id = get_keyword_id( keyword, language_id )
+            db.execute( DB::Insert::Ignore + 'INTO keyword_subscriptions ( keyword_id, story_id, frequency, excerpt_frequency) 
+              VALUES(' + db.quote_and_merge( keyword_id, story_content.story_id, keywords.rank( keyword ), keywords.rank( keyword, :selected ) )  + ')')
+          end
         end
       }
       db.execute( 'UPDATE candidate_stories SET keyword_exists = ' + db.quoted_true + ' WHERE id IN (' + story_ids.join(',') + ')')
