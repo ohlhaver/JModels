@@ -22,7 +22,7 @@ class EmailNotification < BackgroundService
   
   def immediately
     each_user( immediately_value ) do | user |
-      direct_alert_dispatch( 'direct_alert', user, immediately_value, 1.hour )
+      alert_dispatch( 'direct_alert', user, immediately_value, 1.hour )
     end
   end
   
@@ -86,9 +86,10 @@ class EmailNotification < BackgroundService
     s.results
   end
   
+  # +5 hours bug with Sphinx Search
   def topic_stories( user, cut_off, current_time, &block )
     user.topic_subscriptions.email_alert.find_each do |topic|
-      stories = topic.stories( :per_page => 20, :custom_time_span => cut_off...current_time )
+      stories = topic.stories( :per_page => 20, :custom_time_span => cut_off...(current_time+5.hours) )
       block.call( topic, stories ) if stories.any?
     end
   end
