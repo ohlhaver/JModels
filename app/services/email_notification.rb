@@ -86,10 +86,10 @@ class EmailNotification < BackgroundService
     s.results
   end
   
-  # +5 hours bug with Sphinx Search
+  # +5 hours bug with Sphinx Search ( don't know how to solve it? )
   def topic_stories( user, cut_off, current_time, &block )
     user.topic_subscriptions.email_alert.find_each do |topic|
-      stories = topic.stories( :per_page => 20, :custom_time_span => cut_off...(current_time+5.hours) )
+      stories = topic.stories( :per_page => 20, :custom_time_span => cut_off...(current_time) )
       block.call( topic, stories ) if stories.any?
     end
   end
