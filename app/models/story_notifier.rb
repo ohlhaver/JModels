@@ -1,7 +1,7 @@
 class StoryNotifier < ActionMailer::Base
   
   self.delivery_method = :activerecord
-  self.default_url_options[:host] = "www.jurnalo.com"
+  self.default_url_options[:host] = "beta.jurnalo.com"
   
   def direct_alert( user, stories, options = {} )
     options.reverse_merge!( :alert => :author )
@@ -38,7 +38,7 @@ class StoryNotifier < ActionMailer::Base
   end
   
   def author_stories_link( options = {} )
-    url_for( :controller => 'stories', :action => 'by_my_authors' )
+    url_for( :controller => 'authors', :action => 'show', :action => 'my' )
   end
   
 end
