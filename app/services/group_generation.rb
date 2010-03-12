@@ -346,36 +346,34 @@ class GroupGeneration < BackgroundService
       t.integer :score
     end
     
-    db.add_index 'candidate_group_keywords', [ :group_id, :score, :keyword_id ], :unique => true, :name => 'cdd_grp_keywords_idx'
-    
     # Step7. Finding Top 3 Keywords for each group based on score
     db.create_table( 'candidate_group_top_keywords', :force => true ) do |t|
       t.string :keywords
     end
     
-    @final_groups.each do |group|
-      db.execute( DB::Insert::Ignore + %Q(INTO candidate_group_keywords ( group_id, keyword_id, score )
-        SELECT #{group['id']}, keyword_id, COALESCE( COUNT( frequency )*SUM( frequency ), 0 ) AS score 
-        FROM candidate_group_stories INNER JOIN candidate_story_keywords ON ( candidate_story_keywords.story_id = candidate_group_stories.story_id )
-        WHERE candidate_group_stories.group_id = #{group['id']}
-        GROUP BY candidate_story_keywords.keyword_id ) )
-      top_keyword_ids = db.select_values( %Q(SELECT keyword_id FROM candidate_group_keywords WHERE group_id = #{group['id']} ORDER BY score DESC LIMIT 3) )
-      top_keyword_ids = ['NULL'] if top_keyword_ids.blank?
-      db.execute( %Q(DELETE FROM candidate_group_keywords WHERE group_id = #{group['id']} AND keyword_id NOT IN ( #{top_keyword_ids.join(',')} ) ) ) 
-    end
-    
-    # debug = db.select_all( 'SELECT k1.group_id AS gid, keywords.name AS name, k1.score AS score, COUNT( k2.keyword_id ) AS count
-    #   FROM candidate_group_keywords AS k1
-    #   LEFT OUTER JOIN candidate_group_keywords AS k2 ON ( k2.group_id = k1.group_id AND 
-    #   ( k1.score < k2.score OR ( k1.score = k2.score AND k1.keyword_id < k2.keyword_id ) ) )
-    #   LEFT OUTER JOIN keywords ON ( keywords.id = k1.keyword_id )
-    #   GROUP BY k1.keyword_id 
-    #   ORDER BY k1.group_id ASC, k1.score DESC')
+    # Solution 1
+    # db.add_index 'candidate_group_keywords', [ :group_id, :score, :keyword_id ], :unique => true, :name => 'cdd_grp_keywords_idx'
+    # @final_groups.each do |group|
+    #   db.execute( DB::Insert::Ignore + %Q(INTO candidate_group_keywords ( group_id, keyword_id, score )
+    #     SELECT #{group['id']}, keyword_id, COALESCE( COUNT( frequency )*SUM( frequency ), 0 ) AS score 
+    #     FROM candidate_group_stories INNER JOIN candidate_story_keywords ON ( candidate_story_keywords.story_id = candidate_group_stories.story_id )
+    #     WHERE candidate_group_stories.group_id = #{group['id']}
+    #     GROUP BY candidate_story_keywords.keyword_id ) )
+    #   top_keyword_ids = db.select_values( %Q(SELECT keyword_id FROM candidate_group_keywords WHERE group_id = #{group['id']} ORDER BY score DESC LIMIT 3) )
+    #   top_keyword_ids = ['NULL'] if top_keyword_ids.blank?
+    #   db.execute( %Q(DELETE FROM candidate_group_keywords WHERE group_id = #{group['id']} AND keyword_id NOT IN ( #{top_keyword_ids.join(',')} ) ) ) 
+    # end
     # 
-    # debug.each{ |record|
-    #   puts "#{record['gid']}\t#{record['name']}\t#{record['score']}\t#{record['count']}"
-    # }
+    # db.execute( 'INSERT INTO candidate_group_top_keywords ( id, keywords ) 
+    #     SELECT candidate_group_keywords.group_id, GROUP_CONCAT( keywords.name ) 
+    #     FROM candidate_group_keywords LEFT OUTER JOIN keywords ON ( keywords.id = candidate_group_keywords.keyword_id ) GROUP BY candidate_group_keywords.group_id' )
     
+    # Solution 2 ( Buggy )
+    # db.execute( DB::Insert::Ignore + %Q(INTO candidate_group_keywords ( group_id, keyword_id, score )
+    #   SELECT candidate_group_stories.group_id, keyword_id, COALESCE( COUNT( frequency )*SUM( frequency ), 0 ) AS score 
+    #   FROM candidate_group_stories INNER JOIN candidate_story_keywords ON ( candidate_story_keywords.story_id = candidate_group_stories.story_id )
+    #   GROUP BY candidate_group_stories.group_id, candidate_story_keywords.keyword_id ) )
+    # db.add_index 'candidate_group_keywords', [ :group_id, :score, :keyword_id ], :unique => true, :name => 'cdd_grp_keywords_idx'
     # db.execute( 'INSERT INTO candidate_group_top_keywords ( id, keywords ) 
     #     SELECT t.group_id, GROUP_CONCAT( keywords.name ) 
     #     FROM ( SELECT  k1.*
@@ -387,9 +385,22 @@ class GroupGeneration < BackgroundService
     #       ORDER BY k1.group_id ASC, k1.score DESC ) AS t 
     #     LEFT OUTER JOIN keywords ON ( keywords.id = t.keyword_id ) GROUP BY t.group_id' )
     
+    # Solution 3
+    db.execute( DB::Insert::Ignore + %Q(INTO candidate_group_keywords ( group_id, keyword_id, score )
+      SELECT candidate_group_stories.group_id, keyword_id, COALESCE( COUNT( frequency )*SUM( frequency ), 0 ) AS score 
+      FROM candidate_group_stories INNER JOIN candidate_story_keywords ON ( candidate_story_keywords.story_id = candidate_group_stories.story_id )
+      GROUP BY candidate_group_stories.group_id, candidate_story_keywords.keyword_id ) )
+    db.add_index 'candidate_group_keywords', [ :group_id, :score, :keyword_id ], :unique => true, :name => 'cdd_grp_keywords_idx'
+    @final_groups.each do |group|
+      db.transaction do
+        top_keyword_ids = db.select_values( %Q(SELECT keyword_id FROM candidate_group_keywords WHERE group_id = #{group['id']} ORDER BY score DESC LIMIT 3) )
+        top_keyword_ids = ['NULL'] if top_keyword_ids.blank?
+        db.execute( %Q(DELETE FROM candidate_group_keywords WHERE group_id = #{group['id']} AND keyword_id NOT IN ( #{top_keyword_ids.join(',')} ) ) )
+      end
+    end
     db.execute( 'INSERT INTO candidate_group_top_keywords ( id, keywords ) 
-        SELECT candidate_group_keywords.group_id, GROUP_CONCAT( keywords.name ) 
-        FROM candidate_group_keywords LEFT OUTER JOIN keywords ON ( keywords.id = candidate_group_keywords.keyword_id ) GROUP BY candidate_group_keywords.group_id' )
+      SELECT candidate_group_keywords.group_id, GROUP_CONCAT( keywords.name ) 
+      FROM candidate_group_keywords LEFT OUTER JOIN keywords ON ( keywords.id = candidate_group_keywords.keyword_id ) GROUP BY candidate_group_keywords.group_id' )
   end
   
   #
