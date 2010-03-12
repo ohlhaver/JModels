@@ -4,10 +4,13 @@
 
 <% @stories.each do |story| -%>
 <%= story.title %>
-<%= story.authors.collect( &:name ).join(', ') %>
-<%= story.url %>
+<% authors = story.authors -%>
+<% if authors.any? -%>
+  <%= authors.collect( &:name ).join(', ') %>
 <% end -%>
+<%= story.url %>
 
+<% end -%>
 <%= t("email.#{@alert}.body.all_stories", :url => @all_stories_link ) %>
 
 <%= t("email.#{@alert}.body.turn_off_settings", :url => url_for( :host => 'accounts.jurnalo.com', :controller => 'preferences', :action => 'alert', :id => @user.id ) ) %>
