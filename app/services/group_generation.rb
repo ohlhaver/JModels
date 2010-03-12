@@ -68,6 +68,7 @@ class GroupGeneration < BackgroundService
       WHERE keyword_subscriptions.excerpt_frequency IS NOT NULL AND candidate_stories.master_id IS NULL' )
         
     db.add_index :candidate_story_keywords, [ :keyword_id, :story_id ], :unique => true, :name => 'cdd_story_keywords_idx'
+    db.add_index :candidate_story_keywords, [ :story_id, :keyword_id ], :unique => true, :name => 'cdd_story_keywords_idx_fk_story_id'
     
     db.execute('DELETE FROM candidate_group_similarities WHERE story1_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
     db.execute('DELETE FROM candidate_group_similarities WHERE story2_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
