@@ -30,6 +30,8 @@ class GroupGeneration < BackgroundService
     
     benchmark( 'Cluster Group Mappings' ){ cluster_group_mappings }
     
+    benchmark( 'Delta Indexing Jobs'){ update_delta_flags_for_sphinx }
+    
     benchmark( 'Archiving Old Group' ){ archive_old_groups }
   end
   
@@ -475,7 +477,7 @@ class GroupGeneration < BackgroundService
     
     @pilot_stories = []
     @group_stories = []
-    @final_groups = []
+    #@final_groups = []
     
   end
   
@@ -541,6 +543,12 @@ class GroupGeneration < BackgroundService
     ClusterGroupMembership.update_all( 'active=true', { :active => false } )
     @session.update_attributes( :running => false )
     ClusterGroupMembership.delete_all( { :flagged => true } )
+  end
+  
+  def update_delta_flags_for_sphinx
+    Story.find_each(:select => 'id, delta', :joins => "INNER JOIN story_group_memberships ON ( stories.id = story_group_memberships.story_id AND bj_session_id = #{@session.id})", :conditions => { :delta => false } ){ |story|
+      story.update_attribute( :delta, true )
+    }
   end
 
 end
