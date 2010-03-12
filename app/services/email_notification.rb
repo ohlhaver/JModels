@@ -79,10 +79,11 @@ class EmailNotification < BackgroundService
     @weekly_value ||= Preference.select_value_by_name_and_code( :author_email, :weekly ).try( :[], :id )
   end
   
+  # +5 hours bug with Sphinx Search
   def author_stories( user, cut_off, current_time )
     author_ids = user.author_subscriptions.subscribed.all( :select => 'author_id').collect( &:author_id )
     return [] if author_ids.empty?
-    s = StorySearch.new( user, :author, :author_ids => author_ids, :custom_time_span => cut_off...current_time, :per_page => 20 )
+    s = StorySearch.new( user, :author, :author_ids => author_ids, :custom_time_span => (cut_off+5.hours)...(current_time+5.hours), :per_page => 20 )
     s.results
   end
   
