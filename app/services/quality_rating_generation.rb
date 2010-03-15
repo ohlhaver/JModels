@@ -55,7 +55,7 @@ class QualityRatingGeneration < BackgroundService
     SourceSubscription.find_each( 
       :conditions => { :source_id => story.source_id, :category_id => nil, :owner_type => 'User' }
     ) do |source_subscription|
-      next if source_subscription.preference.nil? || !user_ids.has_key?( source_subscription.owner_id )
+      next if source_subscription.preference.nil? || user_ids.has_key?( source_subscription.owner_id )
       user_quality_rating = ( source_subscription.preference > 0 && story.author_quality_rating ) ? ( source_subscription.preference + story.author_quality_rating ) / 2.0 : source_subscription.preference
       StoryUserQualityRating.create( :source => true, :preference => source_subscription.preference, 
         :user_id => source_subscription.owner_id, :created_at => story.created_at, :story_id => story.id, :quality_rating => user_quality_rating )

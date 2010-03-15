@@ -301,7 +301,7 @@ class Story < ActiveRecord::Base
         options[:select] << ", (#{score_statement}) AS blub_score"
         options[:order] = [ 'blub_score DESC', options[:order] ].select{ |x| !x.blank? }.join(', ')
         personalize_options = { 
-          :joins => %Q(LEFT JOIN story_user_quality_ratings ON ( story_user_quality_ratings.story_id = stories.id AND story_user_quality_ratings.user_id = #{user.id} ) ),
+          :joins => %Q(LEFT OUTER JOIN story_user_quality_ratings ON ( story_user_quality_ratings.story_id = stories.id AND story_user_quality_ratings.user_id = #{user.id} ) ),
           :conditions => "( #{score_conditions} )"
         }
         with_scope :find => personalize_options do 
