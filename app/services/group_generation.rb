@@ -123,13 +123,12 @@ class GroupGeneration < BackgroundService
       
       pair_hash.each do | s1_id, s1_hash |
         db.transaction do
+          next unless pair_hash[s1_id].key?( s1_id )
           s1_frequency = pair_hash[s1_id][s1_id]
-          next unless s1_frequency
           s1_hash.each do | s2_id, frequency |
-            next if s1_id != s2_id && frequency < min_frequency
+            next if (s1_id != s2_id && frequency < min_frequency) || !pair_hash[s2_id].key?( s2_id )
             s2_frequency = pair_hash[s2_id][s2_id]
-            next unless s2_frequency
-            overlap = frequency * 100 / ( s1_frequency + s2_frequency - frequency )
+            overlap = ( frequency * 100 / ( s1_frequency + s2_frequency - frequency ) rescue 0 )
             db.execute( DB::Insert::Ignore + 'INTO duplicate_stories ( master_id, story_id ) VALUES ( ' + 
               db.quote_and_merge( s1_id, s2_id ) + ' )') unless overlap < DuplicateCutoff
             db.execute( DB::Insert::Ignore + 'INTO candidate_group_similarities (story1_id, story2_id, frequency ) VALUES( ' +
@@ -150,9 +149,11 @@ class GroupGeneration < BackgroundService
     master_ids.each do |master_id|
       story_ids = db.select_values( 'SELECT story_id FROM duplicate_stories LEFT OUTER JOIN candidate_stories ON ( duplicate_stories.story_id = candidate_stories.id ) 
         WHERE duplicate_stories.master_id = ' + db.quote( master_id ) + ' ORDER BY candidate_stories.created_at ASC')
-      mark_duplicates( story_ids ) # from story_ids master_id is deleted.
-      db.execute('DELETE FROM candidate_group_similarities WHERE story1_id IN ( ' + db.quote_and_merge( story_ids ) + ' )')
-      db.execute('DELETE FROM candidate_group_similarities WHERE story2_id IN ( ' + db.quote_and_merge( story_ids ) + ' )')
+      mark_duplicates( story_ids ) # from story_ids, master_id is deleted.
+      if story_ids.any?
+        db.execute('DELETE FROM candidate_group_similarities WHERE story1_id IN ( ' + story_ids.join(',') + ' )')
+        db.execute('DELETE FROM candidate_group_similarities WHERE story2_id IN ( ' + story_ids.join(',') + ' )')
+      end
     end
     logger.info( "Duplicates Marked (#{DuplicateCutoff}% CutOff): " + (@duplicates_found.size).to_s )
     @duplicates_found.clear
