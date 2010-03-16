@@ -3,15 +3,20 @@
 #
 class GroupGeneration < BackgroundService
   
+  DuplicateCutoff = 80
+  
   def start( options = {} )
     
     return if exit?
     benchmark( 'Populate Candidate Group Similarities' ){ populate_candidate_story_keywords }
      # pre step to find related stories
+     
+    return if exit?
+    benchmark( 'Duplicate Marking'){ find_and_eliminate_duplicates_from_group_generation }
     
     return if exit?
     benchmark( 'Greedy Group Formation' ){ find_and_populate_candidate_groups_per_story }
-     # greedy group formation
+    # greedy group formation
     
     return if exit?
     benchmark( 'Final Group Formation'){ reduce_candidate_groups_to_relevant_candidate_groups }# optimal group formation
@@ -110,10 +115,23 @@ class GroupGeneration < BackgroundService
       new_story_ids.clear
       min_frequency = db.select_value( 'SELECT MIN(COALESCE(cluster_threshold,5)) FROM languages;').to_i
       
+      db.create_table( 'duplicate_stories', :force => true, :id => false ) do |t|
+        t.integer :master_id
+        t.integer :story_id
+      end
+      db.add_index :duplicate_stories, [ :master_id, :story_id ], :unique => true
+      
       pair_hash.each do | s1_id, s1_hash |
         db.transaction do
+          s1_frequency = pair_hash[s1_id][s1_id]
+          next unless s1_frequency
           s1_hash.each do | s2_id, frequency |
             next if s1_id != s2_id && frequency < min_frequency
+            s2_frequency = pair_hash[s2_id][s2_id]
+            next unless s2_frequency
+            overlap = frequency * 100 / ( s1_frequency + s2_frequency - frequency )
+            db.execute( DB::Insert::Ignore + 'INTO duplicate_stories ( master_id, story_id ) VALUES ( ' + 
+              db.quote_and_merge( s1_id, s2_id ) + ' )') unless overlap < DuplicateCutoff
             db.execute( DB::Insert::Ignore + 'INTO candidate_group_similarities (story1_id, story2_id, frequency ) VALUES( ' +
               db.quote_and_merge( s1_id, s2_id, frequency ) + ')' )
           end
@@ -126,6 +144,36 @@ class GroupGeneration < BackgroundService
     
   end
   
+  def find_and_eliminate_duplicates_from_group_generation
+    @duplicates_found = Array.new
+    master_ids = db.select_values( 'SELECT master_id FROM duplicate_stories GROUP BY master_id HAVING COUNT(story_id) > 1 ORDER BY COUNT(story_id) DESC')
+    master_ids.each do |master_id|
+      story_ids = db.select_values( 'SELECT story_id FROM duplicate_stories LEFT OUTER JOIN candidate_stories ON ( duplicate_stories.story_id = candidate_stories.id ) 
+        WHERE duplicate_stories.master_id = ' + db.quote( master_id ) + ' ORDER BY candidate_stories.created_at ASC')
+      mark_duplicates( story_ids ) # from story_ids master_id is deleted.
+      db.execute('DELETE FROM candidate_group_similarities WHERE story1_id IN ( ' + db.quote_and_merge( story_ids ) + ' )')
+      db.execute('DELETE FROM candidate_group_similarities WHERE story2_id IN ( ' + db.quote_and_merge( story_ids ) + ' )')
+    end
+    logger.info( "Duplicates Marked (#{DuplicateCutoff}% CutOff): " + (@duplicates_found.size).to_s )
+    @duplicates_found.clear
+  end
+  
+  def mark_duplicates( story_ids )
+    master_id = story_ids.shift
+    master_story_metric = StoryMetric.find( :first, :conditions => { :story_id => master_id } )
+    if master_story_metric.try(:master_id)
+      story_ids.unshift( master_id )
+      master_id = master_story_metric.master_id
+      story_ids.delete( master_id )
+    end
+    db.execute( "UPDATE candidate_stories 
+      SET master_id = #{master_id} WHERE id IN ( #{story_ids.join(',')} )" )
+    story_ids.each do |story_id|
+      StoryMetric.create_or_update( :story_id => story_id, :master_id => master_id )
+      @duplicates_found.push( story_id )
+    end
+    @duplicates_found.uniq!
+  end
   
   #
   # For each pair of stories find number of excerpt keywords common to both ( frequency )
