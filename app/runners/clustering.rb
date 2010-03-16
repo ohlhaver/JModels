@@ -53,9 +53,7 @@ class Clustering < BackgroundRunnerPool
       end
     
       add_runner( 'Story Groups Generation', :run_forever ) do
-        unless $new_stories_count == 0
-          GroupGeneration.new( :logger => self.logger, :parent => self ).run( :with_session => true )
-        end
+        GroupGeneration.new( :logger => self.logger, :parent => self ).run( :with_session => true )
       end
       
       # add_runner( 'Duplicate Marker Across Source', :run_forever ) do

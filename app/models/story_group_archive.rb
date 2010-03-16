@@ -23,6 +23,8 @@ class StoryGroupArchive < ActiveRecord::Base
   
   has_many :top_stories, :class_name => 'Story', :through => :unique_memberships, :source => :story, :order => 'story_group_membership_archives.blub_score DESC'
   
+  has_many :stories, :through => :memberships, :source => :story, :order => 'rank ASC'
+  
   protected
   
   def top_keywords_serialize( options = {} )
