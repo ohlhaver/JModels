@@ -122,7 +122,7 @@ class GroupGeneration < BackgroundService
       
       new_story_ids.clear
       all_new_story_ids.clear
-      min_frequency = db.select_value( 'SELECT MIN(COALESCE(cluster_threshold,5)) FROM languages;').to_i
+      min_frequency = db.select_value( 'SELECT MIN(COALESCE(cluster_threshold,5)) FROM languages;' ).to_i - 1
       
       db.create_table( 'duplicate_stories', :force => true, :id => false ) do |t|
         t.integer :master_id
@@ -140,7 +140,7 @@ class GroupGeneration < BackgroundService
             db.execute( DB::Insert::Ignore + 'INTO duplicate_stories ( master_id, story_id ) VALUES ( ' + 
               db.quote_and_merge( s2_id, s1_id ) + ' )') unless overlap < DuplicateCutoff
             db.execute( DB::Insert::Ignore + 'INTO candidate_group_similarities (story1_id, story2_id, frequency ) VALUES( ' +
-              db.quote_and_merge( s1_id, s2_id, frequency ) + ')' )
+              db.quote_and_merge( s1_id, s2_id, frequency ) + ' )' )
           end
         end
       end
@@ -209,7 +209,7 @@ class GroupGeneration < BackgroundService
       SELECT story1_id, story2_id, frequency FROM candidate_group_similarities
         LEFT OUTER JOIN candidate_stories ON ( candidate_stories.id = story1_id )
         LEFT OUTER JOIN languages ON ( candidate_stories.language_id = languages.id )
-        WHERE frequency >= COALESCE( languages.cluster_threshold, 5 )' )
+        WHERE frequency >= COALESCE( languages.cluster_threshold, 5 ) - 1' )
     
       # db.execute( DB::Insert::Ignore + 'INTO related_candidates ( story1_id, story2_id, frequency )
       #   SELECT  ks1.story_id AS story1_id, ks2.story_id AS story2_id, COUNT( ks1.keyword_id ) AS frequency 
