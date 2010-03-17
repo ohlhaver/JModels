@@ -3,7 +3,7 @@
 #
 class GroupGeneration < BackgroundService
   
-  DuplicateCutoff = 60
+  DuplicateCutoff = 80
   
   def start( options = {} )
     
