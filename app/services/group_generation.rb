@@ -3,7 +3,7 @@
 #
 class GroupGeneration < BackgroundService
   
-  DuplicateCutoff = 70
+  DuplicateCutoff = 60
   
   def start( options = {} )
     
@@ -77,6 +77,7 @@ class GroupGeneration < BackgroundService
     db.add_index :candidate_story_keywords, [ :keyword_id, :story_id ], :unique => true, :name => 'cdd_story_keywords_idx'
     db.add_index :candidate_story_keywords, [ :story_id, :keyword_id ], :unique => true, :name => 'cdd_story_keywords_idx_fk_story_id'
     
+    db.execute('DELETE FROM candidate_group_similarities WHERE story1_id = story2_id AND frequency = 0')
     db.execute('DELETE FROM candidate_group_similarities WHERE story1_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
     db.execute('DELETE FROM candidate_group_similarities WHERE story2_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
     db.execute('DELETE FROM candidate_group_similarities WHERE story1_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE candidate_stories.master_id IS NOT NULL )')
@@ -85,8 +86,14 @@ class GroupGeneration < BackgroundService
     #
     # For Incremental Calculations to Speed Up Things
     #
+    all_new_story_ids = db.select_values( 'SELECT id FROM candidate_stories LEFT OUTER JOIN candidate_group_similarities 
+      ON ( story1_id = story2_id AND story1_id = id ) WHERE story1_id IS NULL AND candidate_stories.master_id IS NULL' ).inject({}){|m,s| m[s] = true; m }
+      
     new_story_ids = db.select_values( 'SELECT id FROM candidate_stories LEFT OUTER JOIN candidate_group_similarities 
-      ON ( story1_id = story2_id AND story1_id = id ) WHERE story1_id IS NULL AND candidate_stories.master_id IS NULL LIMIT 5000' ).group_by{ |x| x }
+      ON ( story1_id = story2_id AND story1_id = id ) WHERE story1_id IS NULL AND candidate_stories.master_id IS NULL 
+      ORDER BY candidate_stories.created_at ASC LIMIT 5000' ).inject({}){|m,s| m[s] = true; m }
+      
+    logger.info('New Stories in Group Generation: ' + new_story_ids.size.to_s + ' of ' + all_new_story_ids.size.to_s )
       
     unless new_story_ids.blank?
       
@@ -98,7 +105,8 @@ class GroupGeneration < BackgroundService
       # In Memory Calculations of the Keyword Frequency in Incremental Mode
       #
       while( story_ids = story_ids_groups.pop )
-        new_story_ids_in_a_group, old_story_ids_in_a_group = story_ids.to_s.split(',').partition{ |x| !new_story_ids[x].nil? }
+        new_story_ids_in_a_group, old_story_ids_in_a_group = story_ids.to_s.split(',').partition{ |x| new_story_ids[x] }
+        old_story_ids_in_a_group.delete_if{ |x| all_new_story_ids[x] }
         while( s1_id = new_story_ids_in_a_group.pop )
           pair_hash[ s1_id ][ s1_id ] += 1
           new_story_ids_in_a_group.each do |s2_id|
@@ -113,6 +121,7 @@ class GroupGeneration < BackgroundService
       end
       
       new_story_ids.clear
+      all_new_story_ids.clear
       min_frequency = db.select_value( 'SELECT MIN(COALESCE(cluster_threshold,5)) FROM languages;').to_i
       
       db.create_table( 'duplicate_stories', :force => true, :id => false ) do |t|
