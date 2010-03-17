@@ -97,8 +97,6 @@ class GroupGeneration < BackgroundService
     while( incrementally_populate_group_similarities_table( min_frequency ) )
     end
     
-    all_new_story_ids.clear
-    
     logger.info( 'Candidate Group Similarities Table: ' + db.select_value('SELECT COUNT(*) FROM candidate_group_similarities') + ' Rows' )
   end
   
@@ -141,7 +139,8 @@ class GroupGeneration < BackgroundService
       end
       
       new_story_ids.clear
-      
+      all_new_story_ids.clear
+       
       pair_hash.each do | s1_id, s1_hash |
         db.transaction do
           s1_frequency = pair_hash[s1_id].key?( s1_id ) ? pair_hash[s1_id][s1_id] : 0
