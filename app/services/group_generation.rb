@@ -136,8 +136,6 @@ class GroupGeneration < BackgroundService
           s1_frequency = pair_hash[s1_id][s1_id]
           s1_hash.each do | s2_id, frequency |
             next if (s1_id != s2_id && frequency < min_frequency) || !pair_hash[s2_id].key?( s2_id )
-            #s2_frequency = pair_hash[s2_id][s2_id]
-            #m_frequency = (s1_frequency > s2_frequency ? s2_frequency : s1_frequency)
             overlap = (frequency*100)/s1_frequency rescue 0
             db.execute( DB::Insert::Ignore + 'INTO duplicate_stories ( master_id, story_id ) VALUES ( ' + 
               db.quote_and_merge( s2_id, s1_id ) + ' )') unless overlap < DuplicateCutoff
@@ -295,12 +293,12 @@ class GroupGeneration < BackgroundService
       group_ids = Hash.new # Group that has been freezed
       story_ids = Hash.new # Stories that has been assigned a group
       grouped_stories.each{ |group|
-        next if group_ids[ group['id'] ]
+        next if story_ids[ group['id'] ]
         group['story_ids'].delete_if{ |x| story_ids[x] }
         if group['story_ids'].size > 1
-          group_ids[ group['id'] ] = true
-          group['story_ids'].each{ |x| story_ids[x] = true }
-          @final_groups << group if group['story_ids']
+          group_ids[ group['id'] ] = group
+          group['story_ids'].each{ |x| story_ids[x] = group['id'] }
+          @final_groups << group
         end
       }
       group_ids.clear
