@@ -128,7 +128,8 @@ class GroupGeneration < BackgroundService
           s1_hash.each do | s2_id, frequency |
             next if (s1_id != s2_id && frequency < min_frequency) || !pair_hash[s2_id].key?( s2_id )
             s2_frequency = pair_hash[s2_id][s2_id]
-            overlap = ( frequency * 100 / ( s1_frequency + s2_frequency - frequency ) rescue 0 )
+            #m_frequency = (s1_frequency > s2_frequency ? s2_frequency : s1_frequency)
+            overlap = (frequency*100)/s2_frequency rescue 0
             db.execute( DB::Insert::Ignore + 'INTO duplicate_stories ( master_id, story_id ) VALUES ( ' + 
               db.quote_and_merge( s1_id, s2_id ) + ' )') unless overlap < DuplicateCutoff
             db.execute( DB::Insert::Ignore + 'INTO candidate_group_similarities (story1_id, story2_id, frequency ) VALUES( ' +
