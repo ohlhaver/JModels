@@ -91,12 +91,10 @@ class GroupGeneration < BackgroundService
     end
     db.add_index :duplicate_stories, [ :master_id, :story_id ], :unique => true
     
-     all_new_story_ids = db.select_values( 'SELECT id FROM candidate_stories LEFT OUTER JOIN candidate_group_similarities 
-        ON ( story1_id = story2_id AND story1_id = id ) WHERE story1_id IS NULL AND candidate_stories.master_id IS NULL' ).inject({}){|m,s| m[s] = true; m }
     #
     # For Incremental Calculations to Speed Up Things
     #
-    while( incrementally_populate_group_similarities_table( min_frequency, all_new_story_ids ) )
+    while( incrementally_populate_group_similarities_table( min_frequency ) )
     end
     
     all_new_story_ids.clear
@@ -104,8 +102,11 @@ class GroupGeneration < BackgroundService
     logger.info( 'Candidate Group Similarities Table: ' + db.select_value('SELECT COUNT(*) FROM candidate_group_similarities') + ' Rows' )
   end
   
-  def incrementally_populate_group_similarities_table( min_frequency, all_new_story_ids )
-      
+  def incrementally_populate_group_similarities_table( min_frequency )
+    
+    all_new_story_ids = db.select_values( 'SELECT id FROM candidate_stories LEFT OUTER JOIN candidate_group_similarities 
+        ON ( story1_id = story2_id AND story1_id = id ) WHERE story1_id IS NULL AND candidate_stories.master_id IS NULL' ).inject({}){|m,s| m[s] = true; m }
+    
     new_story_ids = db.select_values( 'SELECT id FROM candidate_stories LEFT OUTER JOIN candidate_group_similarities 
       ON ( story1_id = story2_id AND story1_id = id ) WHERE story1_id IS NULL AND candidate_stories.master_id IS NULL 
       ORDER BY candidate_stories.created_at ASC LIMIT 5000' ).inject({}){|m,s| m[s] = true; m }
