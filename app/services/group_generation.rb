@@ -78,13 +78,12 @@ class GroupGeneration < BackgroundService
     db.add_index :candidate_story_keywords, [ :story_id, :keyword_id ], :unique => true, :name => 'cdd_story_keywords_idx_fk_story_id'
     
     # Deleting Useless Records if Any
-    db.execute('DELETE FROM candidate_group_similarities WHERE story1_id = story2_id AND frequency = 0')
     db.execute('DELETE FROM candidate_group_similarities WHERE story1_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
     db.execute('DELETE FROM candidate_group_similarities WHERE story2_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
     db.execute('DELETE FROM candidate_group_similarities WHERE story1_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE candidate_stories.master_id IS NOT NULL )')
     db.execute('DELETE FROM candidate_group_similarities WHERE story2_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE candidate_stories.master_id IS NOT NULL )')
     
-    min_frequency = db.select_value( 'SELECT MIN(COALESCE(cluster_threshold,5)) FROM languages;' ).to_i - 1
+    min_frequency = db.select_value( 'SELECT MIN(COALESCE(cluster_threshold,5)) FROM languages;' ).to_i
     
     db.create_table( 'duplicate_stories', :force => true, :id => false ) do |t|
       t.integer :master_id
@@ -92,18 +91,20 @@ class GroupGeneration < BackgroundService
     end
     db.add_index :duplicate_stories, [ :master_id, :story_id ], :unique => true
     
+     all_new_story_ids = db.select_values( 'SELECT id FROM candidate_stories LEFT OUTER JOIN candidate_group_similarities 
+        ON ( story1_id = story2_id AND story1_id = id ) WHERE story1_id IS NULL AND candidate_stories.master_id IS NULL' ).inject({}){|m,s| m[s] = true; m }
     #
     # For Incremental Calculations to Speed Up Things
     #
-    while( incrementally_populate_group_similarities_table( min_frequency ) )
+    while( incrementally_populate_group_similarities_table( min_frequency, all_new_story_ids ) )
     end
+    
+    all_new_story_ids.clear
     
     logger.info( 'Candidate Group Similarities Table: ' + db.select_value('SELECT COUNT(*) FROM candidate_group_similarities') + ' Rows' )
   end
   
-  def incrementally_populate_group_similarities_table( min_frequency )
-    all_new_story_ids = db.select_values( 'SELECT id FROM candidate_stories LEFT OUTER JOIN candidate_group_similarities 
-      ON ( story1_id = story2_id AND story1_id = id ) WHERE story1_id IS NULL AND candidate_stories.master_id IS NULL' ).inject({}){|m,s| m[s] = true; m }
+  def incrementally_populate_group_similarities_table( min_frequency, all_new_story_ids )
       
     new_story_ids = db.select_values( 'SELECT id FROM candidate_stories LEFT OUTER JOIN candidate_group_similarities 
       ON ( story1_id = story2_id AND story1_id = id ) WHERE story1_id IS NULL AND candidate_stories.master_id IS NULL 
@@ -139,14 +140,12 @@ class GroupGeneration < BackgroundService
       end
       
       new_story_ids.clear
-      all_new_story_ids.clear
       
       pair_hash.each do | s1_id, s1_hash |
         db.transaction do
-          next unless pair_hash[s1_id].key?( s1_id )
-          s1_frequency = pair_hash[s1_id][s1_id]
+          s1_frequency = pair_hash[s1_id].key?( s1_id ) ? pair_hash[s1_id][s1_id] : 0
           s1_hash.each do | s2_id, frequency |
-            next if (s1_id != s2_id && frequency < min_frequency) || !pair_hash[s2_id].key?( s2_id )
+            next if s1_id != s2_id && frequency < min_frequency
             overlap = (frequency*100)/s1_frequency rescue 0
             db.execute( DB::Insert::Ignore + 'INTO duplicate_stories ( master_id, story_id ) VALUES ( ' + 
               db.quote_and_merge( s2_id, s1_id ) + ' )') unless overlap < DuplicateCutoff
@@ -219,7 +218,7 @@ class GroupGeneration < BackgroundService
       SELECT story1_id, story2_id, frequency FROM candidate_group_similarities
         LEFT OUTER JOIN candidate_stories ON ( candidate_stories.id = story1_id )
         LEFT OUTER JOIN languages ON ( candidate_stories.language_id = languages.id )
-        WHERE frequency >= COALESCE( languages.cluster_threshold, 5 ) - 1' )
+        WHERE frequency >= COALESCE( languages.cluster_threshold, 5 )' )
     
       # db.execute( DB::Insert::Ignore + 'INTO related_candidates ( story1_id, story2_id, frequency )
       #   SELECT  ks1.story_id AS story1_id, ks2.story_id AS story2_id, COUNT( ks1.keyword_id ) AS frequency 

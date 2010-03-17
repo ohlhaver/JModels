@@ -47,9 +47,7 @@ class Clustering < BackgroundRunnerPool
       end
     
       add_runner( 'Duplicate Deletion Within Source', :run_forever ) do
-        unless $new_stories_count == 0
-          DuplicateDeletion.new( :logger => self.logger, :parent => self ).run( :with_session => true )
-        end
+        DuplicateDeletion.new( :logger => self.logger, :parent => self ).run( :with_session => true )
       end
     
       add_runner( 'Story Groups Generation', :run_forever ) do
