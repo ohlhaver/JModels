@@ -77,15 +77,31 @@ class GroupGeneration < BackgroundService
     db.add_index :candidate_story_keywords, [ :keyword_id, :story_id ], :unique => true, :name => 'cdd_story_keywords_idx'
     db.add_index :candidate_story_keywords, [ :story_id, :keyword_id ], :unique => true, :name => 'cdd_story_keywords_idx_fk_story_id'
     
+    # Deleting Useless Records if Any
     db.execute('DELETE FROM candidate_group_similarities WHERE story1_id = story2_id AND frequency = 0')
     db.execute('DELETE FROM candidate_group_similarities WHERE story1_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
     db.execute('DELETE FROM candidate_group_similarities WHERE story2_id NOT IN ( SELECT candidate_stories.id FROM candidate_stories )')
     db.execute('DELETE FROM candidate_group_similarities WHERE story1_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE candidate_stories.master_id IS NOT NULL )')
     db.execute('DELETE FROM candidate_group_similarities WHERE story2_id IN ( SELECT candidate_stories.id FROM candidate_stories WHERE candidate_stories.master_id IS NOT NULL )')
     
+    min_frequency = db.select_value( 'SELECT MIN(COALESCE(cluster_threshold,5)) FROM languages;' ).to_i - 1
+    
+    db.create_table( 'duplicate_stories', :force => true, :id => false ) do |t|
+      t.integer :master_id
+      t.integer :story_id
+    end
+    db.add_index :duplicate_stories, [ :master_id, :story_id ], :unique => true
+    
     #
     # For Incremental Calculations to Speed Up Things
     #
+    while( incrementally_populate_group_similarities_table( min_frequency ) )
+    end
+    
+    logger.info( 'Candidate Group Similarities Table: ' + db.select_value('SELECT COUNT(*) FROM candidate_group_similarities') + ' Rows' )
+  end
+  
+  def incrementally_populate_group_similarities_table( min_frequency )
     all_new_story_ids = db.select_values( 'SELECT id FROM candidate_stories LEFT OUTER JOIN candidate_group_similarities 
       ON ( story1_id = story2_id AND story1_id = id ) WHERE story1_id IS NULL AND candidate_stories.master_id IS NULL' ).inject({}){|m,s| m[s] = true; m }
       
@@ -94,7 +110,9 @@ class GroupGeneration < BackgroundService
       ORDER BY candidate_stories.created_at ASC LIMIT 5000' ).inject({}){|m,s| m[s] = true; m }
       
     logger.info('New Stories in Group Generation: ' + new_story_ids.size.to_s + ' of ' + all_new_story_ids.size.to_s )
-      
+    
+    continue = (new_story_ids.size != all_new_story_ids.size)
+    
     unless new_story_ids.blank?
       
       story_ids_groups = db.select_values( 'SELECT GROUP_CONCAT( story_id ) FROM candidate_story_keywords GROUP by keyword_id' )
@@ -122,13 +140,6 @@ class GroupGeneration < BackgroundService
       
       new_story_ids.clear
       all_new_story_ids.clear
-      min_frequency = db.select_value( 'SELECT MIN(COALESCE(cluster_threshold,5)) FROM languages;' ).to_i - 1
-      
-      db.create_table( 'duplicate_stories', :force => true, :id => false ) do |t|
-        t.integer :master_id
-        t.integer :story_id
-      end
-      db.add_index :duplicate_stories, [ :master_id, :story_id ], :unique => true
       
       pair_hash.each do | s1_id, s1_hash |
         db.transaction do
@@ -147,8 +158,7 @@ class GroupGeneration < BackgroundService
       
     end
     
-    logger.info( 'Candidate Group Similarities Table: ' + db.select_value('SELECT COUNT(*) FROM candidate_group_similarities') + ' Rows' )
-    
+    return continue
   end
   
   def find_and_eliminate_duplicates_from_group_generation
