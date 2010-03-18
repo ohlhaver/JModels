@@ -140,6 +140,12 @@ class GroupGeneration < BackgroundService
       
       new_story_ids.clear
       all_new_story_ids.clear
+      
+      story_freqs = db.select_all( 'SELECT story1_id AS id, frequency FROM candidate_group_similarities WHERE story1_id = story2_id' )
+      
+      story_freqs.each do |story_freq|
+        pair_hash[ story_freq['id'] ][ story_freq['id'] ] = story_freq['frequency'].to_i
+      end
        
       pair_hash.each do | s1_id, s1_hash |
         db.transaction do
