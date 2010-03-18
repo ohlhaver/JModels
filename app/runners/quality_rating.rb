@@ -22,9 +22,9 @@ class QualityRating < BackgroundRunnerPool
     
     else
       
-      add_runner( 'Quality Ratings Overall', :run_every_day ) do
-        QualityRatingGeneration.new( :logger => self.logger,  :parent => self ).run( :with_session => true )
-      end
+      # add_runner( 'Quality Ratings Overall', :run_every_day ) do
+      #   QualityRatingGeneration.new( :logger => self.logger,  :parent => self ).run( :with_session => true )
+      # end
       
       add_runner( 'Quality Ratings Incremental', :run_forever ) do
         QualityRatingGeneration.new( :logger => self.logger,  :parent => self ).run( :with_session => true, :start => { :incremental => true } )
