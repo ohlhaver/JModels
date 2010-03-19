@@ -618,9 +618,16 @@ class GroupGeneration < BackgroundService
   end
   
   def update_delta_flags_for_sphinx
-    Story.find_each(:select => 'id, delta', :joins => "INNER JOIN story_group_memberships ON ( stories.id = story_group_memberships.story_id AND bj_session_id = #{@session.id})", :conditions => { :delta => false } ){ |story|
-      story.update_attribute( :delta, true )
-    }
+    loop do
+      stories = Story.find(:all, 
+        :select => 'id, delta', 
+        :joins => "INNER JOIN story_group_memberships ON ( stories.id = story_group_memberships.story_id AND bj_session_id = #{@session.id})", 
+        :conditions => { :delta => false }, :limit => 1000 )
+      break if stories.empty?
+      stories.each do |story|
+        story.update_attribute( :delta, true )
+      end
+    end
   end
 
 end
