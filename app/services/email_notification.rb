@@ -82,13 +82,13 @@ class EmailNotification < BackgroundService
   def author_stories( user, cut_off, current_time )
     author_ids = user.author_subscriptions.subscribed.all( :select => 'author_id').collect( &:author_id )
     return [] if author_ids.empty?
-    s = StorySearch.new( user, :author, :author_ids => author_ids, :custom_time_span => cut_off...current_time, :per_page => 20 )
+    s = StorySearch.new( user, :author, :author_ids => author_ids, :custom_time_span => cut_off...current_time, :per_page => 20, :sort_criteria => 2 )
     s.results
   end
   
   def topic_stories( user, cut_off, current_time, &block )
     user.topic_subscriptions.email_alert.find_each do |topic|
-      stories = topic.stories( :per_page => 20, :custom_time_span => cut_off...current_time )
+      stories = topic.stories( :per_page => 20, :custom_time_span => cut_off...current_time, :sort_criteria => 2 )
       block.call( topic, stories ) if stories.any?
     end
   end
