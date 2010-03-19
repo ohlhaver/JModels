@@ -16,29 +16,29 @@ class EmailNotification < BackgroundService
   def daily
     each_user( daily_value ) do | user |
       alert = user.alert_monitor? ? 'indirect_alert' : 'direct_alert'
-      alert_dispatch( alert, user, daily_value, 1.day )
+      alert_dispatch( alert, user, daily_value, 1.day, :sort_criteria => 0 )
     end
   end
   
   def immediately
     each_user( immediately_value ) do | user |
-      alert_dispatch( 'direct_alert', user, immediately_value, 1.hour )
+      alert_dispatch( 'direct_alert', user, immediately_value, 30.minutes, :sort_criteria => 2 )
     end
   end
   
   def weekly
     each_user( weekly_value ) do |user|
       alert = user.alert_monitor? ? 'indirect_alert' : 'direct_alert'
-      alert_dispatch( alert, user, weekly_value, 1.week )
+      alert_dispatch( alert, user, weekly_value, 1.week, :sort_criteria => 0 )
     end
   end
   
-  def alert_dispatch( alert, user, preference_value, time_interval = 1.hour )
+  def alert_dispatch( alert, user, preference_value, time_interval = 1.hour, options = {} )
     current_time = Time.now
     if user.preference.author_email == preference_value
       cut_off = time_cut_off( user.last_author_email_alert_at, time_interval )
       if cut_off
-        stories = author_stories( user, cut_off, current_time )
+        stories = author_stories( user, cut_off, current_time, options )
         StoryNotifier.send( "deliver_#{alert}", user, stories, :alert => :author ) if stories.any?
         user.update_attribute( :last_author_email_alert_at, current_time )
       end
@@ -47,7 +47,7 @@ class EmailNotification < BackgroundService
     if user.preference.topic_email == preference_value
       cut_off = time_cut_off( user.last_topic_email_alert_at, time_interval )
       if cut_off
-        topic_stories( user, cut_off, current_time ) do | topic, stories |
+        topic_stories( user, cut_off, current_time, options ) do | topic, stories |
           StoryNotifier.send( "deliver_#{alert}", user, stories, :alert => :topic, :topic_id => topic.id, :title => topic.name )
         end
         user.update_attribute( :last_topic_email_alert_at, current_time )
@@ -79,16 +79,16 @@ class EmailNotification < BackgroundService
     @weekly_value ||= Preference.select_value_by_name_and_code( :author_email, :weekly ).try( :[], :id )
   end
   
-  def author_stories( user, cut_off, current_time )
+  def author_stories( user, cut_off, current_time, options = {} )
     author_ids = user.author_subscriptions.subscribed.all( :select => 'author_id').collect( &:author_id )
     return [] if author_ids.empty?
-    s = StorySearch.new( user, :author, :author_ids => author_ids, :custom_time_span => cut_off...current_time, :per_page => 20, :sort_criteria => 2 )
+    s = StorySearch.new( user, :author, options.merge( :author_ids => author_ids, :custom_time_span => cut_off...current_time, :per_page => 20 ) )
     s.results
   end
   
-  def topic_stories( user, cut_off, current_time, &block )
+  def topic_stories( user, cut_off, current_time, options = {}, &block )
     user.topic_subscriptions.email_alert.find_each do |topic|
-      stories = topic.stories( :per_page => 20, :custom_time_span => cut_off...current_time, :sort_criteria => 2 )
+      stories = topic.stories( options.merge( :per_page => 20, :custom_time_span => cut_off...current_time ) )
       block.call( topic, stories ) if stories.any?
     end
   end
@@ -96,7 +96,7 @@ class EmailNotification < BackgroundService
   def time_cut_off( last_update_at, time_interval )
     start_time = time_interval.ago
     cut_off = ( last_update_at.nil? || start_time > last_update_at ) ? start_time : last_update_at
-    finish_time = ( time_interval / 2 ).ago
+    finish_time = time_interval.ago
     cut_off > finish_time ? nil : cut_off
   end
   
