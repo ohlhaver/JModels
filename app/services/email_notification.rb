@@ -94,9 +94,9 @@ class EmailNotification < BackgroundService
   end
   
   def time_cut_off( last_update_at, time_interval )
-    start_time = time_interval.ago
-    cut_off = ( last_update_at.nil? || start_time > last_update_at ) ? start_time : last_update_at
+    start_time = ( time_interval + 1.hour ).ago
     finish_time = time_interval.ago
+    cut_off = ( last_update_at.nil? || start_time > last_update_at ) ? start_time : last_update_at
     cut_off > finish_time ? nil : cut_off
   end
   
