@@ -5,72 +5,72 @@ de:
         author_subscription:
           attributes:
             preference:
-              required: "can't be blank"
+              required: "darf nicht leer sein"
         topic_subscription:
            attributes:
              search_keywords:
-               required: "can't be blank"
+               required: "darf nicht leer sein"
   email:
     author:
       body:
-        all_stories: "To find all articles by your favorite authors, follow the link below:\n{{url}}"
-        title: "You have got new articles by your subscribed authors"
-        turn_off_settings: "If you don't want to receive any further author emails, please select 'Off' below 'Author Emails' on this page:\n{{url}}"
-      subject: "New articles by your favorite authors"
+        all_stories: "Um alle Artikel der von Ihnen abonnierten Autoren zu sehen, folgen Sie bitte diesem Link:\n{{url}}"
+        title: "Sie haben neue Artikel von Ihren Lieblingsautoren."
+        turn_off_settings: "Wenn Sie keine weiteren Autoren E-mails mehr erhalten wollen, so wählen sie bitte 'E-mails ausstellen' neben 'Artikel von meinen Autoren' auf dieser Seite:\n{{url}}"
+      subject: "Neue Artikel von Ihren Lieblingsautoren"
     body:
-      contact: "In case you experience any difficulties, please send us an email to:\n{{email}}"
-      dear_user: "Dear {{name}},"
-      regards: "Best Regards,\n{{name}}"
+      contact: "Falls es Probleme gibt, schreiben Sie uns bitte eine E-mail an:\n{{email}}"
+      dear_user: "Liebe(r) {{name}},"
+      regards: "Viele Grüße,\n{{name}}"
     topic:
       body:
-        all_stories: "To find all articles by your topic, follow the link below:\n{{url}}"
-        title: "You have got new articles by your topic: {{title}}"
-        turn_off_settings: "If you don't want to receive any further topic emails, please select 'Off' below 'Topic Emails' on this page:\n{{url}}"
-      subject: "New articles for your topic: {{title}}"
+        all_stories: "Um alle Artikel zu Ihrem Thema zu finden, folgen Sie bitte diesem Link:\n{{url}}"
+        title: "Sie haben neue Artikel zu Ihrem Thema: {{title}}"
+        turn_off_settings: "Wenn Sie keine weiteren Themen E-mails mehr erhalten wollen, so wählen sie bitte 'E-mails ausstellen' neben 'Artikel zu meinen Themen' auf dieser Seite:\n{{url}}"
+      subject: "Neue Artikel zu Ihrem Thema: {{title}}"
   prefs:
     country:
-      at:  "Austria"
-      ch:  "Switzerland"
-      de:  "Germany"
+      at:  "Österreich"
+      ch:  "Schweiz"
+      de:  "Deutschland"
       int: "International"
     email:
-      daily: "Send Daily Digest"
-      immediately: "Send Immediately"
-      'off': "Turn Off Emails"
-      weekly: "Send Weekly Digest"
+      daily: "tägliche Zusammenstellung senden"
+      immediately: "sofort senden"
+      'off': "E-mails ausstellen"
+      weekly: "wöchentliche Zusammenstellung"
     homepage:
-      cluster_groups: "Cluster Groups"
-      my_authors: "My Authors"
-      my_topics: "My Topics"
-      top_stories: "Top Stories"
-      top_authors: "Top Authors"
+      cluster_groups: "Nachrichten-Themen"
+      my_authors: "Meine Autoren"
+      my_topics: "Meine Themen"
+      top_stories: "Schlagzeilen"
+      top_authors: "Beliebte Autoren"
     image:
-      'off': "No Images"
-      'on': "Show Images"
+      'off': "keine Bilder"
+      'on': "Bilder zeigen"
     lang:
       english: "English"
-      german: "German"
+      german: "deutsch"
     sort:
-      relevance: "Sort by Relevance"
-      time: "Sort by Time"
+      relevance: "nach Relevanz sortieren"
+      time: "nach Zeit sortieren"
       cluster: 
-        relevance: "Sort by Relevance ( Clustered )"
-        time: "Sort by Time ( Clustered )"
+        relevance: "nach Relevanz sortieren (als Themen-Gruppen)"
+        time: "nach Zeit sortieren (als Themen-Gruppen)"
     subscription:
-      all: "All Articles"
-      free: "Only Free Articles"
-      no_login: "Only Login Free Articles"
+      all: "alle Artikel"
+      free: "nur kostenfreie Artikel"
+      no_login: "nur anmelde-freie Artikel"
     time_span:
-      last_hour: "Articles from Last Hour"
-      last_day: "Articles from Last Day"
-      last_week: "Articles from Last Week"
-      last_month: "Articles from Last Month"
+      last_hour: "Artikel der letzten Stunde"
+      last_day: "Artikel des letzten Tages"
+      last_week: "Artikel der letzten Woche"
+      last_month: "Artikel des letzten Monats"
     val:
-      ban: "Ban"
-      category: "Category"
-      high: "High"
-      low: "Low"
-      medium: "Medium"
-      none: "No"
-      neutral: "Neutral"
-      only: "Only"
+      ban: "ignorieren"
+      category: "Kategorie"
+      high: "hoch"
+      low: "niedrig"
+      medium: "mittel"
+      none: "nein"
+      neutral: "neutral"
+      only: "nur"
