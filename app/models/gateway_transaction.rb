@@ -10,7 +10,7 @@ class GatewayTransaction < ActiveRecord::Base
   
   # All params are present
   def ok?
-    ( self.class.column_names.collect(&:to_sym) + [ :checksum , :jurnalo_user_id ] - [ :id, :message, :created_at, :updated_at ] ).inject( true ){ |s,x| s && !(send(x).blank?) }
+    [ :remote_addr, :price, :subscription_id, :transaction_id, :checksum , :jurnalo_user_id ].inject( true ){ |s,x| s && !(send(x).blank?) }
   end
   
   def success?
