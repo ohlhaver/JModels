@@ -10,6 +10,8 @@ class User < ActiveRecord::Base
   has_many :topic_subscriptions, :as => :owner, :order => 'position ASC'
   has_many :story_subscriptions, :as => :owner
   has_many :multi_valued_preferences, :as => :owner
+  has_many :billing_records
+  has_many :account_status_points # Time Point Record about Status
   
   before_create :set_user_role
   before_create :set_user_preference
@@ -53,6 +55,14 @@ class User < ActiveRecord::Base
       :include  => :preference
     }
   }
+  
+  def plan_id
+    @plan_id ||= account_status_points.find( :first, :conditions => [ 'starts_at < :time AND ends_at > :time', { :time => Time.now.utc } ] ).try( :plan_id )
+  end
+  
+  def power_plan?
+    plan_id == 1
+  end
   
   def alert_monitor?
     false # This will be true for Business Users

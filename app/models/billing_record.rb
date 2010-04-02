@@ -73,7 +73,12 @@ class BillingRecord < ActiveRecord::Base
     # Refers the Order Id
     # Expiry Date, Start Date
     # Account Status: 0,1,2,3,4,5 Basic/Power/Business
-    puts "upgrade callback called"
+    user.account_status_points.create( :plan_id => plan_id, 
+      :billing_record_id => self.id, 
+      :starts_at => Time.now.utc, 
+      :ends_at => Time.now.utc + 30.days 
+    )
+    # puts "upgrade callback called"
   end
   
   def downgrade_user_status

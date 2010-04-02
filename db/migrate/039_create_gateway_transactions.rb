@@ -9,6 +9,7 @@ class CreateGatewayTransactions < ActiveRecord::Migration
       t.string  :group_id
       t.string  :nation
       t.integer :price
+      t.string  :currency
       t.string  :session_id
       t.string  :subscription_id
       t.string  :transaction_id
