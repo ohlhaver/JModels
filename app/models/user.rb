@@ -5,9 +5,10 @@ class User < ActiveRecord::Base
   has_one :user_role
   has_one :preference, :as => :owner
   
-  has_many :author_subscriptions, :as => :owner
-  has_many :source_subscriptions, :as => :owner
-  has_many :topic_subscriptions, :as => :owner, :order => 'position ASC'
+  has_many :author_subscriptions, :as => :owner, :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
+  has_many :source_subscriptions, :as => :owner, :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
+  has_many :topic_subscriptions, :as => :owner, :order => 'position ASC', :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
+  
   has_many :story_subscriptions, :as => :owner
   has_many :multi_valued_preferences, :as => :owner
   has_many :billing_records

@@ -23,6 +23,8 @@ class TopicSubscription < ActiveRecord::Base
   validates_uniqueness_of :name, :scope => [ :owner_type, :owner_id ]
   validate :validates_presence_of_search_keywords
   
+  activate_user_account_restrictions :user => :owner, :association => :topic_subscriptions
+  
   belongs_to :author
   belongs_to :category
   belongs_to :source

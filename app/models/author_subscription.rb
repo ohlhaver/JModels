@@ -18,6 +18,8 @@ class AuthorSubscription < ActiveRecord::Base
   #before_create :set_author_subscribed
   after_save :destroy_record_if_blank
   
+  activate_user_account_restrictions :user => :owner, :association => :author_subscriptions
+  
   named_scope :subscribed, lambda{ { :conditions => { :subscribed => true } } }
   
   named_scope :preferences, lambda{ { :conditions => 'author_subscriptions.preference IS NOT NULL' } }

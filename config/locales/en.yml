@@ -1,15 +1,9 @@
 en:
   activerecord:
     errors:
-      models: 
-        author_subscription:
-          attributes:
-            preference:
-              required: "can't be blank"
-        topic_subscription:
-           attributes:
-             search_keywords:
-               required: "can't be blank"
+      messages:
+        required: "can't be blank"
+        restricted: "need to be upgraded"
   email:
     author:
       body:

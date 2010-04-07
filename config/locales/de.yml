@@ -1,15 +1,9 @@
 de:
   activerecord:
     errors:
-      models: 
-        author_subscription:
-          attributes:
-            preference:
-              required: "darf nicht leer sein"
-        topic_subscription:
-           attributes:
-             search_keywords:
-               required: "darf nicht leer sein"
+      messages:
+        required: "darf nicht leer sein"
+        restricted: "müssen aufgerüstet werden"
   email:
     author:
       body:
