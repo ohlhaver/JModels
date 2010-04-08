@@ -16,6 +16,7 @@ class BillingRecord < ActiveRecord::Base
   state :pending                                      # Payment Pending
   state :authorized                                   # 1st HandShake Success
   state :paid, :enter => :upgrade_user_status         # 2nd Handshake Success
+  state :verification_pending                         # Timeout Error
   state :failed                                       # Error When Making Payment
   state :renewed, :after => :payment_confirmed!       # Subscripition Renewed
   state :cancelled, :enter => :downgrade_user_status  # Subscription Cancelled
@@ -25,8 +26,15 @@ class BillingRecord < ActiveRecord::Base
     transitions :from => :pending,
                 :to   => :authorized
   end
+  
+  event :payment_verify do
+    transitions :from => :authorized,
+                :to => :verification_pending
+  end
 
   event :payment_confirmed do
+    transitions :from => :verification_pending,
+                :to => :paid
     transitions :from => :authorized,
                 :to   => :paid
     transitions :from => :renewed,
@@ -37,6 +45,8 @@ class BillingRecord < ActiveRecord::Base
     transitions :from => :pending,
                 :to   => :failed
     transitions :from => :authorized,
+                :to   => :failed
+    transitions :from => :verification_pending,
                 :to   => :failed
   end
 
