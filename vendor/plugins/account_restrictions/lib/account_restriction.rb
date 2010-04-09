@@ -16,7 +16,7 @@ module ActiveRecord
           self.user_account_restrictions ||= Hash.new
           self.user_account_restrictions[:user] = options[:user]
           self.user_account_restrictions[:association] = options[:association]
-          validate :validate_account_restrictions
+          validate_on_create :validate_account_restrictions
           class << self
             include RestrictionMethods
             alias_method_chain :find, :account_restriction
