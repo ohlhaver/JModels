@@ -2,7 +2,7 @@ class Preference < ActiveRecord::Base
   
   serialize_with_options do
     dasherize false
-    map_include :search_language_ids  => :search_languages_ids_for_serialize
+    map_include :search_language_ids  => :search_languages_ids_for_serialize, :plan_id => :plan_id_serialize
     except  :id, :owner_id, :owner_type
   end
   
@@ -11,7 +11,7 @@ class Preference < ActiveRecord::Base
     column_names = [ :author_email, :blog, :cluster_preview, :default_language_id,
       :default_sort_criteria, :default_time_span, :headlines_per_cluster_group,
       :image, :interface_language_id, :opinion, :per_page, :region_id,
-      :subscription_type, :topic_email, :video, :search_language_ids ]
+      :subscription_type, :topic_email, :video, :search_language_ids, :plan_id ]
     dasherize false
     map_include column_names.inject({}){ |h,c| h.merge!( c => "#{c}_serialize".to_sym ) }
     except *( column_names + [ :id, :owner_id, :owner_type ] )
@@ -281,10 +281,18 @@ class Preference < ActiveRecord::Base
     alias_method_chain :method_missing, :field_code
   end
   
+  def plan_id
+    owner.plan_id
+  end
+  
   protected
   
   def search_languages_ids_for_serialize( options = {} )
     search_language_ids( :reload ).to_xml( options )
+  end
+  
+  def plan_id_serialize( options = {} )
+    plan_id.to_xml( options )
   end
   
   def save_search_language_ids
