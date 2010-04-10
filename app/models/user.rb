@@ -169,7 +169,10 @@ class User < ActiveRecord::Base
     users = Hash.from_xml( xml )["users"] rescue []
     count = 0
     users.each do |user_attrs|
-      count += 1 unless import_old_user( user_attrs ).new_record?
+      begin
+        count += 1 unless import_old_user( user_attrs ).new_record?
+      rescue StandardError
+      end
     end
     return count
   end
