@@ -1,0 +1,1821 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<users type="array">
+  <user>
+    <email>ohlhaver@gmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>63ec6a66b2f16f2644c73f59446786141d378720</crypted_password>
+    <created_at type="datetime">2008-09-19T13:52:28+05:30</created_at>
+    <old_password_salt>ac4a69580e2a8bccca2b8c8f7ef9eb9f941b7382</old_password_salt>
+    <name>Justus</name>
+    <preference>
+      <author_email type="integer">2</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">2</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>Apple</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Venture Capital</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Iran</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Silicon valley</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>&quot;Google News&quot;</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Google</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>&quot;Hamburger SV&quot;</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>HSV</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>justus</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>germa.ohlhaver@gmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>e890cc04384d482abfe268185c799f1b68606184</crypted_password>
+    <created_at type="datetime">2008-09-19T20:11:31+05:30</created_at>
+    <old_password_salt>2212b574d9eb3a06be2faa97fcd692348983ca84</old_password_salt>
+    <name>Germa</name>
+    <preference>
+      <author_email type="integer">3</author_email>
+      <topic_email type="integer">3</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>Kunst</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Museum</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Theater Hamburg</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Malerei</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Ausstellungen</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Iran</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>L&#252;beck</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Klima</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Griechenland</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>germa</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email nil="true"></email>
+    <language_id>de</language_id>
+    <crypted_password nil="true"></crypted_password>
+    <created_at type="datetime">2008-09-25T09:22:16+05:30</created_at>
+    <old_password_salt nil="true"></old_password_salt>
+    <name>Chief_editor</name>
+    <preference>
+      <author_email type="integer">0</author_email>
+      <topic_email type="integer">0</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>chief_editor</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>piyush.nigam@vedainformatics.com</email>
+    <language_id>en</language_id>
+    <crypted_password>7949b23e8775e056ea134b7806da2a0ccae78275</crypted_password>
+    <created_at type="datetime">2008-11-07T17:15:42+05:30</created_at>
+    <old_password_salt>f410c857bce3b5ed3ecac98a28405495f9fb60a9</old_password_salt>
+    <name>Piyush</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>piyush</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>pllosaf@gmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>ae4aa8c68216dfdc7fca249c7ef2c797ef724e84</crypted_password>
+    <created_at type="datetime">2008-11-11T13:49:45+05:30</created_at>
+    <old_password_salt>7ebfda25102a4b9a6cfce8268223b902f5d64d89</old_password_salt>
+    <name>Pllosa</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>pllosa</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>vonmec@hotmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>2424617b9a0b9fa8e779e7595229d9196f64c821</crypted_password>
+    <created_at type="datetime">2008-11-13T10:54:53+05:30</created_at>
+    <old_password_salt>a077162c9d662f030b044a399d53ab332775a559</old_password_salt>
+    <name>Vonmec</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>music</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>snowboarding</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Brasilien</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>HSV</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Hamburger SV</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Americana Music</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>paraLife</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>vonmec</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>jco40@columbia.edu</email>
+    <language_id>de</language_id>
+    <crypted_password>d1fc9ae1e79af6e3e84de9b2277cf655e96ab6dd</crypted_password>
+    <created_at type="datetime">2008-12-05T11:53:51+05:30</created_at>
+    <old_password_salt>3200498687aeaac84c7372d523f8e046e185632c</old_password_salt>
+    <name>Jco40</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>jco40</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>dennis@droethig.com</email>
+    <language_id>de</language_id>
+    <crypted_password>d0fa1e5116835f4ef3a090c7f9bef5b19237b210</crypted_password>
+    <created_at type="datetime">2008-12-05T11:57:27+05:30</created_at>
+    <old_password_salt>e9cf5cec72cce39d6ece93e908d0387800d95781</old_password_salt>
+    <name>Dennis</name>
+    <preference>
+      <author_email type="integer">0</author_email>
+      <topic_email type="integer">0</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>dennis</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>philuh@gmx.de</email>
+    <language_id>de</language_id>
+    <crypted_password>e05f628081f5c16b39c4f14383b12643f3370869</crypted_password>
+    <created_at type="datetime">2008-12-07T11:38:01+05:30</created_at>
+    <old_password_salt>3c8c8f6f64c3c0ece6b5befe6a7b25182524c1c4</old_password_salt>
+    <name>Kim</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>sexpolonaise</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>vigra</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>kohl</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>kim</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>justus.ohlhaver@newratings.com</email>
+    <language_id>de</language_id>
+    <crypted_password>18e3e2cdb593d5241ed28c191831a867473a07b5</crypted_password>
+    <created_at type="datetime">2008-12-07T20:56:22+05:30</created_at>
+    <old_password_salt>376deb74f27f238e2d9bc1159439e6f385e65b76</old_password_salt>
+    <name>Ohlhaver</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>ohlhaver</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>adelucena@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>45c90474cfed359a71d295cdb9578fb7e3e5ac84</crypted_password>
+    <created_at type="datetime">2008-12-10T16:15:31+05:30</created_at>
+    <old_password_salt>a760911a40e1b24eff2578b1debc5a499bd79f30</old_password_salt>
+    <name>Adelucena</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>adelucena</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>rh4b4rber@gmx.de</email>
+    <language_id>de</language_id>
+    <crypted_password>3dc0ceeff5ebae5aee23737d85c11cf4577c799f</crypted_password>
+    <created_at type="datetime">2008-12-10T17:07:17+05:30</created_at>
+    <old_password_salt>65263492044fd1e67824ebd066237c88ccb18834</old_password_salt>
+    <name>Rh4b4rber@gmx.de</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>Griechenland</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>rh4b4rber@gmx.de</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>priya_nigam2003@yahoo.com</email>
+    <language_id>en</language_id>
+    <crypted_password>56ddb5adfc1554885be006230175d86025d949f1</crypted_password>
+    <created_at type="datetime">2008-12-10T18:10:40+05:30</created_at>
+    <old_password_salt>73c88a32e8059c63e037391444a8ba99e9aa68eb</old_password_salt>
+    <name>Priya</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>india</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>priya</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>sandyalbert@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>aa9f8e10a39613eb47752bf2b505993f77fb3303</crypted_password>
+    <created_at type="datetime">2008-12-10T20:40:52+05:30</created_at>
+    <old_password_salt>5779770b310089a18d098b23a2e976814f331a25</old_password_salt>
+    <name>Sandyalbert</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>real estate</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>sandyalbert</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>ibasurf@googlemail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>ad522b707b2dcca2341df3abeb6ad405f89e0c11</crypted_password>
+    <created_at type="datetime">2008-12-11T14:58:32+05:30</created_at>
+    <old_password_salt>35b9af701effc8679baa0634d508e7f54555e1c2</old_password_salt>
+    <name>Ibasurf</name>
+    <preference>
+      <author_email type="integer">0</author_email>
+      <topic_email type="integer">0</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>Bayern M&#252;nchen</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>ibasurf</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>harish.a@vedainformatics.com</email>
+    <language_id>en</language_id>
+    <crypted_password>d34ea6706c10890dbd6aab76b6beaf1dff208af3</crypted_password>
+    <created_at type="datetime">2008-12-12T12:07:12+05:30</created_at>
+    <old_password_salt>67fdaf6592665473760e81cb244c84bcf326c67b</old_password_salt>
+    <name>Harisha</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>harisha</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>cvsperber@gmx.de</email>
+    <language_id>de</language_id>
+    <crypted_password>9d1db8901a784a03919227d128eb74bc83f01dee</crypted_password>
+    <created_at type="datetime">2008-12-12T18:21:08+05:30</created_at>
+    <old_password_salt>1db41e0093014a9ce2db99b5424bf49e1dfdf917</old_password_salt>
+    <name>Christian</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>Wasser</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Water</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>christian</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>knv4@hotmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>8de659886a47508ac5021d2d6a88e7c91d4f7b73</crypted_password>
+    <created_at type="datetime">2008-12-12T23:50:18+05:30</created_at>
+    <old_password_salt>cc2048b2c591917fa2424279bd800717d7ff9c0e</old_password_salt>
+    <name>Knv4</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>ballet</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>knv4</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>carstenthpietsch@googlemail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>58f31e51218bb6e6ee6ec127dc398be9dca2982e</crypted_password>
+    <created_at type="datetime">2008-12-13T11:08:21+05:30</created_at>
+    <old_password_salt>419770f223247631e91025c17941d1b5e2647a09</old_password_salt>
+    <name>Carstenthpietsch</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>esvp</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>carstenthpietsch</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>berkeleygirl2@gmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>e2593acc4e15e4382b6a405d7dbcc9f86328ab9c</crypted_password>
+    <created_at type="datetime">2008-12-13T13:56:16+05:30</created_at>
+    <old_password_salt>103d37d55362486ac666e7d3243ea2bf6e46a46e</old_password_salt>
+    <name>Bgl</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>bgl</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>goran@sir-denito.com</email>
+    <language_id>de</language_id>
+    <crypted_password>16791f5523d16c826717b26a7884ff67008d0e41</crypted_password>
+    <created_at type="datetime">2008-12-13T15:39:00+05:30</created_at>
+    <old_password_salt>d5ac38c52600edb35a3e5f4b133c6e65696c62c9</old_password_salt>
+    <name>Sir.denito</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>sir.denito</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>pniedermeier@web.de</email>
+    <language_id>de</language_id>
+    <crypted_password>9480034477f336a54f2aaa6e05c5d9b1286098f4</crypted_password>
+    <created_at type="datetime">2008-12-15T15:48:05+05:30</created_at>
+    <old_password_salt>be77bbf7db3c1884daa4c757d892402f968ff7ab</old_password_salt>
+    <name>Pian</name>
+    <preference>
+      <author_email type="integer">0</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">0</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>USA Iran </search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>USA Nordkorea</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>six-party talks</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Iran EU 3</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>pian</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>palashdas2003@yahoo.co.in</email>
+    <language_id>en</language_id>
+    <crypted_password>00e55583c5d0d98e400d1e351a44a3a0a50cb8d1</crypted_password>
+    <created_at type="datetime">2008-12-16T07:48:28+05:30</created_at>
+    <old_password_salt>abc1d2f4c97ea4c221990a751cc6a15acb754c02</old_password_salt>
+    <name>Palash</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>my topic</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>palash</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>s_utzt@hotmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>b19bde22f2e98cf65d9bad7656cfe4b055e6cc34</crypted_password>
+    <created_at type="datetime">2008-12-16T13:18:32+05:30</created_at>
+    <old_password_salt>de80eb1fc38d9edd8719c0c8b0e5233b4f942e93</old_password_salt>
+    <name>Susanne_utzt</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>Israel</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Syria</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>susanne_utzt</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>j.hendrikb@web.de</email>
+    <language_id>de</language_id>
+    <crypted_password>9bab8c1f09312cff4ab9c7fe4695556d00a36c60</crypted_password>
+    <created_at type="datetime">2008-12-17T12:35:11+05:30</created_at>
+    <old_password_salt>dd3c19169aaca94a895c9f9838301b174dc36235</old_password_salt>
+    <name>J.hendrik</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>asia</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>india</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Pakistan</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>j.hendrik</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>euhvonmeck@freesurf.ch</email>
+    <language_id>de</language_id>
+    <crypted_password>1903eda82ca377290244e5a53ef8566374e73a5f</crypted_password>
+    <created_at type="datetime">2008-12-20T12:32:30+05:30</created_at>
+    <old_password_salt>f5ef9b6f3e7be62ad5b604dbfbf6452a78759047</old_password_salt>
+    <name>Herthli</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>Venezuela</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Arosa</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Literatur</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>herthli</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>stay@butehotel.com</email>
+    <language_id>de</language_id>
+    <crypted_password>0421c543b4543f14d7db27284d80d4c31ff2db62</crypted_password>
+    <created_at type="datetime">2008-12-21T13:18:22+05:30</created_at>
+    <old_password_salt>3ebb067697a8266b809c07db2ee997b601cd6664</old_password_salt>
+    <name>Radiotimes</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>radiotimes</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>flippmonster@hotmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>29c23ad97149bf6694bbd6716e8b3cd13c840228</crypted_password>
+    <created_at type="datetime">2008-12-22T15:20:12+05:30</created_at>
+    <old_password_salt>122a5d059dac1fa0666f0b1f59dc4e13275dc2d0</old_password_salt>
+    <name>Mattimatt</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>surfen</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>mattimatt</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>gehfuergold@gmx.de</email>
+    <language_id>de</language_id>
+    <crypted_password>b55d5d76c33f8e8d1cc19dae9d7df53e143a9148</crypted_password>
+    <created_at type="datetime">2008-12-30T15:35:36+05:30</created_at>
+    <old_password_salt>e45d9af5a0fcb5200f642ef83e7c5422008d490f</old_password_salt>
+    <name>Johndoe</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>johndoe</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>thiago.frazao@mac.com</email>
+    <language_id>en</language_id>
+    <crypted_password>f14e3f91972a30325ac79eda657985dc2d3ae520</crypted_password>
+    <created_at type="datetime">2009-01-09T16:04:39+05:30</created_at>
+    <old_password_salt>7eaf2169ce1bad9d1a66832be5ea3f4e6ef0b340</old_password_salt>
+    <name>Thiagofrazao</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>Brazil Economy</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>thiagofrazao</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>mitter.tobias@gmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>1754167ce7cc8af288094457336bc17fea0d342a</crypted_password>
+    <created_at type="datetime">2009-01-09T21:34:16+05:30</created_at>
+    <old_password_salt>4dd0ee62035bfac1d85dcdad7c23ae0914729436</old_password_salt>
+    <name>Tomi0001</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>tomi0001</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>von.heydebreck@manferrostaal.com</email>
+    <language_id>de</language_id>
+    <crypted_password>4cdebda06d1d26423f5380fef795eada05f6cc07</crypted_password>
+    <created_at type="datetime">2009-01-26T20:50:15+05:30</created_at>
+    <old_password_salt>a7f15607237d62c363fd91059e561091ee7605e5</old_password_salt>
+    <name>Von_heydebreck</name>
+    <preference>
+      <author_email type="integer">2</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">2</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>Biotreibstoffe</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Brasilien</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Zuckerindustrie</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Brasilien</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Google News</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>ETHANOL</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Google News</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Jens Hartmann</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Waldorfschule</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Dosenpfand</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>MAN AG</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Klima</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Gerhard Schulze</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>von_heydebreck</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>sieghaimerl@uol.com.br</email>
+    <language_id>de</language_id>
+    <crypted_password>96f5ed60c82e0a20a453ad7cff926f0e5c362cd0</crypted_password>
+    <created_at type="datetime">2009-02-03T17:32:58+05:30</created_at>
+    <old_password_salt>c6511fc57b4dcddfa77155ed67f238edf1006706</old_password_salt>
+    <name>Sigi</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>sebastian beck</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>sigi</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>christianmarc@gmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>28cb399605bf1d42a3417b74e766b29c6db3b9a8</crypted_password>
+    <created_at type="datetime">2009-02-06T01:27:27+05:30</created_at>
+    <old_password_salt>918c9c7059f2684899976977c6d0a77db9374af8</old_password_salt>
+    <name>Cms</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>mortgage</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>obama</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>cms</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>mfeodora@hotmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>c88acac37074eac68a4fcc41d61c4bb4f29e5aba</crypted_password>
+    <created_at type="datetime">2009-02-06T21:09:13+05:30</created_at>
+    <old_password_salt>3049af3aa6b52f7fdb13c0adbeaca1e1ae5b6817</old_password_salt>
+    <name>Feodora_von_franz</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>obama</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>feodora_von_franz</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>ohlhaver@aol.com</email>
+    <language_id>de</language_id>
+    <crypted_password>f4db94a86e4152c820e9678eef52d1a44d92810b</crypted_password>
+    <created_at type="datetime">2009-02-17T12:59:35+05:30</created_at>
+    <old_password_salt>05e07587ef04d8b491a579f486fc17be6e5acb3c</old_password_salt>
+    <name>Adrianao</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>mein Thema</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Teheran</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>adrianao</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>andreasundtini@aol.de</email>
+    <language_id>de</language_id>
+    <crypted_password>78ecf54f3e93705bd2eec25eba6bfe4fee3e1f86</crypted_password>
+    <created_at type="datetime">2009-02-22T21:16:58+05:30</created_at>
+    <old_password_salt>ed72ada991a028309fb9695999fa8b0630b74a26</old_password_salt>
+    <name>Tini</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>tini</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>andreasundtini@aol.com</email>
+    <language_id>de</language_id>
+    <crypted_password>1adf8143c1a5a524f960727a9547bcfd9afe42a1</crypted_password>
+    <created_at type="datetime">2009-03-05T14:40:33+05:30</created_at>
+    <old_password_salt>c4b643427beadad77bae10f76e5ecf8411daf6fa</old_password_salt>
+    <name>Jararaca</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>jararaca</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>jrath95@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>b6b7bcfa0e01ba7f7c5ec8d8c25c12d20d7e7eaf</crypted_password>
+    <created_at type="datetime">2009-03-10T14:38:24+05:30</created_at>
+    <old_password_salt>66697467f57b08bf08c1147d195ec3565d9c6cee</old_password_salt>
+    <name>Jrath</name>
+    <preference>
+      <author_email type="integer">0</author_email>
+      <topic_email type="integer">0</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>india</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>silicon valley</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>jrath</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>slnoia@yahoo.com</email>
+    <language_id>en</language_id>
+    <crypted_password>57d605dc37799efce60593f8f0957dcb5b47b4c2</crypted_password>
+    <created_at type="datetime">2009-03-10T18:38:15+05:30</created_at>
+    <old_password_salt>277793a328762c5b264c65147c7acc7ed2abf597</old_password_salt>
+    <name>Stefano</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>World</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>stefano</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>bhatt.dude@gmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>cb54a1ac53caa5aeafd67017f845be35f9d3db1d</crypted_password>
+    <created_at type="datetime">2009-03-12T11:58:45+05:30</created_at>
+    <old_password_salt>aa559acbf9e81be7cada3a804dd06408420e7d91</old_password_salt>
+    <name>Abhishek</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>l k advani</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>cricket</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>dow jones</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>football</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>abhishek</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>malte.mau@googlemail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>9694ed849f4285531d6e25cacbede5fa25e16f38</crypted_password>
+    <created_at type="datetime">2009-03-12T14:12:10+05:30</created_at>
+    <old_password_salt>386d937baefab538a75788dd9daef539fa821446</old_password_salt>
+    <name>Madmau</name>
+    <preference>
+      <author_email type="integer">0</author_email>
+      <topic_email type="integer">0</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>madmau</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>mba.piyushgupta@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>af674e8e8d664c14b34ff90de2ffd0829d877552</crypted_password>
+    <created_at type="datetime">2009-03-16T09:06:38+05:30</created_at>
+    <old_password_salt>c4515cd52efea08e189c0ccf0dfa95e1919d8eab</old_password_salt>
+    <name>Mba_piyush</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>stock</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>mba_piyush</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>ram.singla@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>cbfaa8681792609bc49b6d061cc8b087671bbc0a</crypted_password>
+    <created_at type="datetime">2009-03-16T11:03:27+05:30</created_at>
+    <old_password_salt>c59ecb91194053033c07c147ebdcc9c6c59a70f8</old_password_salt>
+    <name>Buzzmenot</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>cricket</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>India</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Chandigarh</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>budget</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>buzzmenot</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>mail@gnufied.org</email>
+    <language_id>en</language_id>
+    <crypted_password>129756b190017aacc630aa38743b4ca10d11284d</crypted_password>
+    <created_at type="datetime">2009-03-16T16:01:16+05:30</created_at>
+    <old_password_salt>b18c6924d726297f5e0a77b53b0d499557c838b3</old_password_salt>
+    <name>Gnufied</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>iPhone</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>gnufied</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>monahbenge@shaw.ca</email>
+    <language_id>en</language_id>
+    <crypted_password>5a7143c8941c495f11bee4fb00d8379e954eff53</crypted_password>
+    <created_at type="datetime">2009-03-24T00:02:57+05:30</created_at>
+    <old_password_salt>eaf5d55c87cab364076580c452f4b3f698d92958</old_password_salt>
+    <name>Mona</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>mona</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>jan.hennigs@gmx.de</email>
+    <language_id>en</language_id>
+    <crypted_password>e602baf4ffdf9a4114d1a26af9590fe9f258d236</crypted_password>
+    <created_at type="datetime">2009-03-31T22:39:48+05:30</created_at>
+    <old_password_salt>2fa373ec3ececa3aa7b4642a94d6cb24c80ccdf9</old_password_salt>
+    <name>Jangiskhan</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>jangiskhan</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>mm@americanacademy.de</email>
+    <language_id>en</language_id>
+    <crypted_password>83748329b972ccaac373f043e6ba0778d7bf9033</crypted_password>
+    <created_at type="datetime">2009-04-01T16:13:06+05:30</created_at>
+    <old_password_salt>2e3051ea4ecbf515cab541c3947a3cf24dd5586c</old_password_salt>
+    <name>Academy</name>
+    <preference>
+      <author_email type="integer">0</author_email>
+      <topic_email type="integer">0</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>academy</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>ubhay.iitd@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>9840656d04f2d93ace8614caabe3b32a15843e63</crypted_password>
+    <created_at type="datetime">2009-04-11T10:48:56+05:30</created_at>
+    <old_password_salt>7d4f42e6eb22818ed10be4ce533724de9ad2e534</old_password_salt>
+    <name>Ubhay</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>obama</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>prince</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>ubhay</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>swagato.ganguly@timesgroup.com</email>
+    <language_id>en</language_id>
+    <crypted_password>ca1ae2c5e953060d95d59df18207ce3ad2f1c0c0</crypted_password>
+    <created_at type="datetime">2009-04-17T07:49:12+05:30</created_at>
+    <old_password_salt>625d34a9689885d9c8cff28d947f7f7009c08874</old_password_salt>
+    <name>Swagato.ganguly</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>swagato.ganguly</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>cantemir@cantemir.de</email>
+    <language_id>de</language_id>
+    <crypted_password>6a2b1635ee0b3242f93a7f8dafb4f05660c57721</crypted_password>
+    <created_at type="datetime">2009-05-07T15:15:26+05:30</created_at>
+    <old_password_salt>dcc890cd5dfdac88e9e3c6607cc4ef90aeda2ebe</old_password_salt>
+    <name>Cante</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>schweinegrippe</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>cante</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>bearsmatter@shaw.ca</email>
+    <language_id>en</language_id>
+    <crypted_password>ae90f0f4ade79c5b6522e17f4811c51f30640f38</crypted_password>
+    <created_at type="datetime">2009-05-08T07:06:17+05:30</created_at>
+    <old_password_salt>41c0e8414797b25df1674cc63c241480147327ed</old_password_salt>
+    <name>Barb_murray</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>Environment</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>barb_murray</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>billandau@hotmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>7726620b684e59d75673ff6b5adfe9b69b541de4</crypted_password>
+    <created_at type="datetime">2009-05-25T00:43:02+05:30</created_at>
+    <old_password_salt>041ec880dd1b71422747850b124ebb588fabfed9</old_password_salt>
+    <name>Billandau</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>billandau</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>pawanawaits@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>79b08289c20ebb6289431773c0e579c1be0e3b79</crypted_password>
+    <created_at type="datetime">2009-05-27T12:17:24+05:30</created_at>
+    <old_password_salt>bbfb0c2e2aa4a38b81b0d39c8052b1707f0abe4e</old_password_salt>
+    <name>Pawan_arora</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>pawan_arora</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>al.awan.mna@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>90d74ed6b951bbea3b7be6fb020ff60706f8c72b</crypted_password>
+    <created_at type="datetime">2009-06-18T13:17:47+05:30</created_at>
+    <old_password_salt>114afc09d80079597bda1c8b216cc1c05c7818eb</old_password_salt>
+    <name>Nazirawan</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>nazirawan</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>magali.mander@gmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>c31ad0b082afb90efe9f1822f8bbddbc1b82f646</crypted_password>
+    <created_at type="datetime">2009-06-22T10:21:33+05:30</created_at>
+    <old_password_salt>0a567c80b304f4a0071d535350ca4f013b186917</old_password_salt>
+    <name>Mander</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>mander</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>marmoset29@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>48df5a3f96f0a0b9d51c6f419224f5be0bfa01bf</crypted_password>
+    <created_at type="datetime">2009-07-23T03:25:55+05:30</created_at>
+    <old_password_salt>fbda2ac42c1a1b60594ac3c44bea878864a00090</old_password_salt>
+    <name>Jaftande</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>jaftande</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>zale@zaletabakman.ca</email>
+    <language_id>en</language_id>
+    <crypted_password>1dd63c452f7a538a4d239223e54e5fd3c49687ed</crypted_password>
+    <created_at type="datetime">2009-07-23T21:27:50+05:30</created_at>
+    <old_password_salt>208836b8f0726384ec2976ae4102d309e06f7d16</old_password_salt>
+    <name>Zaletabakman</name>
+    <preference>
+      <author_email type="integer">0</author_email>
+      <topic_email type="integer">0</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>ZaleTabakman</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>zaletabakman</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>hahn@taz.de</email>
+    <language_id>de</language_id>
+    <crypted_password>da65647f566d4366970ea3bee4f270d5c7d89d3b</crypted_password>
+    <created_at type="datetime">2009-07-28T07:09:42+05:30</created_at>
+    <old_password_salt>c7ea22b601c6ef9c34cc7c892c9f75c5b87a108c</old_password_salt>
+    <name>Hahn@taz.de</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>mein Thema</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>mein Thema</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>New York</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>hahn@taz.de</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>mvneumanncosel@gmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>a4953dbc75eb9d7985515a0746b6eac1d625d375</crypted_password>
+    <created_at type="datetime">2009-07-31T11:59:15+05:30</created_at>
+    <old_password_salt>ca912e478b471b5115ecb10edce7bc6df9cfa51b</old_password_salt>
+    <name>Matthiasvnc</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>matthiasvnc</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>Hechingerin@gmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>6cb1aff68f88b8aa597b08bee6c45e2fc9039639</crypted_password>
+    <created_at type="datetime">2009-08-01T13:56:32+05:30</created_at>
+    <old_password_salt>41836f5b1b768a5d643f3f9888779c7e0d1de351</old_password_salt>
+    <name>Hechingerin</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>Hanne Detel</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>hechingerin</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>alex.kurilin@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>3281ed37a695752d1f78f2dca3eca32a0d0c4fc3</crypted_password>
+    <created_at type="datetime">2009-08-03T14:24:28+05:30</created_at>
+    <old_password_salt>347a8a4d651e61a1cac4e37f146bf3ab55356a23</old_password_salt>
+    <name>Al11711</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>al11711</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>brian@briangray.org</email>
+    <language_id>en</language_id>
+    <crypted_password>f2870230c1ca9a8fb2c6542368cf8910ab1d35b3</crypted_password>
+    <created_at type="datetime">2009-08-08T16:32:07+05:30</created_at>
+    <old_password_salt>df4e7fdcfdc4bec9a908ac52cf362a75d393ec18</old_password_salt>
+    <name>Bgray</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>bgray</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>c.dahle@gmx.de</email>
+    <language_id>de</language_id>
+    <crypted_password>7510117818316c3c6c469c12c6c2afc00e101b90</crypted_password>
+    <created_at type="datetime">2009-08-09T11:15:25+05:30</created_at>
+    <old_password_salt>5a3c6a3caa763804ce872ec416dc372a46e0729b</old_password_salt>
+    <name>Mietschie</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>mietschie</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>rositasequeira@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>24bc9caa375a2db12d6ef7e70a5ad607c7a7756d</crypted_password>
+    <created_at type="datetime">2009-08-24T10:40:52+05:30</created_at>
+    <old_password_salt>549cc71db17cb86e3b4e4cf866f3b0fcb07a4d6b</old_password_salt>
+    <name>Rosita</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>rosita</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>news@lars-ophuels.com</email>
+    <language_id>de</language_id>
+    <crypted_password>41f32e1703d3e1ae1966003366db610f9438c2b2</crypted_password>
+    <created_at type="datetime">2009-08-26T18:38:39+05:30</created_at>
+    <old_password_salt>910f3da5cb95ae1f039445906bf91da04dffa762</old_password_salt>
+    <name>Lophuels</name>
+    <preference>
+      <author_email type="integer">3</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">3</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>lophuels</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>peter@gmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>9f1cf09a137848a63106fbca05ff1f74ee223faa</crypted_password>
+    <created_at type="datetime">2009-10-10T07:44:57+05:30</created_at>
+    <old_password_salt>ce2200d75bdd6e170ba2c8537d4f4f8263db021c</old_password_salt>
+    <name>Peter</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>peter</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>chrisme@oz.net</email>
+    <language_id>en</language_id>
+    <crypted_password>727c7cbfd436df0df0bdcdd12f04df91eceb086f</crypted_password>
+    <created_at type="datetime">2009-10-16T20:35:13+05:30</created_at>
+    <old_password_salt>2148fa738362641b0fc6fbb5a6aceda4652a48f5</old_password_salt>
+    <name>Tappen</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>tappen</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>james.r.smith1983@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>7df740ab04a7b6e5c0aa924b4f7c28120fdd4979</crypted_password>
+    <created_at type="datetime">2009-10-21T14:34:51+05:30</created_at>
+    <old_password_salt>662c9b2613acc245f4b963e202218eaaacd851b1</old_password_salt>
+    <name>Thesackrace</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>my topic</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>my topic</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>thesackrace</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>websites@mailinator.com</email>
+    <language_id>en</language_id>
+    <crypted_password>3905256ad5a5c961c9e4d7fe3633eea9d3d6f8c1</crypted_password>
+    <created_at type="datetime">2009-10-25T02:27:25+05:30</created_at>
+    <old_password_salt>a9408b5908e6d735bb403d2391fc8de1eafc5ea1</old_password_salt>
+    <name>Websites</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>websites</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>roninpalma@gmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>f14c3d7b4d8ce1a85225ec2dd17e47f3ec3e14a9</crypted_password>
+    <created_at type="datetime">2009-10-26T13:59:06+05:30</created_at>
+    <old_password_salt>29169a3b21a30ec77fbe422cacf8ca4c94890e1a</old_password_salt>
+    <name>Ron</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>mein Thema</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>ron</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>sg.shiva@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>99a2a464bd8de9a97e1cd3079b40197bff08ff51</crypted_password>
+    <created_at type="datetime">2009-10-27T11:33:44+05:30</created_at>
+    <old_password_salt>50095271fc966760c17abc2bc4e1e08fca445766</old_password_salt>
+    <name>Shiva</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>shiva</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>canarawaves@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>dca1abf97c39baeeddd6612fcccde46ba531c02a</crypted_password>
+    <created_at type="datetime">2009-10-29T08:56:00+05:30</created_at>
+    <old_password_salt>bda5a7a85a47082fe4759cf27ca9c6664a626193</old_password_salt>
+    <name>Canarawaves</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>canarawaves</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>canarawaves</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>mwaldaukat@gmx.de</email>
+    <language_id>de</language_id>
+    <crypted_password>1d05a964673f0cde6a51e01b8aa269ffe9277203</crypted_password>
+    <created_at type="datetime">2009-10-31T09:58:22+05:30</created_at>
+    <old_password_salt>7ae5c9f4bc62332bb2cb00cd6801e4e3c9e6bb12</old_password_salt>
+    <name>Exam</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>exam</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>clive@netbookpc.biz</email>
+    <language_id>en</language_id>
+    <crypted_password>7afa90d3baebfbf4c7fb3335005badbb884d168d</crypted_password>
+    <created_at type="datetime">2009-11-09T10:34:49+05:30</created_at>
+    <old_password_salt>1688176eedb9b7377bfbcf84d666ed2375339b5d</old_password_salt>
+    <name>Netbookpc</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>netbooks</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>netbookpc</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>rhpldemo@gmail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>d4d47f5d8061a5f33b0e98d0dfe7a8d640ab4afd</crypted_password>
+    <created_at type="datetime">2009-11-09T12:23:15+05:30</created_at>
+    <old_password_salt>3ebd865007ea03654b655701d41853e24861fd4e</old_password_salt>
+    <name>Rhpldemo</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <search_language_ids type="array">
+        <search_language_id>de</search_language_id>
+        <search_language_id>en</search_language_id>
+      </search_language_ids>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>paraLife</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Microinsurance</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Microfinance</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>rhpldemo</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>graeme@justmoney.co.za</email>
+    <language_id>en</language_id>
+    <crypted_password>0357ef0d4bd622e8952c9a8c80c639d342db03b3</crypted_password>
+    <created_at type="datetime">2009-11-11T13:57:17+05:30</created_at>
+    <old_password_salt>1cf52dd437eceb1421dc77dbfa16e15a2f25489c</old_password_salt>
+    <name>Greymacpherson</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>greymacpherson</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>terry@abt.es</email>
+    <language_id>en</language_id>
+    <crypted_password>b5462ba1e72430e167c066726d03f9a2dc99f52e</crypted_password>
+    <created_at type="datetime">2009-11-13T21:35:43+05:30</created_at>
+    <old_password_salt>44f91642f66189d9e8ef69a3e13fa31003465051</old_password_salt>
+    <name>Abtlang</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>Eczema</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Eczema</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>abtlang</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>lewis@netcologne.de</email>
+    <language_id>de</language_id>
+    <crypted_password>b651951c77fb3fc594fd9ccc499551cb7f852d27</crypted_password>
+    <created_at type="datetime">2009-11-30T21:54:29+05:30</created_at>
+    <old_password_salt>701c1694af8607eb8d321705718348750156e5f9</old_password_salt>
+    <name>Lewis</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>lewis gropp</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>lewis</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>nkacyber@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>e7d8be9609e19cc165d28e53731dfebe598ba0a7</crypted_password>
+    <created_at type="datetime">2009-12-05T10:26:50+05:30</created_at>
+    <old_password_salt>f35bba77575a2d0a1a0d43b07945a9cac682a117</old_password_salt>
+    <name>Nkacyber@gmail.com</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>nkacyber@gmail.com</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>itsfootballnotsoccer@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>beb5baf8fba145ca65cc873b516b0a0765335e2d</crypted_password>
+    <created_at type="datetime">2009-12-10T21:41:25+05:30</created_at>
+    <old_password_salt>29ae45105a9afcfc6e5946e9333a864b52f48c76</old_password_salt>
+    <name>Joel</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>oberstone</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>joel</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>ronald.ison@btinternet.com</email>
+    <language_id>en</language_id>
+    <crypted_password>31de886b297cf0ba92a6221f2f6124f30ded8a5d</crypted_password>
+    <created_at type="datetime">2009-12-17T11:49:10+05:30</created_at>
+    <old_password_salt>2ae40e21b19d64909fed8930bd0b24c138ca7038</old_password_salt>
+    <name>Ronaldison</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>ronaldison</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>itsfordump@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>caff8aeba49fc54ffca6dbf9e1d8f398c17350dd</crypted_password>
+    <created_at type="datetime">2010-01-05T19:17:04+05:30</created_at>
+    <old_password_salt>68f984e0d340ca04f639ed0f0e2289b872cdb894</old_password_salt>
+    <name>Itsfordump</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>itsfordump</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>a.dorit.boy@googlemail.com</email>
+    <language_id>de</language_id>
+    <crypted_password>44694d75288f32916b437224365d608c374ab02e</crypted_password>
+    <created_at type="datetime">2010-02-01T13:52:39+05:30</created_at>
+    <old_password_salt>f272f6b254475afe80468ef3b480546fc940ec98</old_password_salt>
+    <name>Beckett81</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>Christian Esch</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>beckett81</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>amarnathsvpnpa@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>d2e976526665a29260ec4edd917a8a3f94d241c0</crypted_password>
+    <created_at type="datetime">2010-02-13T19:18:16+05:30</created_at>
+    <old_password_salt>79f1e34e35a5ae318ebc25e463f13c458f867ed3</old_password_salt>
+    <name>Amarnathsvpnpa</name>
+    <preference>
+      <author_email type="integer">3</author_email>
+      <topic_email type="integer">3</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>amarnathsvpnpa</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>budomir@bk.ru</email>
+    <language_id>en</language_id>
+    <crypted_password>b80ed5983ce5550e94cbd00d6035297e44f32c3b</crypted_password>
+    <created_at type="datetime">2010-02-17T12:20:05+05:30</created_at>
+    <old_password_salt>a208f100672819c61d979dec0ea72ca063a16a87</old_password_salt>
+    <name>Samoshkin</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>my topic</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>samoshkin</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>Sophia_sh@gmx.net</email>
+    <language_id>de</language_id>
+    <crypted_password>ebf48ee261af89967afa3274abea9266cb4b5eb3</crypted_password>
+    <created_at type="datetime">2010-02-17T16:06:42+05:30</created_at>
+    <old_password_salt>9f23a009f4e73fcdc8b4c95ab71efd0953428333</old_password_salt>
+    <name>Claudia_abbado</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>claudia_abbado</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>sighaimerl@uol.com.br</email>
+    <language_id>de</language_id>
+    <crypted_password>3918210b69d77e754c1decb0e2eaa0a41efcd166</crypted_password>
+    <created_at type="datetime">2010-02-20T12:07:22+05:30</created_at>
+    <old_password_salt>abedca1d6d5bfe18d7c983ee3b35c5f6fc8013fa</old_password_salt>
+    <name>Schafreuter</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>schafreuter</login>
+    <region_id>DE</region_id>
+  </user>
+  <user>
+    <email>pee.ess@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>71347ee543c0587a7c0415a3e163d3caffee03ee</crypted_password>
+    <created_at type="datetime">2010-02-23T14:22:54+05:30</created_at>
+    <old_password_salt>c23d9fb820fc72ff13bafb84461817286df7db0c</old_password_salt>
+    <name>Chimer</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>chimer</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>kalanandaraman@yahoo.com</email>
+    <language_id>en</language_id>
+    <crypted_password>40dee025d48a2244440aa0fd61a4359fcbb348ed</crypted_password>
+    <created_at type="datetime">2010-03-08T23:16:25+05:30</created_at>
+    <old_password_salt>9b9caa4336c5d7fbb1bd75847d62a0045821a69a</old_password_salt>
+    <name>Kalanandaraman</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>kalanandaraman</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>gogate.kanchan@gmail.com</email>
+    <language_id>en</language_id>
+    <crypted_password>1b923fe54ccbe096b1db9630790602134c02132f</crypted_password>
+    <created_at type="datetime">2010-03-26T10:22:24+05:30</created_at>
+    <old_password_salt>5f8bd3f938070bdf0db87909085d8c155c524323</old_password_salt>
+    <name>Kanchan_</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array"/>
+    <login>kanchan_</login>
+    <region_id>INT</region_id>
+  </user>
+  <user>
+    <email>von.heydebreck@ferrostaal.com</email>
+    <language_id>de</language_id>
+    <crypted_password>3c827a0ceb37789a5fc2be7363650981bcfbaf40</crypted_password>
+    <created_at type="datetime">2010-03-29T16:27:52+05:30</created_at>
+    <old_password_salt>379ac7a851f1c1395b8e0543a56bc912af352e14</old_password_salt>
+    <name>_han_heydebreck</name>
+    <preference>
+      <author_email type="integer">1</author_email>
+      <topic_email type="integer">1</topic_email>
+    </preference>
+    <topic_subscriptions type="array">
+      <topic_subscription>
+        <search_any>mein Thema</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Ferrostaal</search_any>
+      </topic_subscription>
+      <topic_subscription>
+        <search_any>Ferrostaal</search_any>
+      </topic_subscription>
+    </topic_subscriptions>
+    <login>_han_heydebreck</login>
+    <region_id>DE</region_id>
+  </user>
+</users>

@@ -141,6 +141,39 @@ class User < ActiveRecord::Base
     ) != nil
   end
   
+  def self.import_old_user( user_attrs = {} )
+    preference_attrs = user_attrs.delete( "preference" )
+    topic_preferences = user_attrs.delete( "topic_subscriptions" )
+    ( preference_attrs["search_language_ids"] || [] ).collect!{ |x| Preference.select_value_by_name_and_code( :language_id, x )[:id] }
+    user = self.new( user_attrs )
+    user.preference.attributes = preference_attrs
+    user.terms_and_conditions_accepted = true
+    user.login_field_required = false
+    if user.save
+      user.update_attribute( :active, true )
+      user.account_status_points.create( :plan_id => 1, 
+        :billing_record_id => 0, 
+        :starts_at => Time.now.utc - 10, 
+        :ends_at => Time.now.utc + 30.days 
+      )
+      user.instance_variable_set('@plan_id', 1) # for creating all the topic preferences
+      topic_preferences.each do |topic_attrs|
+        user.topic_subscriptions.create( topic_attrs )
+      end
+      user.account_status_points.delete_all
+    end
+    return user
+  end
+  
+  def self.import_old_data( xml )
+    users = Hash.from_xml( xml )["users"] rescue []
+    count = 0
+    users.each do |user_attrs|
+      count += 1 unless import_old_user( user_attrs ).new_record?
+    end
+    return count
+  end
+  
   protected
   
   def homepage_cluster_groups_exist?( tag = self.tag )
@@ -162,7 +195,7 @@ class User < ActiveRecord::Base
   end
   
   def set_login_field_required
-    self.login_field_required = self.third_party.blank?
+    self.login_field_required = self.third_party.blank? if self.login_field_required.nil?
     return true
   end
   
