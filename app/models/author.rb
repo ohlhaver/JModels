@@ -74,7 +74,7 @@ class Author < ActiveRecord::Base
     author_names.each do |name|
       a_ns = Array( JCore::Clean.author( name ) )
       a_ns.each do |a_n|
-        a_n = a_n[0, 100] # author names are truncated at 100 chars
+        a_n = a_n.chars[0, 100] # author names are truncated at 100 chars
         a_n = a_n.chars.upcase.to_s
         a ||= self.find_or_initialize_by_name( a_n )
         if a.new_record?
@@ -117,6 +117,45 @@ class Author < ActiveRecord::Base
   
   def self.subscription_count( author_id )
     self.connection.select_value( "SELECT subscription_count FROM bg_top_authors WHERE author_id = #{author_id}" ) || "0"
+  end
+  
+  def self.import_old_author( author_attrs = {} )
+    subscribers = author_attrs.delete( "subscribers" )
+    author_name = author_attrs.delete( "name" )
+    authors = create_or_find( author_name )
+    authors.each{ |a| a.update_attributes( author_attrs ) }
+    users = User.find( :all, :conditions => { :login => subscribers } )
+    users.each do |user|
+      power_plan = true
+      unless user.power_plan?
+        power_plan = false
+        user.account_status_points.create( :plan_id => 1, 
+          :billing_record_id => 0, 
+          :starts_at => Time.now.utc - 10, 
+          :ends_at => Time.now.utc + 30.days 
+        )
+        user.instance_variable_set('@plan_id', 1)
+      end
+      authors.each do |author|
+        user.author_subscriptions.create( :author_id => author.id, :subscribed => true )
+      end
+      unless power_plan
+        user.account_status_points.delete_all
+      end
+    end
+    return authors
+  end
+  
+  def self.import_old_data( xml )
+    authors = Hash.from_xml( xml )["authors"] rescue []
+    count = 0
+    authors.each do |author_attrs|
+      begin
+        count += import_old_author( author_attrs ).size
+      rescue StandardError
+      end
+    end
+    return count
   end
   
   protected

@@ -1,0 +1,1569 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<authors type="array">
+  <author>
+    <subscribers type="array">
+      <subscriber>hahn@taz.de</subscriber>
+    </subscribers>
+    <name>CLAUS TIGGES, WASHINGTON</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+      <subscriber>claudia_abbado</subscriber>
+    </subscribers>
+    <name>CHRISTIAN GEYER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>KLAUSDIETER FRANKENBERGER</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>sigi</subscriber>
+    </subscribers>
+    <name>HENDRIK ANKENBRAND</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>JULIA VOSS</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>beckett81</subscriber>
+    </subscribers>
+    <name>MICHAEL LUDWIG</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+      <subscriber>pian</subscriber>
+      <subscriber>vonmec</subscriber>
+      <subscriber>germa</subscriber>
+      <subscriber>von_heydebreck</subscriber>
+    </subscribers>
+    <name>HENRYK M. BRODER</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>hahn@taz.de</subscriber>
+    </subscribers>
+    <name>MATTHIAS R&#252;B, WASHINGTON</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>hahn@taz.de</subscriber>
+    </subscribers>
+    <name>PATRICK WELTER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>beckett81</subscriber>
+    </subscribers>
+    <name>JOHANNES VOSWINKEL</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+      <subscriber>germa</subscriber>
+      <subscriber>von_heydebreck</subscriber>
+    </subscribers>
+    <name>JOSEF JOFFE</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>jararaca</subscriber>
+      <subscriber>germa</subscriber>
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>FLORIAN ILLIES</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>buzzmenot</subscriber>
+    </subscribers>
+    <name>ROBIN ALEXANDER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>von_heydebreck</subscriber>
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>VOLKER ZASTROW</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>BERND ULRICH</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>ULF VON RAUCHHAUPT</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>ron</subscriber>
+    </subscribers>
+    <name>SEBASTIAN WIESCHOWSKI</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>MARCEL REICHRANICKI</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>JENNIFER WILTON</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>PETER ZANDER</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+      <subscriber>germa</subscriber>
+      <subscriber>pian</subscriber>
+    </subscribers>
+    <name>JOSCHKA FISCHER</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>JOHANNES LEITH&#228;USER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>ECKHARD FUHR</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>von_heydebreck</subscriber>
+    </subscribers>
+    <name>STEFAN VON BORSTEL</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>mxeyfonxivli_516645720</subscriber>
+    </subscribers>
+    <name>NIKOLAUS PIPER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>von_heydebreck</subscriber>
+    </subscribers>
+    <name>J&#246;RG EIGENDORF</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>GEORG PAUL HEFTY</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>THOMAS KLAU</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>beckett81</subscriber>
+    </subscribers>
+    <name>SONJA ZEKRI, MOSKAU</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>sir.denito</subscriber>
+      <subscriber>nqrwdugpmewc_578237655</subscriber>
+    </subscribers>
+    <name>HARALD MARTENSTEIN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>WLADIMIR KAMINER</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>hahn@taz.de</subscriber>
+    </subscribers>
+    <name>CHRISTOPH VON MARSCHALL</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>JAN SCHULZOJALA</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>claudia_abbado</subscriber>
+    </subscribers>
+    <name>ANDRIAN KREYE</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>ELKE HEIDENREICH</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>DOROTHEA HAHN</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>STEFAN GRUND</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>MORITZ SCHR&#214;DER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>GERHARD STADELMAIER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>EVA SUDHOLT</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>ron</subscriber>
+    </subscribers>
+    <name>WOLFGANG B&#252;SER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>PHILIP CASSIER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>ron</subscriber>
+    </subscribers>
+    <name>ANDREAS KUNZE</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>beckett81</subscriber>
+    </subscribers>
+    <name>SONJA ZEKRI</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>WOLFRAM WEIMER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>FRANK A. MEYER</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>DANIEL KEHLMANN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>von_heydebreck</subscriber>
+    </subscribers>
+    <name>FLORIAN HASSEL</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+      <subscriber>von_heydebreck</subscriber>
+    </subscribers>
+    <name>HANSOLAF HENKEL</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array"/>
+    <name>AXEL H&#246;PNER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>hahn@taz.de</subscriber>
+    </subscribers>
+    <name>MICHAELA WIEGEL</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+      <subscriber>vonmec</subscriber>
+    </subscribers>
+    <name>GERO VON RANDOW</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>beckett81</subscriber>
+    </subscribers>
+    <name>KERSTIN HOLM</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>MARCEL REIF</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+      <subscriber>justus</subscriber>
+      <subscriber>von_heydebreck</subscriber>
+    </subscribers>
+    <name>FRANK SCHIRRMACHER</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>HELMUT SCHMIDT</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>KATJA MITIC</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>von_heydebreck</subscriber>
+    </subscribers>
+    <name>ALEXANDER BUSCH</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>von_heydebreck</subscriber>
+    </subscribers>
+    <name>HILDEGARD STAUSBERG</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>CORDULA SCHMITZ</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>HOLGER KREITLING</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>AVI PRIMOR</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>kim</subscriber>
+    </subscribers>
+    <name>HORST VON BUTTLAR</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>MAIKE JANSEN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>BRITTA STUFF</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+      <subscriber>von_heydebreck</subscriber>
+    </subscribers>
+    <name>HANS D. BARBIER</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>ibasurf</subscriber>
+    </subscribers>
+    <name>HOLGER GERTZ</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>SARAH WILDMAN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>ALAN POSENER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>SEBASTIAN KRASS, M&#252;NCHEN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>GUNNAR HEINSOHN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>CHRISTOPH BIEBER</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>TORSTEN THISSEN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+      <subscriber>von_heydebreck</subscriber>
+    </subscribers>
+    <name>THOMAS SCHMID</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>mxeyfonxivli_516645720</subscriber>
+    </subscribers>
+    <name>RONALD RENG</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>christian</subscriber>
+    </subscribers>
+    <name>FRANK SIEREN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>DANIEL M&#252;LLER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>GABRIELE DETTERER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>JOSEF JOFFE, STANFORD</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+      <subscriber>claudia_abbado</subscriber>
+    </subscribers>
+    <name>J&#252;RGEN KAUBE</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>ULF POSCHARDT</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>JENS JESSEN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>von_heydebreck</subscriber>
+      <subscriber>sigi</subscriber>
+    </subscribers>
+    <name>SEBASTIAN BECK</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>beckett81</subscriber>
+    </subscribers>
+    <name>FLORIAN WILLERSHAUSEN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>ibasurf</subscriber>
+    </subscribers>
+    <name>CAROLIN EMCKE</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>KURT KISTER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>AVI PRIMOR</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>CHRISTOPHER HITCHENS</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>JEREMY RIFKIN</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>RAINER HAUBRICH</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>beckett81</subscriber>
+    </subscribers>
+    <name>MORITZ GATHMANN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>beckett81</subscriber>
+    </subscribers>
+    <name>ELKE WINDISCH</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>LARS KREYE</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>ron</subscriber>
+    </subscribers>
+    <name>MIDIA NURI</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>BAHMAN NIRUMAND</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>THEO SOMMER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>CLEMENS WERGIN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>beckett81</subscriber>
+    </subscribers>
+    <name>GERALD HOSP</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>GRISCHA RODUST</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>FRANZ WALTER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>CLIVE CROOK</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>GABOR STEINGART</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>NAVID KERMANI</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>FRANCIS FUKUYAMA</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>beckett81</subscriber>
+    </subscribers>
+    <name>MATTHIAS SCHEPP</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>von_heydebreck</subscriber>
+    </subscribers>
+    <name>MATHIAS D&#246;PFNER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>ERIC SCHMIDT</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>JAMES CARVILLE</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>BARACK OBAMA</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>stefano</subscriber>
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>MARTIN KETTLE</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>TIMOTHY GARTON ASH</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>j.hendrik</subscriber>
+    </subscribers>
+    <name>GEORGE MONBIOT</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>JACOB WEISBERG</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>FARHAD MANJOO</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>FRED KAPLAN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>stefano</subscriber>
+    </subscribers>
+    <name>NELSON D SCHWARTZ</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>madmau</subscriber>
+      <subscriber>academy</subscriber>
+    </subscribers>
+    <name>ANNE APPLEBAUM</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>ronaldison</subscriber>
+    </subscribers>
+    <name>KHALED ABU TOAMEH</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>shiva</subscriber>
+    </subscribers>
+    <name>BODHISATVA GANGULI</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+      <subscriber>feodora_von_franz</subscriber>
+    </subscribers>
+    <name>MARTIN WOLF</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>EDMUND PHELPS</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>AL GORE</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>ZVI BAR</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+      <subscriber>priya</subscriber>
+      <subscriber>gnufied</subscriber>
+      <subscriber>academy</subscriber>
+    </subscribers>
+    <name>THOMAS L FRIEDMAN</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>IAN TRAYNOR</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>CLAUS CHRISTIAN MALZAHN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lgygytyjfcnt_705937545</subscriber>
+    </subscribers>
+    <name>BORZOU DARAGAHI</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>mba_piyush</subscriber>
+    </subscribers>
+    <name>PAUL RICHTER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>madmau</subscriber>
+    </subscribers>
+    <name>NICHOLAS KULISH</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>JOSEPH STIGLITZ</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>SANDIP ROY</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+      <subscriber>christian</subscriber>
+      <subscriber>vonmec</subscriber>
+      <subscriber>academy</subscriber>
+      <subscriber>stefano</subscriber>
+      <subscriber>mxeyfonxivli_516645720</subscriber>
+    </subscribers>
+    <name>PAUL KRUGMAN</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>CARSTEN MATTH&#228;US</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>WOODY ALLEN</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>JAMES SUROWIECKI</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>stefano</subscriber>
+    </subscribers>
+    <name>DEXTER ROBERTS</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>VIVEK WADHWA</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>priya</subscriber>
+      <subscriber>harisha</subscriber>
+      <subscriber>piyush</subscriber>
+    </subscribers>
+    <name>SOMINI SENGUPTA</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>adelucena</subscriber>
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>FRANK RICH</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>JEFFREY SACHS</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>stefano</subscriber>
+    </subscribers>
+    <name>CHARLIE BROOKER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>mba_piyush</subscriber>
+    </subscribers>
+    <name>FRANCES ROMERO</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>ronaldison</subscriber>
+    </subscribers>
+    <name>VICTOR DAVIS HANSON</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>GREG SHERIDAN</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>SIBYLLE T&#246;NNIES</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>PETER MANDELSON</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>von_heydebreck</subscriber>
+    </subscribers>
+    <name>MICHAEL COSTA</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>piyush</subscriber>
+    </subscribers>
+    <name>S AHMED ALI</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>pian</subscriber>
+    </subscribers>
+    <name>LUCY HORNBY</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>abhishek</subscriber>
+    </subscribers>
+    <name>NEWT GINGRICH</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>jrath</subscriber>
+    </subscribers>
+    <name>DOUG PALMER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>LUCY KELLAWAY</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>palash</subscriber>
+    </subscribers>
+    <name>SUDARSAN RAGHAVAN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>ubhay</subscriber>
+    </subscribers>
+    <name>THOMAS DE ZENGOTITA</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>JOCHEN STAADT</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>EUGENE ROBINSON</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>academy</subscriber>
+    </subscribers>
+    <name>RICHARD COHEN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>JOSE ANTONIO VARGAS</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>academy</subscriber>
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>ROGER COHEN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>knv4</subscriber>
+    </subscribers>
+    <name>SARAH KAUFMAN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+      <subscriber>ubhay</subscriber>
+      <subscriber>stefano</subscriber>
+    </subscribers>
+    <name>ROBERT REICH</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>beckett81</subscriber>
+    </subscribers>
+    <name>MARKUS ACKERET</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>jrath</subscriber>
+    </subscribers>
+    <name>PHILIP P. PAN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>SUKETU MEHTA</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>RAVINDER KAUR</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>JEFFREY ROSEN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>JEFF JARVIS</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>AZADEH MOAVENI</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>KLAUS SCHROEDER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>S. KORNELIUS</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>MICHAIL GORBATSCHOW</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>JOHN KERRY</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>BERNARD HENRI LEVY</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>CARLO STRENGER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>HENRY A. KISSINGER</name>
+    <is_opinion type="boolean">true</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>MAX BOOT</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>knv4</subscriber>
+    </subscribers>
+    <name>MARGOT WALLSTR&#214;</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>rh4b4rber@gmx.de</subscriber>
+    </subscribers>
+    <name>SYBILLE T&#246;NNIES</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>DECLAN GANLEY</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>knv4</subscriber>
+    </subscribers>
+    <name>CHRISTOPHER WHEELDON</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>PATRICIA BEAUCHAMP</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>URI AVNERY</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>JAGDISH BHAGWATI</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>tomi0001</subscriber>
+    </subscribers>
+    <name>THEA DORN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>ROBERT FISK</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array"/>
+    <name>ANGELIKA DEHMEL</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>MASOUD GOLSORKHI</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>shiva</subscriber>
+    </subscribers>
+    <name>SUJIT JOHN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>JOSEF JOFFE, DAVOS</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>beckett81</subscriber>
+    </subscribers>
+    <name>JOHANNES VOSWINKEL, MOSKAU</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>von_heydebreck</subscriber>
+    </subscribers>
+    <name>M. GREIVE</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>von_heydebreck</subscriber>
+    </subscribers>
+    <name>ALAN REYNOLDS</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>NAHID SIAMDOUST</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>beckett81</subscriber>
+    </subscribers>
+    <name>BENJAMIN BIDDER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>hechingerin</subscriber>
+    </subscribers>
+    <name>HANNE DETEL</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lewis</subscriber>
+    </subscribers>
+    <name>LEWIS GROPP</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>DIANA MAGNAY</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>gnufied</subscriber>
+    </subscribers>
+    <name>VICTOR L. SIMPSON</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>ubhay</subscriber>
+    </subscribers>
+    <name>SARAH MARCUS</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>SOPHIE VON PUTTKAMER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>GUIDO WESTERWELLE</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>EDUARD BEAUCAMP</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>ubhay</subscriber>
+    </subscribers>
+    <name>JOHN RUWITCH</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>STEFAN AUST</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>ALICE SCHWARZER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>ELISABETH KIDERLEN</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>SABINA AMIDI</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>LARS OPH&#252;LS</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>J&#246;RN SCHULZ</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>MARTIN AMIS</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>vonmec</subscriber>
+    </subscribers>
+    <name>THOMAS SALTER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>lophuels</subscriber>
+    </subscribers>
+    <name>CHRISTINE VEENSTRA</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>hahn@taz.de</subscriber>
+    </subscribers>
+    <name>JULIA FINGER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>germa</subscriber>
+    </subscribers>
+    <name>NICHOLAS CARR</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>joel</subscriber>
+    </subscribers>
+    <name>JONATHAN CLEGG</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>beckett81</subscriber>
+    </subscribers>
+    <name>ANNDORIT BO</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>claudia_abbado</subscriber>
+    </subscribers>
+    <name>FABIAN GRANZEUER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+  <author>
+    <subscribers type="array">
+      <subscriber>justus</subscriber>
+    </subscribers>
+    <name>FARAH FAISAL THALER</name>
+    <is_opinion type="boolean">false</is_opinion>
+  </author>
+</authors>
