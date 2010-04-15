@@ -23,8 +23,11 @@ class DuplicateDeletion < BackgroundService
       duplicate_stories.each do | title, stories |
         next if stories.size < 2
         mark_duplicates( stories.collect{ |x| x['id'] } )
+        stories.clear
       end
+      duplicate_stories.clear
     end
+    duplicate_titles.clear
     logger.info( 'Duplicates Marked: ' + @duplicates_found.to_s )
   end
   
@@ -56,8 +59,11 @@ class DuplicateDeletion < BackgroundService
       duplicate_stories.each do | title, stories |
         next if stories.size < 2
         remove_duplicate_titles_from( stories.collect{ |x| x['id'] } )
+        stories.clear
       end
+      duplicate_stories.clear
     end
+    duplicate_titles.clear
     logger.info( 'Duplicates Deleted: ' + @duplicates_found.to_s )
   end
   
@@ -82,6 +88,7 @@ class DuplicateDeletion < BackgroundService
       ', is_opinion = ' + db.quote( master_story.is_opinion ) + ' WHERE id = ' + db.quote( master_story.id ) )
     stories.each{ |story| story.destroy }
     @duplicates_found += stories.size
+    stories.clear
     #logger.info( 'Deleted Duplicate Story: ' + stories.collect{ |x| x.id }.to_s )
   end
   

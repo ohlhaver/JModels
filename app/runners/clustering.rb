@@ -38,19 +38,19 @@ class Clustering < BackgroundRunnerPool
     
     else
       
-      add_runner( 'Background Migrations', :run_every_day ) do
+      add_runner( 'Background Migrations', :run_once ) do
         BackgroundMigration.new( :logger => self.logger, :parent => self ).run
       end
     
-      add_runner( 'Candidate Stories Generation', :run_forever ) do
+      add_runner( 'Candidate Stories Generation', :run_once ) do
         CandidateGeneration.new( :logger => self.logger, :parent => self ).run( :with_session => true )
       end
     
-      add_runner( 'Duplicate Deletion Within Source', :run_forever ) do
+      add_runner( 'Duplicate Deletion Within Source', :run_once ) do
         DuplicateDeletion.new( :logger => self.logger, :parent => self ).run( :with_session => true )
       end
     
-      add_runner( 'Story Groups Generation', :run_forever ) do
+      add_runner( 'Story Groups Generation', :run_once ) do
         GroupGeneration.new( :logger => self.logger, :parent => self ).run( :with_session => true )
       end
       
@@ -62,7 +62,7 @@ class Clustering < BackgroundRunnerPool
       
       # Queries runs on the Tier2 MySQL DB rather than Background Mysql DB ( therefore running every hour rather than :run_forever )
       # New top authors are calculated and top author stories is reset
-      add_runner( 'Top Author Stories', :run_every_hour ) do
+      add_runner( 'Top Author Stories', :run_once ) do
         TopAuthorGeneration.new( :logger => self.logger ).run( :with_session => true )
       end
     

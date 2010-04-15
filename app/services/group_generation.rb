@@ -177,7 +177,9 @@ class GroupGeneration < BackgroundService
         db.execute('DELETE FROM candidate_group_similarities WHERE story1_id IN ( ' + story_ids.join(',') + ' )')
         db.execute('DELETE FROM candidate_group_similarities WHERE story2_id IN ( ' + story_ids.join(',') + ' )')
       end
+      story_ids.clear
     end
+    master_ids.clear
     logger.info( "Duplicates Marked (#{DuplicateCutoff}% CutOff): " + (@duplicates_found.size).to_s )
     @duplicates_found.clear
   end
