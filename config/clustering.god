@@ -10,7 +10,7 @@ God.watch do |w|
   w.restart = "/opt/ruby/bin/rake clustering:restart RAILS_ENV=production"
   w.start_grace = 10.seconds
   w.restart_grace = 10.seconds
-  w.pid_file = "/home/jurnalo/apps/JModels/current/clustering.pid"
+  w.pid_file = "/home/jurnalo/apps/JModels/current/log/clustering.pid"
   w.behavior(:clean_pid_file)
   
   w.start_if do |start|
