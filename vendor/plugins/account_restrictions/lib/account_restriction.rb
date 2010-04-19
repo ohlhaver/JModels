@@ -59,6 +59,14 @@ module ActiveRecord
     end
     
     module AssociationMethods
+      
+      def all( *args )
+        options = args.extract_options!
+        options[:user] = proxy_owner
+        args.push( :all ) if args.empty?
+        args.push( options )
+        super(*args)
+      end
 
       def find( *args )
         options = args.extract_options!

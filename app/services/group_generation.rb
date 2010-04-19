@@ -100,6 +100,7 @@ class GroupGeneration < BackgroundService
     logger.info( 'Candidate Group Similarities Table: ' + db.select_value('SELECT COUNT(*) FROM candidate_group_similarities') + ' Rows' )
   end
   
+  # Leaks Heavily : Don't Know Why?
   def incrementally_populate_group_similarities_table( min_frequency )
     
     all_new_story_ids = db.select_values( 'SELECT id FROM candidate_stories LEFT OUTER JOIN candidate_group_similarities 
@@ -146,6 +147,7 @@ class GroupGeneration < BackgroundService
       story_freqs.each do |story_freq|
         pair_hash[ story_freq['id'] ][ story_freq['id'] ] = story_freq['frequency'].to_i
       end
+      story_freqs.each{ |s| s.clear }.clear
        
       pair_hash.each do | s1_id, s1_hash |
         db.transaction do
@@ -160,7 +162,7 @@ class GroupGeneration < BackgroundService
           end
         end
       end
-      
+      pair_hash.each{ |k,v| v.clear }.clear
     end
     
     return continue
