@@ -31,6 +31,7 @@ class TopicSubscription < ActiveRecord::Base
   belongs_to :region
   
   before_save :populate_story_search_hash
+  before_create :set_home_group_and_email_alert
   
   serialize :story_search_hash
   
@@ -57,6 +58,12 @@ class TopicSubscription < ActiveRecord::Base
   end
   
   protected
+  
+  def set_home_group_and_email_alert
+    self.home_group = true if self.home_group.nil?
+    self.email_alert = true if self.email_alert.nil?
+    return true
+  end
   
   def author_serialize( options = {} )
     self.author.to_xml( :set => :short , :root => options[:root], :builder => options[:builder], :skip_instruct=>true )
