@@ -225,7 +225,7 @@ class Preference < ActiveRecord::Base
   
   belongs_to :owner, :polymorphic => true
   before_save :save_search_language_ids
-  before_create :create_homepage_box_prefs
+  before_create :create_homepage_box_prefs, :create_top_section_prefs
   
   # virtual attribute default_edition_id
   

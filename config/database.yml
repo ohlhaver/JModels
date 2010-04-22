@@ -1,6 +1,10 @@
 ram:
-  adapter: sqlite3
-  database: /Users/ram/Workspace/jurnalo/JTier1-to-API/db/development.sqlite3
+  adapter: mysql
+  encoding: utf8
+  database: tier2_db_dev
+  username: root
+  password: 
+  host: localhost
 
 development:
     adapter: mysql

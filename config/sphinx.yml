@@ -95,3 +95,6 @@ production:
 justus:
   address: 67.23.42.240
   port: 3312
+ram:
+  address: 127.0.0.1
+  port: 3312
