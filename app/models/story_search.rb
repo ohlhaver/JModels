@@ -291,9 +291,10 @@ class StorySearch
     if custom_time_range && custom_time_range.is_a?( Range ) && custom_time_range.first.is_a?( Time ) && custom_time_range.last.is_a?( Time )
       options[:with].merge!( :created_at => custom_time_range )
     else
-      timespan = Preference.select_value_by_name_and_id( :time_span, column_eval( :time_span ).try( :to_i ) ).try( :[], :id ) ||
-        user.try( :preference ).try( :default_time_span ) || 
-        Preference.select_value_by_name_and_code( :time_span, :last_month )[:id ]
+      timespan = Preference.select_value_by_name_and_id( :time_span, column_eval( :time_span ).try( :to_i ) ).try( :[], :id )
+      timespan ||= Preference.select_value_by_name_and_code( :time_span, :last_day )[ :id ] if params[:preview].to_s == '1' && self.mode == :author
+      timespan ||= Preference.select_value_by_name_and_code( :time_span, :last_day )[ :id ] if self.mode == :topic
+      timespan ||= user.try( :preference ).try( :default_time_span ) || Preference.select_value_by_name_and_code( :time_span, :last_month )[:id ]
       start_time = timespan.seconds.ago
       options[:with].merge!( :created_at => ( (start_time)..(Time.now.utc+5.hours) ) )
     end

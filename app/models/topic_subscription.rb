@@ -40,7 +40,10 @@ class TopicSubscription < ActiveRecord::Base
   
   def stories( params = {} )
     attributes_hash = HashWithIndifferentAccess.new( attributes ) 
-    StorySearch.from_hash( owner, attributes_hash.merge!( params ), story_search_hash ){ |s| s.populate_options }.results
+    StorySearch.from_hash( owner, attributes_hash.merge!( params ), story_search_hash ){ |s| 
+      s.mode = :topic
+      s.populate_options 
+    }.results
   end
   
   def filters
