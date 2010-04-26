@@ -10,6 +10,7 @@ class BjSession < ActiveRecord::Base
       QualityRatingGeneration = 4
       TopAuthorGeneration     = 6 
       EmailNotification       = 7
+      ThumbnailSaver          = 8
     end
     
   end

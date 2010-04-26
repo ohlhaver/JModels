@@ -7,13 +7,13 @@ class Story < ActiveRecord::Base
   
   serialize_with_options :short do
     dasherize false
-    except :is_opinion, :is_video, :is_blog, :thumb_exists, :feed_id, :subscription_type, :thumbnail_exists, :created_at, :jcrawl_story_id, :delta, :quality_rating
+    except :is_opinion, :is_video, :is_blog, :thumb_exists, :feed_id, :subscription_type, :thumbnail_exists, :created_at, :jcrawl_story_id, :delta, :quality_rating, :image_path_cache
   end
   
   serialize_with_options  do
     dasherize false
-    except :delta, :quality_rating, :jcrawl_story_id, :thumbnail_exists, :thumb_exists, :quality_ratings_generated, :author_quality_rating, :source_quality_rating
-    map_include :authors => :authors_serialize, :source => :source_serialize, :cluster => :group_serialize
+    except :delta, :quality_rating, :jcrawl_story_id, :thumbnail_exists, :thumb_exists, :quality_ratings_generated, :author_quality_rating, :source_quality_rating, :image_path_cache
+    map_include :authors => :authors_serialize, :source => :source_serialize, :cluster => :group_serialize, :image => :image_serialize
   end
   
   belongs_to :source
@@ -158,6 +158,13 @@ class Story < ActiveRecord::Base
       destroy_without_ts_bugfix
     end
     alias_method_chain :destroy, :ts_bugfix
+  end
+  
+  # Just want to set the flag without any callbacks trigger
+  def set_thumb_saved_flag( yieldable = true)
+    self.thumb_saved = true
+    yield( self ) if block_given? && yieldable
+    update_without_callbacks
   end
   
   def author_subscription_count
@@ -383,6 +390,10 @@ class Story < ActiveRecord::Base
   
   def group_serialize( options = {} )
     self.group_to_serialize.to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct => true )
+  end
+  
+  def image_serialize( options = {} )
+    ( image_path_cache ? "http://cdn.jurnalo.com/#{image_path_cache}" : nil ).to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct => true )
   end
   
   # Based on list of current top authors

@@ -110,7 +110,7 @@ else
   require File.join(File.dirname(__FILE__), 'boot')
   
   Rails::Initializer.run do |config|
-    config.gem( "adzap-ar_mailer", :version => '2.1.5', :lib => 'action_mailer/ar_mailer', :source => 'http://gemcutter.com' )
+    config.gem( "adzap-ar_mailer", :version => '2.1.5', :lib => 'action_mailer/ar_mailer', :source => 'http://gemcutter.org' )
     config.gem( 'authlogic', :version => '2.1.3', :lib => 'authlogic' )
     config.gem( 'mislav-will_paginate', :version => '2.3.4', :lib => 'will_paginate', :source => 'http://gems.github.com' )
     config.gem( 'thinking-sphinx-099', :lib => 'thinking_sphinx', :version => '1.3.2' )
