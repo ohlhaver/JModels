@@ -79,7 +79,7 @@ end
 class ThumbnailSaver < BackgroundService
   
   def start( options = {} )
-    Story.find_each( :conditions => [ '( thumb_saved IS ? OR thumb_saved = ? ) AND created_at > ?', nil, false, 30.days.ago ], :include => [ :thumbnail ] ) do |story|
+    Story.find_each( :conditions => [ '( thumb_saved IS ? OR thumb_saved = ? ) AND created_at > ?', nil, false, 1.week.ago ], :include => [ :thumbnail ] ) do |story|
       response = false 
       thumbnail = story.thumbnail
       if thumbnail && ( thumbnail.height == 80 || thumbnail.width == 80 ) && thumbnail.download_url

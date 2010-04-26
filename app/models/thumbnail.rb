@@ -1,5 +1,5 @@
 require 'fileutils'
-require 'net/http'
+require 'uri'
 
 class Thumbnail < ActiveRecord::Base
   
@@ -8,8 +8,8 @@ class Thumbnail < ActiveRecord::Base
   
   validates_presence_of  :content_type, :source_id, :height, :width, :download_url, :on => :create
   
-  def full_storage_path
-    RAILS_ROOT + "public/images/#{rand(0,10)}/#{URI.parse( download_url ).path}"
+  def random_storage_path
+    RAILS_ROOT + "/public/images/#{rand(10)}" + URI.parse( self.download_url ).path.to_s.gsub('/images/', '/')
   end
   
   def image_path
@@ -17,8 +17,7 @@ class Thumbnail < ActiveRecord::Base
   end
   
   def save_image( image_data )
-    return unless self.story_thumbnail
-    file = full_storage_path
+    file = random_storage_path
     FileUtils.mkdir_p( File.dirname( file ) )
     File.open( file, 'w' ) do | file |
       file << image_data
