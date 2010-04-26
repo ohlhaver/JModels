@@ -19,8 +19,8 @@ class Thumbnail < ActiveRecord::Base
   def save_image( image_data )
     file = random_storage_path
     FileUtils.mkdir_p( File.dirname( file ) )
-    File.open( file, 'w' ) do | file |
-      file << image_data
+    File.open( file, 'w' ) do | f |
+      f << image_data
     end
     self.storage_url = file.gsub( /.+images\//, '' )
     self.save( false )
