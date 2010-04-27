@@ -7,12 +7,13 @@ class Story < ActiveRecord::Base
   
   serialize_with_options :short do
     dasherize false
-    except :is_opinion, :is_video, :is_blog, :thumb_exists, :feed_id, :subscription_type, :thumbnail_exists, :created_at, :jcrawl_story_id, :delta, :quality_rating, :image_path_cache
+    except :is_opinion, :is_video, :is_blog, :thumb_saved, :feed_id, :subscription_type, :thumbnail_exists, :created_at, :jcrawl_story_id, :delta, :quality_rating, :image_path_cache, 
+      :quality_ratings_generated
   end
   
   serialize_with_options  do
     dasherize false
-    except :delta, :quality_rating, :jcrawl_story_id, :thumbnail_exists, :thumb_exists, :quality_ratings_generated, :author_quality_rating, :source_quality_rating, :image_path_cache
+    except :delta, :quality_rating, :jcrawl_story_id, :thumbnail_exists, :thumb_saved, :quality_ratings_generated, :author_quality_rating, :source_quality_rating, :image_path_cache
     map_include :authors => :authors_serialize, :source => :source_serialize, :cluster => :group_serialize, :image => :image_serialize
   end
   
@@ -393,7 +394,7 @@ class Story < ActiveRecord::Base
   end
   
   def image_serialize( options = {} )
-    ( image_path_cache ? "http://cdn.jurnalo.com/#{image_path_cache}" : nil ).to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct => true )
+    ( image_path_cache ? "http://cdn.jurnalo.com#{image_path_cache}" : nil ).to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct => true )
   end
   
   # Based on list of current top authors

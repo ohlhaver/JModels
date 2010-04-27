@@ -6,11 +6,12 @@ class StoryGroupArchive < ActiveRecord::Base
   
   attr_accessor :authors_pool # global pool of authors, #used in case of serialization
   attr_accessor :sources_pool # gloable pool of sources, #used in case of serialization
+  attr_accessor :image_path_cache
   
   serialize_with_options do
     dasherize false
     except :bj_session_id, :created_at, :thumbnail_story_id, :thumbnail_exists, :top_keywords, :cluster_group_id, :group_id
-    map_include :top_keywords => :top_keywords_serialize, :stories => :stories_serialize
+    map_include :top_keywords => :top_keywords_serialize, :stories => :stories_serialize, :image => :image_serialize
     map :id => :group_id
   end
   
@@ -44,6 +45,10 @@ class StoryGroupArchive < ActiveRecord::Base
       stories_to_serialize.each{ |story| story.authors_to_serialize = self.authors_pool[ story.id ] || []; story.source_to_serialize = self.sources_pool[ story.source_id ] }
     end
     stories_to_serialize.to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct=>true )
+  end
+  
+  def image_serialize( options = {} )
+    ( image_path_cache ? "http://cdn.jurnalo.com#{image_path_cache}" : nil ).to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct => true )
   end
   
 end

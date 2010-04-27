@@ -6,11 +6,12 @@ class StoryGroup < ActiveRecord::Base
   attr_accessor :stories_to_serialize
   attr_accessor :authors_pool # global pool of authors, #used in case of serialization
   attr_accessor :sources_pool # global pool of sources, #used in case of serialization
+  attr_accessor :image_path_cache
   
   serialize_with_options do
     dasherize false
     except :bj_session_id, :created_at, :thumbnail_story_id, :thumbnail_exists, :top_keywords, :cluster_group_id
-    map_include :top_keywords => :top_keywords_serialize, :stories => :stories_serialize
+    map_include :top_keywords => :top_keywords_serialize, :stories => :stories_serialize, :image => :image_serialize
   end
   
   # serialize_with_options do
@@ -124,13 +125,56 @@ class StoryGroup < ActiveRecord::Base
       }, &block )
   end
   
+  def self.thumbs_hash_map( story_group_ids, user = nil )
+    conditions = [ 'image_path_cache IS NOT NULL AND thumb_saved = ?', true ]
+    sgs = Story.story_group_ids( *story_group_ids ).all( 
+      :select => %Q(stories.id, sgm.group_id),  
+      :user => user,
+      :conditions => conditions,
+      :order => 'sgm.rank ASC'
+    ).group_by{ |story| story.read_attribute( :group_id ).to_i }
+    story_group_archive_ids = story_group_ids - sgs.keys
+    unless story_group_archive_ids.blank?
+      sgsa = Story.story_group_archive_ids( *story_group_archive_ids ).all( 
+        :select => %Q(stories.id, sgm.group_id),  
+        :user => user,
+        :conditions => conditions,
+        :order => 'sgm.blub_score DESC'
+      ).group_by{ |story| story.read_attribute( :group_id ).to_i }
+      sgs.merge!( sgsa )
+    end
+    story_ids = []
+    sgs.each_pair do | group, stories |
+      story = stories.first
+      if story
+        sgs[group] = story
+        story_ids.push( story.id )
+      else
+        sgs.delete(group)
+      end
+    end
+    if story_ids
+      stories_with_images = Story.all( :select => 'id, image_path_cache', :conditions => { :id => story_ids } ).group_by( &:id )
+      sgs.each_pair do | group, story |
+        sgs[group] = stories_with_images[ story.id ].first.try(:image_path_cache)
+      end
+    end
+    story_ids.clear
+    stories_with_images.clear
+    return sgs
+  end
+  
   #
   # TODO: Sorted By relevance or time ( Cluster View )
   #
   def self.populate_stories_to_serialize( user, clusters, per_cluster = 3, story_ids_to_skip = [])
     # hash_map is top stories for each story group using personalized score if applicable
     stories_hash_map = Story.hash_map_by_story_groups( clusters.collect( &:id ), user, per_cluster, story_ids_to_skip )
-    clusters.collect{ |cluster| cluster.stories_to_serialize = stories_hash_map[ cluster.id ] || [] }
+    thumbs_hash_map = StoryGroup.thumbs_hash_map( clusters.collect( &:id ) )
+    clusters.each do |cluster| 
+      cluster.stories_to_serialize = stories_hash_map[ cluster.id ] || []
+      cluster.image_path_cache = thumbs_hash_map[ cluster.id ] 
+    end
     story_ids, source_ids = clusters.inject([[], []]) do | acc, cluster| 
       # cluster.stories_to_serialize ||= Story.personalize_for!( cluster.top_stories, user, user_quality_rating_hash_map )[ 0...per_cluster ]
       cluster.stories_to_serialize.inject(acc){ |aac, story| aac.first.push( story.id ); aac.last.push( story.source_id ); aac }
@@ -181,6 +225,10 @@ class StoryGroup < ActiveRecord::Base
   end
   
   protected
+  
+  def image_serialize( options = {} )
+    ( image_path_cache ? "http://cdn.jurnalo.com#{image_path_cache}" : nil ).to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct => true )
+  end
   
   def stories_serialize( options = {} )
     self.stories_to_serialize ||= top_stories[0...3]
