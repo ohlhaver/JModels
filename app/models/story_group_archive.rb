@@ -7,11 +7,12 @@ class StoryGroupArchive < ActiveRecord::Base
   attr_accessor :authors_pool # global pool of authors, #used in case of serialization
   attr_accessor :sources_pool # gloable pool of sources, #used in case of serialization
   attr_accessor :image_path_cache
+  attr_accessor :url
   
   serialize_with_options do
     dasherize false
     except :bj_session_id, :created_at, :thumbnail_story_id, :thumbnail_exists, :top_keywords, :cluster_group_id, :group_id
-    map_include :top_keywords => :top_keywords_serialize, :stories => :stories_serialize, :image => :image_serialize
+    map_include :top_keywords => :top_keywords_serialize, :stories => :stories_serialize, :image => :image_serialize, :url => :url_serialize
     map :id => :group_id
   end
   
@@ -27,6 +28,10 @@ class StoryGroupArchive < ActiveRecord::Base
   has_many :stories, :through => :memberships, :source => :story, :order => 'story_group_membership_archives.blub_score DESC'
   
   protected
+  
+  def url_serialize( options = {} )
+    url.to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct => true )
+  end
   
   def top_keywords_serialize( options = {} )
     top_keywords.to_xml( options.merge( :children => 'keyword' ) )

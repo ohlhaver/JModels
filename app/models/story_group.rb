@@ -7,11 +7,12 @@ class StoryGroup < ActiveRecord::Base
   attr_accessor :authors_pool # global pool of authors, #used in case of serialization
   attr_accessor :sources_pool # global pool of sources, #used in case of serialization
   attr_accessor :image_path_cache
+  attr_accessor :url
   
   serialize_with_options do
     dasherize false
     except :bj_session_id, :created_at, :thumbnail_story_id, :thumbnail_exists, :top_keywords, :cluster_group_id
-    map_include :top_keywords => :top_keywords_serialize, :stories => :stories_serialize, :image => :image_serialize
+    map_include :top_keywords => :top_keywords_serialize, :stories => :stories_serialize, :image => :image_serialize, :url => :url_serialize
   end
   
   # serialize_with_options do
@@ -154,9 +155,13 @@ class StoryGroup < ActiveRecord::Base
       end
     end
     if story_ids
-      stories_with_images = Story.all( :select => 'id, image_path_cache', :conditions => { :id => story_ids } ).group_by( &:id )
+      stories_with_images = Story.all( :select => 'id, image_path_cache, url', :conditions => { :id => story_ids } ).group_by( &:id )
       sgs.each_pair do | group, story |
-        sgs[group] = stories_with_images[ story.id ].first.try(:image_path_cache)
+        if (image_story = stories_with_images[ story.id ].first)
+          sgs[group] = { :image_path_cache => image_story.image_path_cache, :url => image_story.url }
+        else
+          sgs.delete( group )
+        end
       end
     end
     story_ids.clear
@@ -173,7 +178,10 @@ class StoryGroup < ActiveRecord::Base
     thumbs_hash_map = StoryGroup.thumbs_hash_map( clusters.collect( &:id ) )
     clusters.each do |cluster| 
       cluster.stories_to_serialize = stories_hash_map[ cluster.id ] || []
-      cluster.image_path_cache = thumbs_hash_map[ cluster.id ] 
+      if thumbs_info = thumbs_hash_map[ cluster.id ]
+        cluster.image_path_cache = thumbs_info[ :image_path_cache ]
+        cluster.url = thumbs_info[ :url ]
+      end
     end
     story_ids, source_ids = clusters.inject([[], []]) do | acc, cluster| 
       # cluster.stories_to_serialize ||= Story.personalize_for!( cluster.top_stories, user, user_quality_rating_hash_map )[ 0...per_cluster ]
@@ -228,6 +236,10 @@ class StoryGroup < ActiveRecord::Base
   
   def image_serialize( options = {} )
     ( image_path_cache ? "http://cdn.jurnalo.com#{image_path_cache}" : nil ).to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct => true )
+  end
+  
+  def url_serialize( options = {} )
+    url.to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct => true )
   end
   
   def stories_serialize( options = {} )
