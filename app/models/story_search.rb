@@ -238,8 +238,8 @@ class StorySearch
     end
     attr_value = Array( column_eval( :author_ids ) || column_eval( :author_id ) )
     attr_value.collect!{ |x| x.to_i }
-    attr_value.push( 0 ) if attr_value.blank?
-    options[:with].merge!( :author_ids => attr_value ) #unless attr_value.blank?
+    attr_value.push( 0 ) if attr_value.blank? && mode == :author
+    options[:with].merge!( :author_ids => attr_value ) unless attr_value.blank?
   end
   
   def add_filter_region_id
