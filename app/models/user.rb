@@ -185,7 +185,7 @@ class User < ActiveRecord::Base
   
   def create_default_homepage_cluster_groups( tag = self.tag )
     return nil if homepage_cluster_groups_exist?( tag )
-    clusters = ClusterGroup.homepage( :tag => tag ).all
+    clusters = ClusterGroup.homepage( :tag => tag ).all( :order => 'position ASC' )
     clusters.each{ |c|  MultiValuedPreference.preference( :homepage_clusters ).create( :owner => self, :value => c.id, :tag => tag ) }
   end
   
