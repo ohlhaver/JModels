@@ -115,7 +115,7 @@ class Preference < ActiveRecord::Base
       { :name => "prefs.lang.#{x.name.downcase}", :code => x.code, :id => x.id }
     }
     
-    RegionValues = Region.find(:all, :conditions => { :code => ['DE', 'AT', 'CH', 'INT'] }, :order => 'id' ).collect{ |x|
+    RegionValues = Region.find(:all, :conditions => { :code => ['DE', 'AT', 'CH', 'US', 'GB', 'IN', 'SG', 'INT'] }, :order => 'id' ).collect{ |x|
       { :name => "prefs.country.#{x.code.downcase}", :code => x.code, :id => x.id }
     }
     

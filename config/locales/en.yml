@@ -26,7 +26,11 @@ en:
       at:  "Austria"
       ch:  "Switzerland"
       de:  "Germany"
-      int: "International"
+      us:  "U.S."
+      gb:  "U.K."
+      in:  "India"
+      sg:  "Singapore"
+      int: "Global"
     email:
       daily: "Send Daily Digest"
       immediately: "Send Immediately"

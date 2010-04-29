@@ -26,7 +26,11 @@ de:
       at:  "Österreich"
       ch:  "Schweiz"
       de:  "Deutschland"
-      int: "International"
+      us:  "USA"
+      gb:  "Großbritannien"
+      in:  "Indien"
+      sg:  "Singapur"
+      int: "Global"
     email:
       daily: "tägliche Zusammenstellung senden"
       immediately: "sofort senden"
