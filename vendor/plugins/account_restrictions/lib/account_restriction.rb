@@ -42,15 +42,15 @@ module ActiveRecord
         user = nil
         if f = method_scoping[:find]
           user = f.delete(:user)
+          skip_account_restriction = f.delete(:without_account_restriction)
         end
-        if user
-          hash = { :find => { :user => user } }
-          current_scoped_methods.inject(hash) do | hash, (method, params)|
-            hash[method] = params
-          end if current_scoped_methods
-          hash[:find].merge!( :user => user )
-          self.scoped_methods << hash
-        end
+        hash = { :find => {} }
+        current_scoped_methods.inject(hash) do | hash, (method, params)|
+          hash[method] = params
+        end if current_scoped_methods
+        hash[:find].merge!( :user => user ) if user
+        hash[:find].merge!( :without_account_restriction => skip_account_restriction ) unless skip_account_restriction.nil?
+        self.scoped_methods << hash if user || skip_account_restriction != nil
         begin
           with_scope_without_account_restriction( method_scoping, action, &block )
         ensure
@@ -61,7 +61,8 @@ module ActiveRecord
       def find_with_account_restriction( *args )
         options = args.extract_options!
         user = options.delete(:user) || scope(:find, :user)
-        options.merge!( :limit => 1 ) unless user && user.power_plan?
+        skip_account_restriction = options.delete(:without_account_restriction) || scope( :find, :without_account_restriction)
+        options.merge!( :limit => 1 ) unless skip_account_restriction || ( user && user.power_plan? )
         args.push( options )
         find_without_account_restriction( *args )
       end
@@ -69,9 +70,10 @@ module ActiveRecord
       def count_with_account_restriction( *args )
         options = args.extract_options!
         user = options.delete(:user) || scope(:find, :user)
+        skip_account_restriction = options.delete(:without_account_restriction) || scope( :find, :without_account_restriction)
         args.push( options )
         count = count_without_account_restriction( *args )
-        user && user.power_plan? ? count : ( count > 0 ? 1 : 0 )
+        skip_account_restriction || ( user && user.power_plan? )  ? count : ( count > 0 ? 1 : 0 )
       end
     end
     

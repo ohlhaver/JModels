@@ -35,7 +35,7 @@ class QualityRatingGeneration < BackgroundService
     
     AuthorSubscription.find_each( :group => 'owner_id', 
       :select => 'author_subscriptions.*, MAX( IF(subscribed, COALESCE(author_subscriptions.preference,3), author_subscriptions.preference ) ) AS preference', 
-      :conditions => { :author_id => story.author_ids, :owner_type => 'User' } 
+      :conditions => { :author_id => story.author_ids, :owner_type => 'User' }, :without_account_restriction => true 
     ) do |author_subscription|
       next if author_subscription.preference.nil?
       StoryUserQualityRating.create( :source => false, :preference => author_subscription.preference, 
@@ -53,7 +53,8 @@ class QualityRatingGeneration < BackgroundService
     source_quality_ratings_sum = 0
     source_quality_ratings_count = 0
     SourceSubscription.find_each( 
-      :conditions => { :source_id => story.source_id, :category_id => nil, :owner_type => 'User' }
+      :conditions => { :source_id => story.source_id, :category_id => nil, :owner_type => 'User' }, 
+      :without_account_restriction => true 
     ) do |source_subscription|
       next if source_subscription.preference.nil? || user_ids.has_key?( source_subscription.owner_id )
       user_quality_rating = ( source_subscription.preference > 0 && story.author_quality_rating ) ? ( source_subscription.preference + story.author_quality_rating ) / 2.0 : source_subscription.preference
