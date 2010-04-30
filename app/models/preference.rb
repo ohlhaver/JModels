@@ -36,6 +36,7 @@ class Preference < ActiveRecord::Base
       :language_id => :LanguageValues,
       :interface_language_id => :LanguageValues,
       :default_language_id => :LanguageValues,
+      :edition_id => :CountryEditions,
       :cluster_preview => :ClusterPreviewValues,
       :headlines_per_cluster_group => :ClusterGroupValues,
       :per_page => :PerPageValues,
@@ -117,6 +118,11 @@ class Preference < ActiveRecord::Base
     
     RegionValues = Region.find(:all, :conditions => { :code => ['DE', 'AT', 'CH', 'US', 'GB', 'IN', 'SG', 'INT'] }, :order => 'id' ).collect{ |x|
       { :name => "prefs.country.#{x.code.downcase}", :code => x.code, :id => x.id }
+    }
+    
+    CountryEditions = Region.find(:all, :conditions => { :code => ['DE', 'AT', 'CH', 'US', 'GB', 'IN', 'SG', 'INT'] }, :order => 'id' ).collect{ |x|
+      { :name => "prefs.country.#{x.code.downcase}", :code => x.code, 
+        :id => "#{x.code.downcase}-#{Region::DefaultLanguage[ x.code ] || 'en'}" }
     }
     
     ClusterPreviewValues = [ { :name => 1, :code => 1, :id => 1 }, { :name => 3, :code => 3, :id => 3 } ]
