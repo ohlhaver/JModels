@@ -1,6 +1,7 @@
 class BillingRecord < ActiveRecord::Base
   
   attr_accessor :premium_link
+  attr_accessor :event_time
   
   belongs_to :user
   has_many  :gateway_transactions
@@ -83,10 +84,11 @@ class BillingRecord < ActiveRecord::Base
     # Refers the Order Id
     # Expiry Date, Start Date
     # Account Status: 0,1,2,3,4,5 Basic/Power/Business
+    self.event_time ||= Time.now.utc;
     user.account_status_points.create( :plan_id => plan_id, 
       :billing_record_id => self.id, 
-      :starts_at => Time.now.utc, 
-      :ends_at => Time.now.utc + 30.days 
+      :starts_at => self.event_time, 
+      :ends_at => self.event_time + 1.month + 12.hours
     )
     # puts "upgrade callback called"
   end
