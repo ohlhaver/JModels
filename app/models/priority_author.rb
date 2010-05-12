@@ -2,6 +2,8 @@ class PriorityAuthor < ActiveRecord::Base
   
   set_primary_key :author_id
   
+  belongs_to :author
+  
   def self.add_to_list( author )
     author_id = author.is_a?( Author ) ? author.id : author
     record = self.find( author_id ) rescue nil
