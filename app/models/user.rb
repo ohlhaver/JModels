@@ -5,7 +5,7 @@ class User < ActiveRecord::Base
   has_one :user_role
   has_one :preference, :as => :owner
   
-  has_many :author_subscriptions, :as => :owner, :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
+  has_many :author_subscriptions, :as => :owner, :conditions => { :block => false }, :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
   has_many :source_subscriptions, :as => :owner, :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
   has_many :topic_subscriptions, :as => :owner, :order => 'position ASC', :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
   

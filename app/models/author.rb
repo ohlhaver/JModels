@@ -17,6 +17,7 @@ class Author < ActiveRecord::Base
   has_many  :story_authors, :dependent => :delete_all
   has_many  :stories, :through => :story_authors, :source => :story
   has_many  :aliases, :class_name => 'AuthorAlias', :dependent => :delete_all
+  has_many  :author_subscriptions, :dependent => :delete_all
   
   validates_presence_of :name
   
@@ -46,6 +47,7 @@ class Author < ActiveRecord::Base
     indexes aliases(:name), :as => :aliases
     has :is_agency
     has :is_opinion
+    has :block
     has :id, :as => :author_id
     set_property :delta => :delayed
   end
@@ -97,6 +99,30 @@ class Author < ActiveRecord::Base
   def self.find_or_initialize_by_name( name )
     author_alias = AuthorAlias.find( :first, :conditions => { :name => name } )
     author = ( author_alias.try( :author ) || find( :first, :conditions => { :name => name } ) || new( :name => name, :skip_uniqueness_validation => true ) )
+  end
+  
+  def self.map( story_ids )
+    find( 
+      :all, :select => 'authors.*, story_authors.story_id AS story_id', 
+      :joins => 'INNER JOIN story_authors ON ( story_authors.author_id = authors.id )', 
+      :conditions => { :story_authors => { :story_id => story_ids }, :authors => { :block => false } } 
+    ).group_by{ |a| a.send( :read_attribute, :story_id ).to_i }
+  end
+  
+  # Please use this operation to block an Author
+  def block!
+    StoryAuthor.update_all( 'block = 1', { :author_id => self.id } )
+    AuthorSubscription.update_all( 'block = 1', { :author_id => self.id } )
+    self.update_attributes( :delta => true, :block => true )
+    stories.find_each(:select => 'id, delta'){ |story| story.update_attribute( :delta, true ) }
+  end
+  
+  # Please use this operation to unblock an Author
+  def unblock!
+    StoryAuthor.update_all( 'block = 0', { :author_id => self.id } )
+    AuthorSubscription.update_all( 'block = 0', { :author_id => self.id } )
+    self.update_attributes( :delta => true, :block => false )
+    stories.find_each(:select => 'id, delta'){ |story| story.update_attribute( :delta, true ) }
   end
   
   #
@@ -167,7 +193,11 @@ class Author < ActiveRecord::Base
       author.stories.find_each{ |story| story.update_attribute( :delta, true ) }
       #Story.update_all( "delta = #{Story.connection.quoted_true}", 
       #  [ 'id IN ( SELECT story_id FROM story_authors WHERE author_id = :author_id )', { :author_id => author.id } ] )
-      StoryAuthor.update_all( "author_id = '#{self.id}'", { :author_id => author.id } )
+      # Merge all Author Subscriptions
+      AuthorSubscription.update_all( "author_id = '#{self.id}', block = '#{self.block? ? 1 : 0}'", { :author_id => author.id } )
+      # Merge all the Stories
+      StoryAuthor.update_all( "author_id = '#{self.id}', block = '#{self.block? ? 1 : 0}'", { :author_id => author.id } )
+      # Merge all the Author Aliases
       AuthorAlias.update_all( "author_id = '#{self.id}'", { :author_id => author.id } )
       author.skip_delta_callbacks = true
       author.destroy
@@ -189,7 +219,7 @@ class Author < ActiveRecord::Base
   
   
   def set_delta_index_story
-    @delta_index_story = name_changed?
+    @delta_index_story = name_changed? && !blocked?
     return true
   end
   

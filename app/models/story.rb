@@ -23,7 +23,7 @@ class Story < ActiveRecord::Base
   
   has_many :feed_categories, :foreign_key => 'feed_id', :primary_key => 'feed_id'
   
-  has_many  :story_authors
+  has_many  :story_authors, :conditions => { :story_authors => { :block => false } }
   has_many  :authors, :through => :story_authors, :source => :author
   
   # For Sphinx Index Generation
@@ -83,6 +83,7 @@ class Story < ActiveRecord::Base
       :select => 'stories.*, SUM( IF( ta.subscription_count > 0, 1, 0 ) ) AS top_author_count, MAX( ta.subscription_count ) AS author_subscription_count',
       :joins => ' INNER JOIN story_authors ON ( story_authors.story_id = stories.id ) 
         INNER JOIN bg_top_authors AS ta ON ( ta.author_id = story_authors.author_id ) ',
+      :conditions => [ 'story_authors.block = ?', false ],
       :group => 'stories.id',
       :having => 'top_author_count > 0'
     }

@@ -189,10 +189,7 @@ class StoryGroup < ActiveRecord::Base
     end
     source_ids.uniq!
     
-    authors_pool = Author.find(:all, :select => 'authors.*, story_authors.story_id AS story_id', 
-      :joins => 'INNER JOIN story_authors ON ( story_authors.author_id = authors.id )', 
-      :conditions => { :story_authors => { :story_id => story_ids } } 
-    ).group_by{ |a| a.send( :read_attribute, :story_id ).to_i }
+    authors_pool = Author.map( story_ids )
     
     sources_pool = Source.find(:all, :conditions => { :id => source_ids }).inject({}){ |map, source| map[source.id] = source; map }
     clusters.each{ |cluster| cluster.authors_pool = authors_pool; cluster.sources_pool = sources_pool }
@@ -245,8 +242,7 @@ class StoryGroup < ActiveRecord::Base
   def stories_serialize( options = {} )
     self.stories_to_serialize ||= top_stories[0...3]
     unless stories_to_serialize.blank?
-      self.authors_pool ||= Author.find(:all, :select => 'authors.*, story_authors.story_id AS story_id', :joins => 'INNER JOIN story_authors ON ( story_authors.author_id = authors.id )', 
-        :conditions => { :story_authors => { :story_id => stories_to_serialize.collect(&:id) } } ).group_by{ |a| a.send( :read_attribute, :story_id ).to_i }
+      self.authors_pool ||= Author.map( stories_to_serialize.collect(&:id) )
       self.sources_pool ||= Source.find(:all, :conditions => { :id => stories_to_serialize.collect( &:source_id ).uniq } ).inject({}){ |map, source| map[ source.id ] = source; map }
       stories_to_serialize.each{ |story| story.authors_to_serialize = self.authors_pool[ story.id ] || []; story.source_to_serialize = self.sources_pool[ story.source_id ] }
     end
