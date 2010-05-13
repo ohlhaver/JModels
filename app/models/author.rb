@@ -219,7 +219,7 @@ class Author < ActiveRecord::Base
   
   
   def set_delta_index_story
-    @delta_index_story = name_changed? && !blocked?
+    @delta_index_story = name_changed? && !block?
     return true
   end
   
