@@ -13,9 +13,10 @@ class Author < ActiveRecord::Base
   attr_accessor :skip_uniqueness_validation
   attr_accessor :skip_delta_callbacks
   
-  has_many  :story_authors
+  has_one   :priority_author, :dependent => :delete
+  has_many  :story_authors, :dependent => :delete_all
   has_many  :stories, :through => :story_authors, :source => :story
-  has_many  :aliases, :class_name => 'AuthorAlias'
+  has_many  :aliases, :class_name => 'AuthorAlias', :dependent => :delete_all
   
   validates_presence_of :name
   
