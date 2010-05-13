@@ -1,12 +1,12 @@
 class Region < ActiveRecord::Base
   
-  unless defined?( DefaultLanguage)
+  #unless defined?( DefaultLanguage)
     DefaultLanguage = {
       'DE' => 'de',
       'CH' => 'de',
       'AT' => 'de'
     }
-  end
+  #end
   
   validates_presence_of   :id, :name, :code
   validates_uniqueness_of :code
