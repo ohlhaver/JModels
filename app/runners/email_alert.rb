@@ -8,6 +8,9 @@ class EmailAlert < BackgroundRunnerPool
         EmailNotification.new( :logger => self.logger, :parent => self ).run( :with_session => true, :start => { :frequency => options[:frequency] } )
       end
     else
+      add_runner( 'Invoice Alerts Processor', :run_every_day ) do
+        EmailNotification.new( :logger => self.logger, :parent => self ).run( :with_session => true, :start => { :frequency => :invoice } )
+      end
       add_runner( 'Weekly Email Alerts Processor', :run_every_day ) do
         EmailNotification.new( :logger => self.logger,  :parent => self ).run( :with_session => true, :start => { :frequency => :weekly } )
       end

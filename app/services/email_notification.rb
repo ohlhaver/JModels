@@ -13,6 +13,12 @@ class EmailNotification < BackgroundService
     create_email_table unless EnqueuedEmail.table_exists?
   end
   
+  def invoice
+    PaidByInvoice.each_due do | record |
+      record.create_next_billing_record!
+    end
+  end
+  
   def daily
     each_user( daily_value ) do | user |
       alert = user.alert_monitor? ? 'indirect_alert' : 'direct_alert'

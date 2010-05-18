@@ -1,0 +1,55 @@
+<%= t('email.body.dear_user', :name => @paid_by_invoice.user.name ) %>
+
+<%= t('email.invoice.thank_you_note') %>
+
+<%= t('email.invoice.find_below')%>
+
+<%= '-'*80 %>
+<%= t('email.invoice.header', :invoice_date => @billing_record.created_at.to_date.to_s, :invoice_id => @billing_record.id ) %>
+<%= '-'*80 %>
+
+Jurnalo UG
+Tessdorffstr. 51
+23611 Bad Schwartau
+Germany
+
+<%= t('email.invoice.bill_to_label') %>:
+<%= @paid_by_invoice.account_name %>
+<%= t('email.invoice.user_id', :user_id => @paid_by_invoice.user_id ) %>
+<%= @paid_by_invoice.address %>
+<%= @paid_by_invoice.city  %>
+<%= @paid_by_invoice.country %> - <%= @paid_by_invoice.zip %>
+
+
+<%= t('email.invoice.quantity_label') %>
+<%= '-'*80 %>
+<%= t('email.invoice.power_account_charges') %>
+<%= t('email.invoice.duration', :starts_at => @account_status.starts_at.to_date.to_s(:long), :ends_at => (@account_status.ends_at - 1.day).to_date.to_s(:long) ) %>
+
+<%= '-'*80 %>
+<%= t('email.invoice.power_account_amount_due') %>
+
+<%= t('email.invoice.pay_to_label') %>
+<%= '-'*80 %>
+
+Jurnalo UG
+<%= t('email.invoice.account_number') %>: 135823581
+<%= t('email.invoice.bank_code' ) %>: 21352240
+<%= t('email.invoice.bank_name' ) %>: Sparkasse Holstein (Germany)
+
+<%= t('email.invoice.swift_code') %>: HSHNDEH1HOL
+<%= t('email.invoice.iban') %>: DE08 2135 2240 0135 8235 81
+
+<%= t('email.invoice.payment_code', :code => t('email.invoice.user_id', :user_id => @paid_by_invoice.user_id) ) %>
+
+<%= t('email.invoice.payment_deadline', :due_date => ( @account_status.starts_at + 15.days ).to_date.to_s(:long) ) %>
+
+<%= '-'*80 %>
+
+<%= t('email.invoice.query_label') %>
+<%= t('email.invoice.contact_us') %>
+
+<%= t('email.invoice.thank_you') %>
+<%= t('email.invoice.thank_you_again') %>
+
+http://www.jurnalo.com

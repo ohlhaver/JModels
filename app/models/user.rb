@@ -2,17 +2,18 @@ class User < ActiveRecord::Base
   
   attr_accessor :login_field_required
   
-  has_one :user_role
-  has_one :preference, :as => :owner
+  has_one :user_role, :dependent => :delete
+  has_one :paid_by_invoice, :dependent => :delete
+  has_one :preference, :as => :owner, :dependent => :delete
   
   has_many :author_subscriptions, :as => :owner, :conditions => { :block => false }, :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
   has_many :source_subscriptions, :as => :owner, :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
   has_many :topic_subscriptions, :as => :owner, :order => 'position ASC', :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
   
-  has_many :story_subscriptions, :as => :owner
-  has_many :multi_valued_preferences, :as => :owner
-  has_many :billing_records
-  has_many :account_status_points # Time Point Record about Status
+  has_many :story_subscriptions, :as => :owner, :dependent => :delete_all
+  has_many :multi_valued_preferences, :as => :owner, :dependent => :delete_all
+  has_many :billing_records, :dependent => :delete_all
+  has_many :account_status_points, :dependent => :delete_all # Time Point Record about Status
   
   before_create :set_user_role
   before_create :set_user_preference

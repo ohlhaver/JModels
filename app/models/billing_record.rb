@@ -5,6 +5,7 @@ class BillingRecord < ActiveRecord::Base
   
   belongs_to :user
   has_many  :gateway_transactions
+  has_many :account_status_points
   
   validates_presence_of   :user_id
   validates_uniqueness_of :user_id, :if => Proc.new{ |br| self.exists?( :user_id => br.user_id, :state => 'paid' ) }, :message => :already_subscribed
@@ -18,11 +19,20 @@ class BillingRecord < ActiveRecord::Base
   state :authorized                                   # 1st HandShake Success
   state :paid, :enter => :upgrade_user_status         # 2nd Handshake Success
   state :verification_pending                         # Timeout Error
-  state :failed                                       # Error When Making Payment
+  state :failed, :after => :cleanup!                  # Error When Making Payment
   state :renewed, :after => :payment_confirmed!       # Subscripition Renewed
   state :cancelled, :enter => :downgrade_user_status  # Subscription Cancelled
   state :terminated, :enter => :downgrade_user_status # Subscription Terminated
+  
+  # Invoice Based
+  state :invoiced, :enter => :upgrade_user_status,
+    :after => :dispatch_invoice!
 
+  event :generate_invoice do
+    transitions :from => :pending,
+                :to => :invoiced
+  end
+  
   event :payment_authorized do
     transitions :from => :pending,
                 :to   => :authorized
@@ -40,6 +50,8 @@ class BillingRecord < ActiveRecord::Base
                 :to   => :paid
     transitions :from => :renewed,
                 :to   => :paid
+    transitions :from => :invoiced,
+                :to   => :paid
   end
 
   event :payment_error do
@@ -49,6 +61,8 @@ class BillingRecord < ActiveRecord::Base
                 :to   => :failed
     transitions :from => :verification_pending,
                 :to   => :failed
+    transitions :from => :invoiced,
+                :to   => :default
   end
 
   event :subscription_cancelled do
@@ -94,7 +108,15 @@ class BillingRecord < ActiveRecord::Base
   end
   
   def downgrade_user_status
-    puts "downgrade callback called"
+    # puts "downgrade callback called"
+  end
+  
+  def cleanup!
+    user.account_status_points.delete_all( { :billing_record_id => self.id } )
+  end
+  
+  def dispatch_invoice!
+    InvoiceNotifier.deliver_invoice!( self )
   end
   
   protected
