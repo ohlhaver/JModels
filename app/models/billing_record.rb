@@ -8,7 +8,7 @@ class BillingRecord < ActiveRecord::Base
   has_many :account_status_points
   
   validates_presence_of   :user_id
-  validates_uniqueness_of :user_id, :if => Proc.new{ |br| self.exists?( :user_id => br.user_id, :state => 'paid' ) }, :message => :already_subscribed
+  #validates_uniqueness_of :user_id, :if => Proc.new{ |br| self.exists?( :user_id => br.user_id, :state => 'paid' ) }, :message => :already_subscribed
   
   before_create :populate_checksum_salt
   
