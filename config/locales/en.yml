@@ -23,7 +23,7 @@ en:
       subject: "New articles for your topic: {{title}}"
     invoice:
       subject: "Jurnalo Power Account Invoice"
-      thank_you_note: "Thanks for using the Jurnalo Power Account!"
+      thank_you_note: "Thanks for using Jurnalo!"
       find_below: "Please find your latest invoice below:"
       header: "INVOICE\n{{invoice_date}}        Invoice Id: {{invoice_id}}"
       bill_to_label: "Bill To"

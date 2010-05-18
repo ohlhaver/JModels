@@ -23,7 +23,7 @@ de:
       subject: "Neue Artikel zu Ihrem Thema: {{title}}"
     invoice:
       subject: "Jurnalo Power Plan Rechnung"
-      thank_you_note: "Vielen Dank dafür, dass Sie den Jurnalo Power Plan nutzen!"
+      thank_you_note: "Danke, dass Sie Jurnalo benutzen!"
       find_below: "Bitte finden Sie nachfolgend Ihre neueste Rechnung. "
       header: "RECHNUNG\n{{invoice_date}}        Rechnungs Nummer: {{invoice_id}}"
       bill_to_label: "An"
