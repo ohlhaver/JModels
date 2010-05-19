@@ -58,9 +58,9 @@ class Preference < ActiveRecord::Base
     }
     
     HomePageBoxesValues = [
-      { :name => 'prefs.homepage.top_stories',    :code => :top_stories_cluster_group, :id => 0 },
       { :name => 'prefs.homepage.my_authors',     :code => :my_authors, :id => 3 },
       { :name => 'prefs.homepage.my_topics',      :code => :my_topics, :id => 4 },
+      { :name => 'prefs.homepage.top_stories',    :code => :top_stories_cluster_group, :id => 0 },
       { :name => 'prefs.homepage.cluster_groups', :code => :cluster_groups, :id => 1 }
     ]
   
