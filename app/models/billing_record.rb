@@ -2,6 +2,7 @@ class BillingRecord < ActiveRecord::Base
   
   attr_accessor :premium_link
   attr_accessor :event_time
+  attr_accessor :duration
   
   belongs_to :user
   has_many  :gateway_transactions
@@ -72,6 +73,11 @@ class BillingRecord < ActiveRecord::Base
                 :to   => :cancelled
   end
   
+  event :subscription_revoked do
+    transitions :from => :paid,
+                :to   => :failed
+  end
+  
   event :subscription_renewed do
     transitions :from => :paid,
                 :to   => :renewed
@@ -98,11 +104,12 @@ class BillingRecord < ActiveRecord::Base
     # Refers the Order Id
     # Expiry Date, Start Date
     # Account Status: 0,1,2,3,4,5 Basic/Power/Business
-    self.event_time ||= Time.now.utc;
+    self.event_time ||= Time.now.utc
+    self.duration ||= 1.month
     user.account_status_points.create( :plan_id => plan_id, 
       :billing_record_id => self.id, 
       :starts_at => self.event_time, 
-      :ends_at => self.event_time + 1.month + 12.hours
+      :ends_at => self.event_time + self.duration + 12.hours
     )
     # puts "upgrade callback called"
   end
@@ -122,7 +129,7 @@ class BillingRecord < ActiveRecord::Base
   protected
   
   def populate_checksum_salt
-    self.checksum_salt = Authlogic::Random.friendly_token
+    self.checksum_salt ||= Authlogic::Random.friendly_token
   end
   
 end

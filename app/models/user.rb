@@ -4,6 +4,7 @@ class User < ActiveRecord::Base
   
   has_one :user_role, :dependent => :delete
   has_one :paid_by_invoice, :dependent => :delete
+  has_many :paid_by_paypals, :dependent => :delete_all
   has_one :preference, :as => :owner, :dependent => :delete
   
   has_many :author_subscriptions, :as => :owner, :conditions => { :block => false }, :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
