@@ -92,12 +92,12 @@ class StorySearch
   end
   
   def facets
-    facets = @facet_options ? Story.facets( string, facet_options ) : {}
+    facets = ( @facet_options ? Story.facets( string, facet_options ) : {} ) rescue {}
     # Trick to get the count
     total_count = if facets[:is_opinion].nil? then
       count_options = facet_options.dup
       count_options[:facets] = [ :is_opinion ]
-      Story.facets( string, count_options )[:is_opinion].values.sum
+      ( Story.facets( string, count_options )[:is_opinion].values.sum ) rescue 0
     else
       facets[:is_opinion].values.sum
     end
