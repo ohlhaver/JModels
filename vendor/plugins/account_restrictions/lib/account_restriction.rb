@@ -64,7 +64,10 @@ module ActiveRecord
         skip_account_restriction = options.delete(:without_account_restriction) || scope( :find, :without_account_restriction)
         if user && !user.power_plan? && !skip_account_restriction
           user_prefs_count = user.topic_count + user.source_count + user.author_count
-          options.merge!( :limit => 2 ) if user_prefs_count > 5
+          if user_prefs_count > 5
+            max_limit = user.max_pref_limit
+            options.merge!( :limit => max_limit )
+          end
         end
         #options.merge!( :limit => 1 ) unless skip_account_restriction || ( user && user.power_plan? )
         args.push( options )
@@ -79,7 +82,10 @@ module ActiveRecord
         count = count_without_account_restriction( *args )
         if user && !user.power_plan? && !skip_account_restriction
           user_prefs_count = user.topic_count + user.source_count + user.author_count
-          count = count > 2 ? 2 : count if user_prefs_count > 5
+          if user_prefs_count > 5
+            max_limit = user.max_pref_limit
+            count = max_limit if count > max_limit
+          end
         end
         return count
       end
