@@ -6,7 +6,7 @@ class SourceSubscription < ActiveRecord::Base
     except   :source_id, :owner_id, :owner_type, :category_id
   end
   
-  belongs_to :owner, :polymorphic => true
+  belongs_to :owner, :polymorphic => true, :counter_cache => :source_count
   belongs_to :source
   
   validates_presence_of :source_id

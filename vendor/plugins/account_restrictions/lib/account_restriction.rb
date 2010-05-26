@@ -62,7 +62,11 @@ module ActiveRecord
         options = args.extract_options!
         user = options.delete(:user) || scope(:find, :user)
         skip_account_restriction = options.delete(:without_account_restriction) || scope( :find, :without_account_restriction)
-        options.merge!( :limit => 1 ) unless skip_account_restriction || ( user && user.power_plan? )
+        if user && !user.power_plan? && !skip_account_restriction
+          user_prefs_count = user.topic_count + user.source_count + user.author_count
+          options.merge!( :limit => 2 ) if user_prefs_count > 5
+        end
+        #options.merge!( :limit => 1 ) unless skip_account_restriction || ( user && user.power_plan? )
         args.push( options )
         find_without_account_restriction( *args )
       end
@@ -73,7 +77,11 @@ module ActiveRecord
         skip_account_restriction = options.delete(:without_account_restriction) || scope( :find, :without_account_restriction)
         args.push( options )
         count = count_without_account_restriction( *args )
-        skip_account_restriction || ( user && user.power_plan? )  ? count : ( count > 0 ? 1 : 0 )
+        if user && !user.power_plan? && !skip_account_restriction
+          user_prefs_count = user.topic_count + user.source_count + user.author_count
+          count = count > 2 ? 2 : count if user_prefs_count > 5
+        end
+        return count
       end
     end
     
@@ -82,7 +90,8 @@ module ActiveRecord
       def validate_account_restrictions
         account_user = self.send( self.class.user_account_restrictions[:user] )
         association = self.class.user_account_restrictions[:association]
-        errors.add( :account, :restricted ) if account_user.nil? || ( !account_user.power_plan? && account_user.send(association).count > 0 )
+        user_prefs_count = account_user.topic_count + account_user.source_count + account_user.author_count
+        errors.add( :account, :restricted ) if account_user.nil? || ( !account_user.power_plan? && user_prefs_count >= 5 )
       end
       
       protected( :validate_account_restrictions )
