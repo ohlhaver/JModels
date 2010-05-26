@@ -13,6 +13,33 @@ Numeric.class_eval do
   
 end
 
+TrueClass.class_eval do
+  
+  def to_xml( options = {} )
+    return to_s unless options[:root] 
+    require 'builder' unless defined?(Builder)
+    options[:root]    ||= "value"
+    options[:indent]  ||= 2
+    options[:builder] ||= Builder::XmlMarkup.new( :indent => options[:indent])
+    options[:builder].tag!( options[:root], self.to_s, options[:skip_types] ? {} : { :type => "boolean" } )
+  end
+  
+end
+
+
+FalseClass.class_eval do
+  
+  def to_xml( options = {} )
+    return to_s unless options[:root] 
+    require 'builder' unless defined?(Builder)
+    options[:root]    ||= "value"
+    options[:indent]  ||= 2
+    options[:builder] ||= Builder::XmlMarkup.new( :indent => options[:indent])
+    options[:builder].tag!( options[:root], self.to_s, options[:skip_types] ? {} : { :type => "boolean" } )
+  end
+  
+end
+
 String.class_eval do
   
   def to_xml( options = {} )

@@ -197,6 +197,14 @@ class User < ActiveRecord::Base
     end
   end
   
+  def cur_pref_count
+    author_count + topic_count + source_count
+  end
+  
+  def out_of_limit?
+    !power_plan? && (cur_pref_count >= 5) ? true : false
+  end
+  
   protected
   
   def homepage_cluster_groups_exist?( tag = self.tag )
