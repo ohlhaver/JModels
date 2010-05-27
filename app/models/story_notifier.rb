@@ -1,7 +1,7 @@
 class StoryNotifier < ActionMailer::Base
   
   self.delivery_method = :activerecord
-  self.default_url_options[:host] = "beta.jurnalo.com"
+  self.default_url_options[:host] = "www.jurnalo.com"
   
   def direct_alert( user, stories, options = {} )
     options.reverse_merge!( :alert => :author )

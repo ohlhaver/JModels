@@ -1,7 +1,7 @@
 class InvoiceNotifier < ActionMailer::Base
   
   self.delivery_method = :activerecord
-  self.default_url_options[:host] = "beta.jurnalo.com"
+  self.default_url_options[:host] = "www.jurnalo.com"
   
   def invoice( billing_record )
     user = billing_record.user
