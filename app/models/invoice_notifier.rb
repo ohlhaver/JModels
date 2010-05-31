@@ -9,7 +9,7 @@ class InvoiceNotifier < ActionMailer::Base
     subject       I18n.t( 'email.invoice.subject' )
     from          "Jurnalo User Service <jurnalo.user.service@jurnalo.com>"  
     headers       "return-path" => 'jurnalo.user.service@jurnalo.com'
-    recipients    user.email
+    recipients    user.alert_email
     sent_on       Time.now
     template      'invoice'
     body          :paid_by_invoice => user.paid_by_invoice, :billing_record => billing_record, 

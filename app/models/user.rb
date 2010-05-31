@@ -23,6 +23,7 @@ class User < ActiveRecord::Base
   before_validation :set_login_field_required
   validates_presence_of :name
   validates_acceptance_of :terms_and_conditions_accepted, :allow_nil => false, :accept => true
+  validates_format_of :second_email, :with => Authlogic::Regex.email, :allow_nil => true, :allow_blank => true
   
   acts_as_authentic do |config|
     
@@ -203,6 +204,14 @@ class User < ActiveRecord::Base
   
   def out_of_limit?
     !power_plan? && (cur_pref_count >= 5) ? true : false
+  end
+  
+  def has_fb_proxy_email?
+    self.email =~ /\@proxymail\.facebook\.com$/
+  end
+  
+  def alert_email
+    has_fb_proxy_email? && !second_email.blank? ? second_email : email
   end
   
   protected

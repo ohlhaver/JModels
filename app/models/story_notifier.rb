@@ -9,7 +9,7 @@ class StoryNotifier < ActionMailer::Base
     subject       I18n.t( "email.#{options[:alert]}.subject", :title => options[:title] )
     from          "Jurnalo.com Email Alert <alerts-noreply@jurnalo.com>"
     headers       "return-path" => 'alerts-noreply@jurnalo.com'
-    recipients    user.email
+    recipients    user.alert_email
     sent_on       Time.now
     template      'story_alert'
     body          :stories => stories, :alert => options[:alert], :title => options[:title], :user => user, 
@@ -23,7 +23,7 @@ class StoryNotifier < ActionMailer::Base
     subject       I18n.t( "email.#{options[:alert]}.subject", :title => options[:title] )
     from          "Jurnalo.com Email Alert <alerts-noreply@jurnalo.com>"
     headers       "return-path" => 'alerts-noreply@jurnalo.com'
-    reply_to      user.email
+    reply_to      user.alert_email
     recipients    "monitor@jurnalo.com"
     sent_on       Time.now
     template      'story_alert'
