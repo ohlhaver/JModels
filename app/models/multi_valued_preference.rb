@@ -14,7 +14,7 @@ class MultiValuedPreference < ActiveRecord::Base
   
   unless defined?( PreferenceOptions )
     # homepageboxes - TopStories, HomepageClusterGroups; TopAuthors; MyAuthors; MyTopics
-    PreferenceOptions = { :search_languages => 1, :homepage_clusters => 2, :homepage_boxes => 3, :top_stories_cluster_group => 4 }
+    PreferenceOptions = { :search_languages => 1, :homepage_clusters => 2, :homepage_boxes => 3, :top_stories_cluster_group => 4, :wizards => 5 }
   end
   
   belongs_to :owner, :polymorphic => true

@@ -23,7 +23,7 @@ class TopicSubscription < ActiveRecord::Base
   validates_uniqueness_of :name, :scope => [ :owner_type, :owner_id ]
   validate :validates_presence_of_search_keywords
   
-  activate_user_account_restrictions :user => :owner, :association => :topic_subscriptions
+  activate_user_account_restrictions :user => :owner, :association => :topic_subscriptions 
   
   belongs_to :author
   belongs_to :category
@@ -32,6 +32,7 @@ class TopicSubscription < ActiveRecord::Base
   
   before_save :populate_story_search_hash
   before_create :set_home_group_and_email_alert
+  after_create :turn_off_wizard
   
   serialize :story_search_hash
   
@@ -61,6 +62,12 @@ class TopicSubscription < ActiveRecord::Base
   end
   
   protected
+  
+  def turn_off_wizard
+    return unless owner.preference.wizard_on?( :topic )
+    owner.preference.wizards = { :topic => '0' }
+    owner.preference.save
+  end
   
   def set_home_group_and_email_alert
     self.home_group = true if self.home_group.nil?

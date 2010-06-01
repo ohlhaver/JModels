@@ -17,6 +17,7 @@ class AuthorSubscription < ActiveRecord::Base
   #before_create :set_author_preference
   #before_create :set_author_subscribed
   after_save :destroy_record_if_blank
+  after_create :turn_off_wizard
   
   activate_user_account_restrictions :user => :owner, :association => :author_subscriptions
   
@@ -44,6 +45,12 @@ class AuthorSubscription < ActiveRecord::Base
   end
   
   protected
+  
+  def turn_off_wizard
+    return unless owner.preference.wizard_on?( :author )
+    owner.preference.wizards = { :author => '0' }
+    owner.preference.save
+  end
   
   def destroy_record_if_blank
     self.destroy if preference.nil? && !subscribed?

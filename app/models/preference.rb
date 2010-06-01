@@ -2,7 +2,7 @@ class Preference < ActiveRecord::Base
   
   serialize_with_options do
     dasherize false
-    map_include :search_language_ids  => :search_languages_ids_for_serialize, :plan_id => :plan_id_serialize, :out_of_limit => :out_of_limit_serialize
+    map_include :search_language_ids  => :search_languages_ids_for_serialize, :plan_id => :plan_id_serialize, :out_of_limit => :out_of_limit_serialize, :wizards => :wizards_for_serialize
     except  :id, :owner_id, :owner_type
   end
   
@@ -46,8 +46,16 @@ class Preference < ActiveRecord::Base
       :search_language_ids => :LanguageValues,
       :homepage_boxes => :HomePageBoxesValues,
       :top_stories_cluster_group => :TopStoriesClusterGroupValues,
-      :category_id => :CategoryValues
+      :category_id => :CategoryValues,
+      :wizards => :WizardValues
     }
+    
+    WizardValues = [
+      { :name => "prefs.wizard.topic", :code => :topic, :id => 0 },
+      { :name => "prefs.wizard.author", :code => :author, :id => 1},
+      { :name => "prefs.wizard.source", :code => :source, :id => 2},
+      { :name => "prefs.wizard.story", :code => :story, :id => 3}
+    ]
     
     CategoryValues = Category.collection( :default ).collect{ |category|
       { :name => "prefs.category.#{category.name.underscore}", :code => category.code.downcase.to_sym, :id => category.id }
@@ -229,8 +237,8 @@ class Preference < ActiveRecord::Base
   end
   
   belongs_to :owner, :polymorphic => true
-  before_save :save_search_language_ids
-  before_create :create_homepage_box_prefs, :create_top_section_prefs
+  before_save :save_search_language_ids, :save_wizards
+  before_create :create_homepage_box_prefs, :create_top_section_prefs, :create_wizard_prefs
   
   # virtual attribute default_edition_id
   
@@ -249,6 +257,16 @@ class Preference < ActiveRecord::Base
   
   def reset_search_lang_prefs!
     @search_lang_prefs = Array.new
+  end
+  
+  def wizards=( data )
+    return unless data.is_a?( Hash )
+    data.symbolize_keys!
+    wizards.each { |w|
+      code = self.class.select_value_by_name_and_id( :wizards, w.value ).try( :[], :code )
+      w.tag = data[code] if data[code]
+    }
+    wizards
   end
   
   def search_language_ids=( language_ids )
@@ -294,7 +312,28 @@ class Preference < ActiveRecord::Base
     owner.out_of_limit?
   end
   
+  def wizards( reload = false )
+    @wizards = nil if reload
+    @wizards ||= owner.multi_valued_preferences.preference( :wizards ).all
+  end
+  
+  def wizard_on?( wizard_id )
+    wizard = wizards.select{ |w| self.class.select_value_by_name_and_id( :wizards, w.value ).try( :[], :code ) == wizard_id.to_sym }.first
+    wizard.try(:tag).to_i == 1
+  end
+  
   protected
+  
+  def save_wizards
+    wizards.each{ |w| w.save if w.changed? }
+  end
+  
+  def wizards_for_serialize( options = {} )
+    wizards.inject({}){ |s, w| 
+      record = self.class.select_value_by_name_and_id( :wizards, w.value )
+      s.merge!( record[:code] => w.tag )
+    }.to_xml( options )
+  end
   
   def search_languages_ids_for_serialize( options = {} )
     search_language_ids( :reload ).to_xml( options )
@@ -330,6 +369,14 @@ class Preference < ActiveRecord::Base
   def create_top_section_prefs
     Preference.select_all( :top_stories_cluster_group ).collect do |pref|
       mvp = MultiValuedPreference.preference( :top_stories_cluster_group ).create( :owner_id => self.owner_id, :owner_type => self.owner_type, :value => pref[:id] )
+      logger.info mvp.errors.full_messages if mvp.errors.any?
+      mvp
+    end
+  end
+  
+  def create_wizard_prefs
+    Preference.select_all( :wizards ).collect do |pref|
+      mvp = MultiValuedPreference.preference( :wizards ).create( :owner_id => self.owner_id, :owner_type => self.owner_type, :value => pref[:id], :tag => 1 )
       logger.info mvp.errors.full_messages if mvp.errors.any?
       mvp
     end

@@ -15,8 +15,15 @@ class SourceSubscription < ActiveRecord::Base
   activate_user_account_restrictions :user => :owner, :association => :source_subscriptions
   
   after_save :destroy_record_if_blank
+  after_create :turn_off_wizard
   
   protected
+  
+  def turn_off_wizard
+    return unless owner.preference.wizard_on?( :source )
+    owner.preference.wizards = { :source => '0' }
+    owner.preference.save
+  end
   
   def destroy_record_if_blank
     self.destroy if preference.nil?
