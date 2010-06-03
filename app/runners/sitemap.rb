@@ -22,10 +22,10 @@ class Sitemap < BigSitemap
   def polymorphic_url( record )
     case ( record ) when StoryGroup then
       URI.encode( if story_group_key == 0 then
-        "#{root_url}/stories?q=#{record.top_keywords.join('+AND+')}&edition_id=#{record.language.default_edition}"
+        "#{root_url}/stories?q=#{record.top_keywords.join('+AND+')}&edition=#{record.language.default_edition}"
       else
         keyword = record.top_keywords[ story_group_key - 1 ]
-        "#{root_url}/stories?q=#{keyword}&edition_id=#{record.language.default_edition}"
+        "#{root_url}/stories?q=#{keyword}&edition=#{record.language.default_edition}"
       end )
     else nil end
   end

@@ -8,11 +8,11 @@ class Language < ActiveRecord::Base
   }
   
   def default_region_code
-    DefaultRegion[ self.code ] || 'int'
+    DefaultRegion[ self.code ] || 'INT'
   end
   
   def default_edition
-    "#{default_region_code}-#{self.code}"
+    "#{default_region_code.downcase}-#{self.code}"
   end
   
 end
