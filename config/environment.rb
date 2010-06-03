@@ -133,4 +133,3 @@ end
 
 require 'action_mailer/ar_mailer'
 ActionMailer::Base.email_class = 'EnqueuedEmail'
-
