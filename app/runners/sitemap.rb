@@ -27,6 +27,10 @@ class Sitemap < BigSitemap
         keyword = record.top_keywords[ story_group_key - 1 ]
         "#{root_url}/stories?q=#{keyword}&edition=#{record.language.default_edition}"
       end )
+    when Author then
+      URI.encode( 
+        "#{root_url}/authors/#{record.to_param}?edition=#{author_edition}"
+      )
     else nil end
   end
   
@@ -48,7 +52,11 @@ class Sitemap < BigSitemap
     end
     sitemap.add( Author, {
         :conditions       => { :block => false, :sitemap => true },
-        :path             => 'authors',
+        :change_frequency => 'daily',
+        :priority         => 0.75
+    })
+    sitemap.add( Author, {
+        :conditions       => { :block => false, :sitemap => true },
         :change_frequency => 'daily',
         :priority         => 0.75
     })
@@ -124,12 +132,27 @@ class Sitemap < BigSitemap
   def story_group_key
     @story_group_key
   end
+  
+  def author_names
+    @author_names ||= [ 'en_authors', 'de_authors' ].reverse
+  end
+  
+  def author_editions
+    @author_editions ||= [ 'int-en', 'de-de' ].reverse
+  end
+  
+  def author_edition
+    @author_edition
+  end
 
   def with_sitemap(name, options={})
     options[:index] = name == 'index'
-    if name == "story_groups"
+    case( name ) when "story_groups"
       name = story_group_names.pop
       @story_group_key = story_group_keys.pop
+    when "authors"
+      name = author_names.pop
+      @author_edition = author_editions.pop
     end
     options[:filename] = "#{@file_path}/sitemap_#{name}"
     options[:max_urls] = @options[:max_per_sitemap]
