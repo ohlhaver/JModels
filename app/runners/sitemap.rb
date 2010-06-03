@@ -21,11 +21,11 @@ class Sitemap < BigSitemap
   
   def polymorphic_url( record )
     case ( record ) when StoryGroup then
-      URI.escape( if story_group_key == 0 then
-        "#{root_url}/stories?q=#{record.top_keywords.join('+AND+')}"
+      URI.encode( if story_group_key == 0 then
+        "#{root_url}/stories?q=#{record.top_keywords.join('+AND+')}&edition_id=#{record.language.default_edition}"
       else
         keyword = record.top_keywords[ story_group_key - 1 ]
-        "#{root_url}/stories?q=#{keyword}"
+        "#{root_url}/stories?q=#{keyword}&edition_id=#{record.language.default_edition}"
       end )
     else nil end
   end
@@ -58,23 +58,27 @@ class Sitemap < BigSitemap
        :priority         => 0.5
     })
     sitemap.add( StoryGroup, {
+      :include          => :language,
       :path             => 'stories',
       :change_frequency => 'daily',
       :priority         => 0.6
     })
     sitemap.add( StoryGroup, {
+      :include          => :language,
       :conditions       => [ 'story_count > ?',  4 ],
       :path             => 'stories',
       :change_frequency => 'daily',
       :priority         => 0.5
     })
     sitemap.add( StoryGroup, {
+      :include          => :language,
       :conditions       => [ 'story_count > ?',  4 ],
       :path             => 'stories',
       :change_frequency => 'daily',
       :priority         => 0.45
     })
     sitemap.add( StoryGroup, {
+      :include          => :language,
       :conditions       => [ 'story_count > ?',  4 ],
       :path             => 'stories',
       :change_frequency => 'daily',
