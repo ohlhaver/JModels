@@ -91,6 +91,26 @@ class Sitemap < BigSitemap
     end
   end
   
+  def transfer_files
+    host = "10.176.252.159"
+    user = "jurnalo"
+    pass = "rosenwel"
+    remote_files = []
+    Net::SCP.start(host, user, :passphrase => pass) do |scp|
+      @sitemap_files.each do |file|
+        remote_file = "/home/jurnalo/apps/JWebApp/shared/sitemaps/#{File.basename(file)}"
+        scp.upload! file, (remote_file + ".duplicate")
+        remote_files.push( remote_file )
+      end
+    end
+    Net::SSH.start(host, user, :passphrase => pass) do |ssh|
+      remote_files.each do |remote_file|
+        ssh.exec!( "mv -f #{remote_file}.duplicate #{remote_file}")
+      end
+    end
+    remote_files.clear
+  end
+  
   private
   
   def story_group_names
@@ -126,26 +146,6 @@ class Sitemap < BigSitemap
       sitemap.close!
       @sitemap_files.concat sitemap.paths!
     end
-  end
-  
-  def transfer_files
-    host = "10.176.252.159"
-    user = "jurnalo"
-    pass = "rosenwel"
-    remote_files = []
-    Net::SCP.start(host, user, :passphrase => pass) do |scp|
-      @sitemap_files.each do |file|
-        remote_file = "/home/jurnalo/apps/JWebApp/shared/sitemaps/#{File.basename(file)}"
-        scp.upload! file, (remote_file + ".duplicate")
-        remote_files.push( remote_file )
-      end
-    end
-    Net::SSH.start(host, user, :passphrase => pass) do |ssh|
-      remote_files.each do |remote_file|
-        ssh.exec!( "mv -f #{remote_file}.duplicate #{remote_file}")
-      end
-    end
-    remote_files.clear
   end
   
 end
