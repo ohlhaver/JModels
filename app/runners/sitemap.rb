@@ -20,7 +20,14 @@ end
 class Sitemap < BigSitemap
   
   def polymorphic_url( record )
-    nil
+    case ( record ) when StoryGroup then
+      URI.escape( if story_group_key == 0 then
+        "#{root_url}/stories?q=#{record.top_keywords.join(' AND ')}"
+      else
+        keyword = record.top_keywords[ story_group_key - 1 ]
+        "#{root_url}/stories?q=#{keyword}"
+      end ) 
+    else nil end
   end
   
   def self.run( mode = :production )
@@ -50,10 +57,70 @@ class Sitemap < BigSitemap
        :change_frequency => 'daily',
        :priority         => 0.5
     })
+    sitemap.add( StoryGroup, {
+      :path             => 'stories',
+      :change_frequency => 'daily',
+      :priority         => 0.6
+    })
+    sitemap.add( StoryGroup, {
+      :conditions       => [ 'story_count > ?',  4 ],
+      :path             => 'stories',
+      :change_frequency => 'daily',
+      :priority         => 0.5
+    })
+    sitemap.add( StoryGroup, {
+      :conditions       => [ 'story_count > ?',  4 ],
+      :path             => 'stories',
+      :change_frequency => 'daily',
+      :priority         => 0.45
+    })
+    sitemap.add( StoryGroup, {
+      :conditions       => [ 'story_count > ?',  4 ],
+      :path             => 'stories',
+      :change_frequency => 'daily',
+      :priority         => 0.40
+    })
     sitemap.generate
     if mode == :production
       sitemap.transfer_files
       sitemap.ping_search_engines
+    end
+  end
+  
+  private
+  
+  def story_group_names
+    @story_group_names ||= [ 'stories', 'k1_stories', 'k2_stories', 'k3_stories' ].reverse
+  end
+  
+  def story_group_keys
+    @story_group_keys ||= [ 0, 1, 2, 3 ].reverse
+  end
+  
+  def story_group_key
+    @story_group_key
+  end
+
+  def with_sitemap(name, options={})
+    options[:index] = name == 'index'
+    if name == "story_groups"
+      name = story_group_names.pop
+      @story_group_key = story_group_keys.pop
+    end
+    options[:filename] = "#{@file_path}/sitemap_#{name}"
+    options[:max_urls] = @options[:max_per_sitemap]
+
+    unless options[:gzip] = @options[:gzip]
+      options[:indent] = 2
+    end
+
+    sitemap = Builder.new(options)
+
+    begin
+      yield sitemap
+    ensure
+      sitemap.close!
+      @sitemap_files.concat sitemap.paths!
     end
   end
   
