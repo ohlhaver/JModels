@@ -26,4 +26,10 @@ class Thumbnail < ActiveRecord::Base
     self.save( false )
   end
   
+  def remove_image
+    return if storage_url.blank?
+    file = RAILS_ROOT + "/public" + image_path
+    FileUtils.rm_f( file )
+  end
+  
 end

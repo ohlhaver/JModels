@@ -79,6 +79,7 @@ end
 class ThumbnailSaver < BackgroundService
   
   def start( options = {} )
+    # Saver
     Story.find_each( :conditions => [ '( thumb_saved IS ? OR thumb_saved = ? ) AND created_at > ?', nil, false, 1.week.ago ], :include => [ :thumbnail ] ) do |story|
       response = false 
       thumbnail = story.thumbnail
@@ -91,6 +92,25 @@ class ThumbnailSaver < BackgroundService
         s.image_path_cache = thumbnail.image_path
       end
       break if parent && parent.respond_to?( :exit? ) && parent.send( :exit? )
+    end
+    # Sweeper
+    # while( true )
+    #   sthumbs = StoryThumbnail.find( :all, :select => 'story_thumbnails.*',
+    #     :joins => 'LEFT OUTER JOIN stories ON ( story_thumbnails.story_id = stories.id )',
+    #     :conditions => 'stories.id IS NULL', :limit => 1000 )
+    #   break if sthumbs.empty?
+    #   StoryThumbnail.delete( sthumbs.collect( &:id ) )
+    #   logger.info( 'StoryThumbnail Sweeped: ' + sthumbs.collect( &:id ).join(', ') )
+    # end
+    while( true )
+      thumbnails = Thumbnail.find( :all, :select => 'thumbnails.*', 
+        :joins => 'LEFT OUTER JOIN story_thumbnails ON (story_thumbnails.thumbnail_id = thumbnails.id)', 
+        :conditions => [ 'story_thumbnails.story_id IS NULL' ], :limit => 1000 )
+      break if thumbnails.empty?
+      thumb_ids = Array.new
+      thumbnails.each{ |thumb| thumb.remove_image; thumb_ids << thumb.id }
+      Thumbnail.delete( thumb_ids )
+      logger.info( 'Thumbnail Sweeped: ' + thumb_ids.join(', ') )
     end
   end
   
