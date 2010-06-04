@@ -1,5 +1,10 @@
 class StoryContent < ActiveRecord::Base
   
+  serialize_with_options( :short ) do
+    dasherize false
+    only :body
+  end
+  
   set_primary_key :story_id
   
   belongs_to :story

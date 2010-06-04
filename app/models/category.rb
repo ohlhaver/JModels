@@ -6,6 +6,11 @@ class Category < ActiveRecord::Base
     Map = { :top_stories_cluster_group => :Top, :default => :Default }
   end
   
+  serialize_with_options( :short ) do
+    dasherize false
+    only :id, :code
+  end
+  
   validates_presence_of   :id, :name, :code
   validates_uniqueness_of :code
   

@@ -8,13 +8,23 @@ class Story < ActiveRecord::Base
   serialize_with_options :short do
     dasherize false
     except :is_opinion, :is_video, :is_blog, :thumb_saved, :feed_id, :subscription_type, :thumbnail_exists, :created_at, :jcrawl_story_id, :delta, :quality_rating, :image_path_cache, 
-      :quality_ratings_generated
+      :quality_ratings_generated, :delete_at
   end
   
   serialize_with_options  do
     dasherize false
-    except :delta, :quality_rating, :jcrawl_story_id, :thumbnail_exists, :thumb_saved, :quality_ratings_generated, :author_quality_rating, :source_quality_rating, :image_path_cache
+    except :delta, :quality_rating, :jcrawl_story_id, :thumbnail_exists, :thumb_saved, :quality_ratings_generated, :author_quality_rating, :source_quality_rating, :image_path_cache, :delete_at
     map_include :authors => :authors_serialize, :source => :source_serialize, :cluster => :group_serialize, :image => :image_serialize
+  end
+  
+  serialize_with_options :archive do
+    dasherize false
+    except :delta, :quality_ratings_generated, :image_path_cache, :thumb_saved, :thumb_exists, :thumbnail_exists, :delete_at
+    map_include :authors => :authors_serialize,
+      :source => :source_serialize,
+      :story_content => :story_content_serialize, 
+      :story_metric => :story_metric_serialize,
+      :categories => :categories_serialize
   end
   
   belongs_to :source
@@ -228,6 +238,11 @@ class Story < ActiveRecord::Base
     story.score <=> self.score
   end
   
+  def update_delete_at_timestamp( timestamp = Time.now.utc )
+    self.delete_at = timestamp
+    self.send( :update_without_callbacks )
+  end
+  
   # SQL Expressions Used To Generate Dynamic Query to Include User Preferences
   class << self 
         
@@ -382,6 +397,14 @@ class Story < ActiveRecord::Base
     self.story_metric ||= StoryMetric.new
   end
   
+  def story_metric_serialize( options = {} )
+    self.story_metric.to_xml( :set => :short , :root => options[:root], :builder => options[:builder], :skip_instruct=>true )
+  end
+  
+  def story_content_serialize( options = {} )
+    self.story_content.to_xml( :set => :short , :root => options[:root], :builder => options[:builder], :skip_instruct=>true )
+  end
+  
   def authors_serialize( options = {} )
     ( self.authors_to_serialize || self.authors ).to_xml( :set => :short , :root => options[:root], :builder => options[:builder], :skip_instruct=>true )
   end
@@ -396,6 +419,10 @@ class Story < ActiveRecord::Base
   
   def image_serialize( options = {} )
     ( image_path_cache ? "http://cdn.jurnalo.com#{image_path_cache}" : nil ).to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct => true )
+  end
+  
+  def categories_serialize( options = {} )
+    self.feed.categories.to_xml( :set => :short, :root => options[:root], :builder => options[:builder], :skip_instruct => true )
   end
   
   # Based on list of current top authors

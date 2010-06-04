@@ -2,7 +2,7 @@ class Author < ActiveRecord::Base
   
   serialize_with_options do
     dasherize false
-    except :default_rating, :default_preference, :delta
+    except :default_rating, :default_preference, :delta, :block
   end
   
   serialize_with_options( :short ) do
