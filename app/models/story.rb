@@ -422,7 +422,7 @@ class Story < ActiveRecord::Base
   end
   
   def categories_serialize( options = {} )
-    self.feed.categories.to_xml( :set => :short, :root => options[:root], :builder => options[:builder], :skip_instruct => true )
+    (self.feed.try(:categories) || []).to_xml( :set => :short, :root => options[:root], :builder => options[:builder], :skip_instruct => true )
   end
   
   # Based on list of current top authors
