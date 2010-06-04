@@ -127,7 +127,7 @@ class StoryArchiver
   
   def initialize( options = {} )
     time = 1.month.ago
-    @time = "#{time.year}-#{time.month}-01 00:00:00".to_time
+    @time = "#{time.year}-#{time.month}-#{time.day} 00:00:00".to_time
     @options = options
     @options[:filename] ||= filename
     @mode = options.delete(:mode) || 'test'
@@ -137,6 +137,7 @@ class StoryArchiver
   
   attr_accessor :mode
   
+  # To be run every day
   def self.run( options = {} )
     options[:max_docs] ||= 100_000 # 100K approx size compressed size 80-120MB
     self.new( options ).run
@@ -145,6 +146,7 @@ class StoryArchiver
   def run
     files = []
     FileUtils.mkdir_p( File.dirname(filename) )
+    raise "Story Archive for the day already exists" if File.exist?( filename )
     archive = StoryArchiver::Builder.new( @options )
     begin
       archive_and_mark_for_delete( archive )
