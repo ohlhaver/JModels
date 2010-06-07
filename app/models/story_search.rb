@@ -110,7 +110,9 @@ class StorySearch
     if per_page > 0
       relevance = options.delete( :relevance )
       options[:set_select] = "*, #{relevance} AS relevance" if relevance
-      stories = Story.search( string, options.merge( :page => page, :per_page => per_page, :include => [ :source, :authors ] ) )
+      stories = Story.search( string, options.merge( :page => page, :per_page => per_page, :include => [ :source, :authors ],
+        :retry_count => 3, :retry_delay => 200 ) )
+      stories.delete_if{ |s| s.nil? }
       options.delete( :set_select ) if relevance
       options[:relevance] = relevance if relevance
       populate_cluster_info( stories )
@@ -196,7 +198,7 @@ class StorySearch
         story_groups.each{ |group| group.stories_to_serialize = [] }
       end
       story_group_map = story_groups.inject({}){ |map,grp| map[grp.id] = grp; map }
-      stories.each{ |story| story.group_to_serialize = story_group_map[ group_ids_map[ story.id ] ] }
+      stories.each{ |story| story.try(:group_to_serialize=,  story_group_map[ group_ids_map[ story.id ] ] ) }
     end
   end
   
