@@ -194,6 +194,8 @@ class Story < ActiveRecord::Base
     StoryAuthor.delete_all( { :story_id => self.id } )
     StoryThumbnail.delete_all( { :story_id => self.id } )
     StoryGroupMembership.delete_all( { :story_id => self.id } )
+    StorySubscription.delete_all( { :story_id => self.id } )
+    StoryUserQualityRating.delete_all( { :story_id => self.id } )
   end
   
   def self.insert_into_top_author_stories( story_id, subscription_count, active = false)

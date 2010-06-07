@@ -193,7 +193,7 @@ class StoryArchiver
     while( true )
       stories = Story.find( :all, :limit => 1000, :conditions => [ 'stories.delete_at < ?', Time.now.utc ] )
       break if stories.empty?
-      stories.each{ |story| story.destroy }
+      stories.each{ |story| story.delete_dependencies; story.delete }
     end
   end
   
