@@ -12,3 +12,12 @@ namespace :archive do
   end
   
 end
+
+namespace :purge do
+  
+  desc "Delete Data based on delete_at timestamp"
+  task :old_data => :environment do
+    $0 = 'story_purger'
+    StoryArchiver.new.purge!
+  end
+end

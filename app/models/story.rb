@@ -198,6 +198,18 @@ class Story < ActiveRecord::Base
     StoryUserQualityRating.delete_all( { :story_id => self.id } )
   end
   
+  def self.purge_without_sphinx_callbacks!( stories )
+    story_ids = stories.collect( &:id )
+    StoryMetric.delete_all( { :story_id => story_ids } )
+    StoryContent.delete_all( { :story_id => story_ids } )
+    StoryAuthor.delete_all( { :story_id => story_ids } )
+    StoryThumbnail.delete_all( { :story_id => story_ids } )
+    StoryGroupMembership.delete_all( { :story_id => story_ids } )
+    StorySubscription.delete_all( { :story_id => story_ids } )
+    StoryUserQualityRating.delete_all( { :story_id => story_ids } )
+    Story.delete_all( { :id => story_ids } )
+  end
+  
   def self.insert_into_top_author_stories( story_id, subscription_count, active = false)
     if active
       connection.execute( "INSERT INTO bg_top_author_stories (story_id, subscription_count, active ) VALUES ( #{story_id}, #{subscription_count}, #{connection.quoted_true})" )
