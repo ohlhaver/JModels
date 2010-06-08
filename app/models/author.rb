@@ -24,6 +24,23 @@ class Author < ActiveRecord::Base
   validates_uniqueness_of                     :name, :if => Proc.new{ |r| !r.skip_uniqueness_validation }
   validate_on_create :uniqueness_of_name_in_aliases, :if => Proc.new{ |r| !r.skip_uniqueness_validation }
   
+  # Used by batch programm
+  named_scope :should_be_blacklisted, lambda{
+    {
+      :select => 'authors.*',
+      :joins => 'INNER JOIN auto_blacklisted ON ( author_id = authors.id )'
+    }
+  }
+  
+  named_scope :should_not_be_blacklisted, lambda{
+    {
+      :select => 'authors.*',
+      :joins => 'LEFT OUTER JOIN auto_blacklisted ON ( author_id = authors.id )',
+      :conditions => [ 'auto_blacklisted.author_id IS NULL AND authors.auto_blacklisted = ?', true ]
+    }
+  }
+  
+  
   named_scope :with_subscription_count, lambda{ 
     { 
       :select => 'authors.*, COUNT(*) AS subscription_count',
@@ -110,18 +127,18 @@ class Author < ActiveRecord::Base
   end
   
   # Please use this operation to block an Author
-  def block!
+  def block!( auto_blacklist = false )
     StoryAuthor.update_all( 'block = 1', { :author_id => self.id } )
     AuthorSubscription.update_all( 'block = 1', { :author_id => self.id } )
-    self.update_attributes( :delta => true, :block => true )
+    self.update_attributes( :delta => true, :block => true, :auto_blacklisted => !!auto_blacklist )
     stories.find_each(:select => 'id, delta'){ |story| story.update_attribute( :delta, true ) }
   end
   
   # Please use this operation to unblock an Author
-  def unblock!
+  def unblock!( auto_blacklist = false )
     StoryAuthor.update_all( 'block = 0', { :author_id => self.id } )
     AuthorSubscription.update_all( 'block = 0', { :author_id => self.id } )
-    self.update_attributes( :delta => true, :block => false )
+    self.update_attributes( :delta => true, :block => false, :auto_blacklisted => !!auto_blacklist )
     stories.find_each(:select => 'id, delta'){ |story| story.update_attribute( :delta, true ) }
   end
   

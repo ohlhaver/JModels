@@ -29,4 +29,13 @@ namespace :authors do
     
   end
   
+  namespace :auto_blacklist do
+    
+    task :run => :environment do
+      $0 = 'author_blacklist_runner'
+      AuthorBlacklist.auto!
+    end
+    
+  end
+  
 end
