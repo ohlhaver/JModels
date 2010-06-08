@@ -78,7 +78,7 @@ class Author < ActiveRecord::Base
     alias_method_chain :destroy, :ts_bugfix
   end
   
-  after_create  :create_default_author_alias
+  after_create  :create_default_author_alias, :auto_block_if_blacklisted
   before_save   :set_delta_index_story, :if => Proc.new{ |r| !r.skip_delta_callbacks }
   after_save    :set_story_delta_flag,  :if => Proc.new{ |r| !r.skip_delta_callbacks }
   after_destroy :set_story_delta_flag,  :if => Proc.new{ |r| !r.skip_delta_callbacks }
@@ -226,6 +226,10 @@ class Author < ActiveRecord::Base
   def create_default_author_alias
     success = AuthorAlias.create!( :name => self.name, :author_id => self.id, :skip_uniqueness_validation => true ) rescue false
     self.destroy unless success
+  end
+  
+  def auto_block_if_blacklisted
+    AuthorBlacklist.blacklist!( self )
   end
   
   def uniqueness_of_name_in_aliases
