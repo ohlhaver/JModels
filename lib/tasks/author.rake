@@ -31,6 +31,7 @@ namespace :authors do
   
   namespace :auto_blacklist do
     
+    desc "Auto Blacklist Runner"
     task :run => :environment do
       $0 = 'author_blacklist_runner'
       AuthorBlacklist.auto!

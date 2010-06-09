@@ -11,7 +11,7 @@ class QualityRatingGeneration < BackgroundService
   protected
   
   def incremental
-    Story.find_each( :conditions => { :quality_ratings_generated => false }, :include => [ :authors, :source ] ) do |story|
+    Story.find( :all, :conditions => { :quality_ratings_generated => false }, :include => [ :authors, :source ], :limit => 500 ).each do |story|
       process_story( story )
       break if parent && parent.respond_to?( :exit? ) && parent.send( :exit? )
     end

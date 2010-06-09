@@ -35,7 +35,7 @@ class CandidateGeneration < BackgroundService
   protected
   
   def sync_recent_stories( time )
-    
+    maximum = 2000 # 2K stories in one go.
     last_story_found_at = db.select_value('SELECT MAX(created_at) FROM candidate_stories').try(:to_time)
     
     if last_story_found_at.nil? || last_story_found_at < 24.hours.ago( time )
@@ -60,6 +60,7 @@ class CandidateGeneration < BackgroundService
       #break if exit?
       db.transaction do
         story_batch.each do |story|
+          maximum += -1
           @story_titles[ story.id ] = story.title
           # storing title hash for duplicate deletion within a source
           story.send(:write_attribute, :title_hash, story.title.hash )
@@ -72,6 +73,7 @@ class CandidateGeneration < BackgroundService
       
       @story_titles.clear
       @story_languages.clear
+      break unless maximum > 0
     end
     
     clear_cache!
