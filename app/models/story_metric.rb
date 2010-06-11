@@ -27,6 +27,7 @@ class StoryMetric < ActiveRecord::Base
   end
   
   def set_story_delta_flag
+    return if story.nil?
     story.update_attribute( :delta, true ) if frozen? || @delta_index_story
   end
   

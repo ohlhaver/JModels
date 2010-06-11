@@ -11,4 +11,9 @@ class Feed < ActiveRecord::Base
   validates_inclusion_of   :is_opinion, :in => [true,false]
   validates_inclusion_of   :is_blog, :in => [true,false]
   validates_inclusion_of   :is_video, :in => [true,false]
+  
+  def category_id
+    categories.collect( &:id ).min
+  end
+  
 end

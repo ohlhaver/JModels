@@ -11,12 +11,14 @@ class StoryTitle < ActiveRecord::Base
   end
   
   def self.create_from_story( story )
-    new do |t| 
+    s = new do |t| 
       t.story_id = story.id
       t.source_id = story.source_id
       t.title = story.title
       t.wip = 0
-    end.save
+    end
+    s.save
+    return s
   end
   
   protected

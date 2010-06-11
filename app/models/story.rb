@@ -122,8 +122,8 @@ class Story < ActiveRecord::Base
   end
   
   define_index do
-    # We need to index last month's stories for search
-    where 'stories.created_at >= DATE_SUB( UTC_TIMESTAMP(), INTERVAL 1 MONTH )'
+    # We need to index last month's stories for search and which are processed by duplicate checker
+    where 'duplicate_checked = 1 AND stories.created_at >= DATE_SUB( UTC_TIMESTAMP(), INTERVAL 1 MONTH )'
     indexes :title, :as => :title, :sortable => true
     indexes story_content(:body), :as => :content
     indexes story_authors.author(:name), :as => :authors
