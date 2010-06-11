@@ -1,7 +1,7 @@
 class QualityRating < BackgroundRunnerPool
   
   def initialize( options = {} )
-    options.reverse_merge!( :pause_between_iterations => 5.seconds )
+    options.reverse_merge!( :pause_between_iterations => 1.seconds )
     super( options )
     
     if options[:test]

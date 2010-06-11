@@ -19,9 +19,9 @@ class Clustering < BackgroundRunnerPool
         CandidateGeneration.new( :logger => self.logger ).run( :with_session => true, :start => { :time => t } )
       end
     
-      add_runner( 'Duplicate Deletion Within Source', :run_once ) do
-        DuplicateDeletion.new( :logger => self.logger ).run( :with_session => true )
-      end
+      #add_runner( 'Duplicate Deletion Within Source', :run_once ) do
+      #  DuplicateDeletion.new( :logger => self.logger ).run( :with_session => true )
+      #end
     
       add_runner( 'Story Groups Generation', :run_once ) do
         GroupGeneration.new( :logger => self.logger ).run( :with_session => true )
@@ -46,9 +46,9 @@ class Clustering < BackgroundRunnerPool
         CandidateGeneration.new( :logger => self.logger, :parent => self ).run( :with_session => true )
       end
     
-      add_runner( 'Duplicate Deletion Within Source', :run_once ) do
-        DuplicateDeletion.new( :logger => self.logger, :parent => self ).run( :with_session => true )
-      end
+      #add_runner( 'Duplicate Deletion Within Source', :run_once ) do
+      #  DuplicateDeletion.new( :logger => self.logger, :parent => self ).run( :with_session => true )
+      #end
     
       add_runner( 'Story Groups Generation', :run_once ) do
         GroupGeneration.new( :logger => self.logger, :parent => self ).run( :with_session => true )

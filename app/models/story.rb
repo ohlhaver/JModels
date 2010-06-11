@@ -7,19 +7,20 @@ class Story < ActiveRecord::Base
   
   serialize_with_options :short do
     dasherize false
-    except :is_opinion, :is_video, :is_blog, :thumb_saved, :feed_id, :subscription_type, :thumbnail_exists, :created_at, :jcrawl_story_id, :delta, :quality_rating, :image_path_cache, 
-      :quality_ratings_generated, :delete_at
+    except :is_opinion, :is_video, :is_blog, :thumb_saved, :feed_id, :subscription_type, :thumbnail_exists, :created_at, :jcrawl_story_id, :delta, :quality_rating, 
+      :image_path_cache, :quality_ratings_generated, :delete_at, :duplicate_checked
   end
   
   serialize_with_options  do
     dasherize false
-    except :delta, :quality_rating, :jcrawl_story_id, :thumbnail_exists, :thumb_saved, :quality_ratings_generated, :author_quality_rating, :source_quality_rating, :image_path_cache, :delete_at
+    except :delta, :quality_rating, :jcrawl_story_id, :thumbnail_exists, :thumb_saved, :quality_ratings_generated, :author_quality_rating, 
+      :source_quality_rating, :image_path_cache, :delete_at, :duplicate_checked
     map_include :authors => :authors_serialize, :source => :source_serialize, :cluster => :group_serialize, :image => :image_serialize
   end
   
   serialize_with_options :archive do
     dasherize false
-    except :delta, :quality_ratings_generated, :image_path_cache, :thumb_saved, :thumb_exists, :thumbnail_exists, :delete_at
+    except :delta, :quality_ratings_generated, :image_path_cache, :thumb_saved, :thumb_exists, :thumbnail_exists, :delete_at, :duplicate_checked
     map_include :authors => :authors_serialize,
       :source => :source_serialize,
       :story_content => :story_content_serialize, 
@@ -196,6 +197,7 @@ class Story < ActiveRecord::Base
     StoryGroupMembership.delete_all( { :story_id => self.id } )
     StorySubscription.delete_all( { :story_id => self.id } )
     StoryUserQualityRating.delete_all( { :story_id => self.id } )
+    StoryTitle.delete_all( { :story_id => self.id } )
   end
   
   def self.purge_without_sphinx_callbacks!( stories )
@@ -207,6 +209,7 @@ class Story < ActiveRecord::Base
     StoryGroupMembership.delete_all( { :story_id => story_ids } )
     StorySubscription.delete_all( { :story_id => story_ids } )
     StoryUserQualityRating.delete_all( { :story_id => story_ids } )
+    StoryTitle.delete_all( { :story_id => self.id } )
     Story.delete_all( { :id => story_ids } )
   end
   

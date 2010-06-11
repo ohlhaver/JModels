@@ -15,13 +15,11 @@ class StoryGroupMembership < ActiveRecord::Base
   
   belongs_to :story
   belongs_to :story_group, :class_name => 'StoryGroup', :foreign_key => :group_id
-  
-  #after_create  :set_story_delta_flag
-  #after_destroy :set_story_delta_flag
+  before_create :check_for_story
   
   protected
-    
-  #def set_story_delta_flag
-  #  story.update_attribute( :delta, true ) if frozen?
-  #end
+  
+  def check_for_story
+    Story.exists?( self.story_id )
+  end
 end

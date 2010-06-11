@@ -2,104 +2,86 @@
 class DuplicateDeletion < BackgroundService
   
   def start( options = {} )
+    prepare_for_duplicate_deletion
     delete_duplicates_within_source( options )
     mark_duplicates_across_source( options )
+    finalize_duplicate_deletion
   end
   
   def finalize( options = {} )
+    Story.update_all( { :duplicate_checked => true }, { :id => @checked_story_ids, :duplicate_checked => false } )
+    StoryTitle.update( {:wip => 0 }, { :wip => 1 } )
+    @checked_story_ids.clear
   end
   
   protected
   
+  def prepare_for_duplicate_deletion
+    @checked_story_ids = []
+    stories = Story.find(:all, :select => 'id, title, source_id', :conditions => { :duplicate_checked => false }, :limit => 1000)
+    stories.each do |story|
+      story_title = StoryTitle.create_from_story( story )
+      StoryTitle.update_all( { :wip => 1 }, { :wip => 0, :title => story_title.title } )
+    end
+    stories.clear
+  end
+  
   def mark_duplicates_across_source( options )
-    @duplicates_found = 0
-    duplicate_titles = db.select_values( 'SELECT GROUP_CONCAT(id) FROM candidate_stories WHERE master_id IS NULL GROUP BY title_hash ASC HAVING COUNT(*) > 1' )
-    duplicate_titles.each do |story_ids|
-      break if exit?
-      # if two strings are same there hash value will be same but not vice versa
-      # therefore title hash match do have false positives
-      # select stories and group them by titles
-      duplicate_stories = master_db.select_all( 'SELECT id, title FROM stories WHERE id IN (' + story_ids + ') ORDER BY created_at ASC').group_by{ |story| story['title'] }
-      duplicate_stories.each do | title, stories |
-        next if stories.size < 2
-        mark_duplicates( stories.collect{ |x| x['id'] } )
-        stories.clear
-      end
-      duplicate_stories.clear
+    duplicate_titles = StoryTitle.find(:all, :select => 'GROUP_CONCAT( story_id ) AS story_ids', :conditions => { :wip => true }, 
+        :group => 'title', :having => 'COUNT(*) > 1')
+    count = 0
+    duplicate_titles.each do |duplicate_title|
+      story_ids = duplicate_title.send( :read_attribute, :story_ids ).split(',')
+      count += mark_duplicates( story_ids )
     end
     duplicate_titles.clear
-    logger.info( 'Duplicates Marked: ' + @duplicates_found.to_s )
+    logger.info( 'Duplicates Marked: ' + count.to_s )
   end
   
   def mark_duplicates( story_ids )
-    master_id = story_ids.shift
-    master_story_metric = StoryMetric.find( :first, :conditions => { :story_id => master_id } )
-    if master_story_metric.try(:master_id)
-      story_ids.unshift( master_id )
-      master_id = master_story_metric.master_id
-      story_ids.delete( master_id )
-    end
-    db.execute( "UPDATE candidate_stories 
-      SET master_id = #{master_id} WHERE id IN ( #{story_ids.join(',')} )" )
+    mark_checked( story_ids )
+    story_ids.collect!( &:to_i )
+    master_story = Story.find(:first, :select => 'id', :conditions => { :id => story_ids }, :order => 'created_at ASC', :include => :story_metric )
+    master_id = master_story.story_metric.try(:master_id) ? master_story_metric.master_id : master_story.id
+    story_ids.delete( master_id )
     story_ids.each do |story_id|
       StoryMetric.create_or_update( :story_id => story_id, :master_id => master_id )
-      @duplicates_found += 1
     end
+    story_ids.size
   end
   
   def delete_duplicates_within_source( options )
-    @duplicates_found = 0
-    duplicate_titles = db.select_values( 'SELECT GROUP_CONCAT(id) FROM candidate_stories GROUP BY title_hash, source_id HAVING COUNT(*) > 1' )
-    duplicate_titles.each do |story_ids|
-      break if exit?
-      # if two strings are same there hash value will be same but not vice versa
-      # therefore title hash match do have false positives
-      # select stories and group them by titles
-      duplicate_stories = master_db.select_all( 'SELECT id, title FROM stories WHERE id IN (' + story_ids + ')').group_by{ |story| story['title'] }
-      duplicate_stories.each do | title, stories |
-        next if stories.size < 2
-        remove_duplicate_titles_from( stories.collect{ |x| x['id'] } )
-        stories.clear
-      end
-      duplicate_stories.clear
+    stories_to_purge = []
+    duplicate_titles = StoryTitle.find(:all, :select => 'GROUP_CONCAT( story_id ) AS story_ids', :conditions => { :wip => true }, 
+      :group => 'source_id, title', :having => 'COUNT(*) > 1')
+    duplicate_titles.each do |duplicate_title|
+      story_ids = duplicate_title.send( :read_attribute, :story_ids ).split(',')
+      remove_duplicate_titles_from( story_ids ).inject( stories_to_purge ){ |s,x| s.push(x) }
     end
-    duplicate_titles.clear
-    logger.info( 'Duplicates Deleted: ' + @duplicates_found.to_s )
+    Story.purge_without_sphinx_callbacks!( stories_to_purge )
+    logger.info( 'Duplicates Deleted: ' + stories_to_purge.size.to_s )
+    stories_to_purge.clear
   end
   
   def remove_duplicate_titles_from( story_ids )
-    stories = ( Story.find( story_ids ) rescue [] )
+    stories = ( Story.find( :all, :select => 'id, category_id, is_blog, is_video, is_opinion', :conditions => { story_ids }, :order => 'created_at ASC' ) rescue [] )
     return if stories.blank?
-    master_story_id = db.select_value( 'SELECT id FROM candidate_stories WHERE id IN (' + db.quote_and_merge( *story_ids ) + 
-        ') AND category_id IS NOT NULL ORDER BY category_id LIMIT 1' )
-    master_story = nil
-    stories.delete_if{ |story| 
-      if story.id == master_story_id.to_i then master_story = story; true
-      else false end
-    } if master_story_id
-    master_story ||= stories.pop
-    master_story.is_blog = stories.inject( master_story.is_blog ){ |s,x| s = s || x.is_blog }
-    master_story.is_video = stories.inject( master_story.is_video ){ |s,x| s = s || x.is_video }
-    master_story.is_opinion = stories.inject( master_story.is_opinion ){ |s,x| s = s || x.is_opinion }
-    master_story.story_metric.update_attributes( :master_id => nil ) if master_story.story_metric
-    master_story.save if master_story.changed?
-    delete_stories_from_background_db(  *( stories.collect{ |x| x.id } ) )
-    db.execute( 'UPDATE candidate_stories SET is_blog = ' + db.quote( master_story.is_blog ) + ', is_video = ' + db.quote( master_story.is_video ) +
-      ', is_opinion = ' + db.quote( master_story.is_opinion ) + ' WHERE id = ' + db.quote( master_story.id ) )
-    stories.each{ |story| story.destroy }
-    @duplicates_found += stories.size
-    stories.clear
-    #logger.info( 'Deleted Duplicate Story: ' + stories.collect{ |x| x.id }.to_s )
+    master_story = stories.pop
+    master_story.category_id = stories.inject( master_story.category_id ){ |s,x| x = x.category_id; x && s ? ( x > s ? s : x ) : (x || s) } if master_story.category_id.nil?
+    master_story.is_blog = stories.inject( master_story.is_blog ){ |s,x| s = s || x.is_blog } unless master_story.is_blog?
+    master_story.is_video = stories.inject( master_story.is_video ){ |s,x| s = s || x.is_video } unless master_story.is_video?
+    master_story.is_opinion = stories.inject( master_story.is_opinion ){ |s,x| s = s || x.is_opinion } unless master_story.is_opinion?
+    mark_checked( master_story.id )
+    if master_story.changed?
+      master_story.save
+      db.execute( 'UPDATE candidate_stories SET is_blog = ' + db.quote( master_story.is_blog ) + ', is_video = ' + db.quote( master_story.is_video ) +
+        ', is_opinion = ' + db.quote( master_story.is_opinion ) + ' WHERE id = ' + db.quote( master_story.id ) )
+    end
+    stories
   end
   
-  def delete_stories_from_background_db( *story_ids )
-    quoted_story_ids = db.quote_and_merge( *story_ids )
-    db.execute( 'DELETE FROM candidate_similarities WHERE story1_id IN (' + quoted_story_ids + ')' )
-    db.execute( 'DELETE FROM candidate_similarities WHERE story2_id IN (' + quoted_story_ids + ')' )
-    db.execute( 'DELETE FROM candidate_group_similarities WHERE story1_id IN (' + quoted_story_ids + ')' )
-    db.execute( 'DELETE FROM candidate_group_similarities WHERE story2_id IN (' + quoted_story_ids + ')' )
-    db.execute( 'DELETE FROM keyword_subscriptions WHERE story_id IN (' + quoted_story_ids + ')' )
-    db.execute( 'DELETE FROM candidate_stories WHERE id IN (' + quoted_story_ids + ')' )
+  def mark_checked( story_ids_or_array )
+    Array( story_ids_or_array ).inject( @checked_story_ids ){ |s,x| s.push( x ) }
   end
   
 end
