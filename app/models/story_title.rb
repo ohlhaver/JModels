@@ -17,7 +17,7 @@ class StoryTitle < ActiveRecord::Base
         story_ids.clear
       end
     end
-    Story.update_all( { :duplicate_checked => true}, { :id => story_ids } ) unless story_ids.blank?
+    Story.update_all( { :duplicate_checked => true }, { :id => story_ids } ) unless story_ids.blank?
   end
   
   def self.create_from_story( story )
@@ -29,6 +29,11 @@ class StoryTitle < ActiveRecord::Base
     end
     s.save
     return s
+  end
+  
+  # Keep the story_titles records for last 5.days for the duplicates
+  def self.purge!
+    connection.execute( "DELETE FROM story_titles WHERE story_id IN ( SELECT id FROM stories WHERE created_at >= '#{5.days.ago.to_s(:db)}')" )
   end
   
   protected

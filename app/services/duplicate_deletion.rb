@@ -55,7 +55,6 @@ class DuplicateDeletion < BackgroundService
       :group => 'source_id, title', :having => 'COUNT(*) > 1')
     duplicate_titles.each do |duplicate_title|
       story_ids = duplicate_title.send( :read_attribute, :story_ids ).split(',')
-      pp story_ids
       remove_duplicate_titles_from( story_ids ).inject( stories_to_purge ){ |s,x| s.push(x) }
     end
     Story.purge_without_sphinx_callbacks!( stories_to_purge )
@@ -84,7 +83,6 @@ class DuplicateDeletion < BackgroundService
       db.execute( 'UPDATE candidate_stories SET is_blog = ' + db.quote( master_story.is_blog ) + ', is_video = ' + db.quote( master_story.is_video ) +
         ', is_opinion = ' + db.quote( master_story.is_opinion ) + ', category_id = ' + db.quote( category_id ) + ' WHERE id = ' + db.quote( master_story.id ) )
     end
-    pp stories
     stories
   end
   
