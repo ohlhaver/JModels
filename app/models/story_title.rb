@@ -6,8 +6,18 @@ class StoryTitle < ActiveRecord::Base
   before_create :normalize_title
   
   def self.bootstrap!
-    Story.update_all( { :duplicate_checked => true }, [ 'created_at < ?', 24.hours.ago ] )
-    Story.find_each( :select => 'id, source_id, title', :conditions => { :duplicate_checked => true } ){ |story| create_from_story( story ) }
+    story_ids = Array.new
+    Story.find_each( :select => 'id, source_id, title', 
+      :conditions => ['duplicate_checked = ? AND created_at < ?', false, 24.hours.ago ] ) do |story| 
+      create_from_story( story )
+      story_ids << story.id
+      unless story_ids.size < 1000
+        Story.update_all( { :duplicate_checked => true}, { :id => story_ids } )
+        logger.info( "Story Title Bootstrap: 1000 stories pushed. [#{Time.now.utc.to_s(:db)}]")
+        story_ids.clear
+      end
+    end
+    Story.update_all( { :duplicate_checked => true}, { :id => story_ids } ) unless story_ids.blank?
   end
   
   def self.create_from_story( story )
