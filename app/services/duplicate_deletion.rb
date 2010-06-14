@@ -68,7 +68,7 @@ class DuplicateDeletion < BackgroundService
   end
   
   def remove_duplicate_titles_from( story_ids )
-    stories = Story.find( :all, :select => 'id, feed_id, is_blog, is_video, is_opinion', :conditions => { :id => story_ids }, :order => 'created_at DESC', :include => { :feed => :categories } )
+    stories = Story.find( :all, :select => 'id, feed_id, is_blog, is_video, is_opinion, subscription_type', :conditions => { :id => story_ids }, :order => 'created_at DESC', :include => { :feed => :categories } )
     return stories if stories.blank?
     master_story = stories.pop
     category_id = master_story.feed.try( :category_id )
