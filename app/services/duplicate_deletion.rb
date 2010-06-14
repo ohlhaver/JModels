@@ -19,7 +19,11 @@ class DuplicateDeletion < BackgroundService
     @checked_story_ids = []
     stories = Story.find(:all, :select => 'id, title, source_id', :conditions => { :duplicate_checked => false }, :limit => 1000)
     stories.each do |story|
-      story_title = StoryTitle.create_from_story( story )
+      begin
+        story_title = StoryTitle.create_from_story( story )
+      rescue StandardError
+        mark_checked( story.id )
+      end
       StoryTitle.update_all( { :wip => 1 }, { :wip => 0, :title => story_title.title } )
     end
     stories.clear
