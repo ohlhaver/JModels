@@ -44,10 +44,7 @@ class DuplicateDeletion < BackgroundService
     master_story = Story.find(:first, :select => 'id', :conditions => { :id => story_ids }, :order => 'created_at ASC', :include => :story_metric )
     master_id = master_story.story_metric.try(:master_id) ? master_story.story_metric.master_id : master_story.id
     story_ids.delete( master_id )
-    story_ids.each do |story_id|
-      StoryMetric.create_or_update( :story_id => story_id, :master_id => master_id )
-    end
-    story_ids.size
+    story_ids.any? ? StoryMetric.mark_duplicates!( story_ids, master_id ) : 0
   end
   
   def delete_duplicates_within_source( options )

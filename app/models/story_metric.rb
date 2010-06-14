@@ -17,6 +17,24 @@ class StoryMetric < ActiveRecord::Base
     metric.save ? metric : nil
   end
   
+  def self.mark_duplicates!( story_ids, master_id )
+    story_ids.collect!( &:to_i )
+    metrics = StoryMetric.find( :all, :conditions => { :story_id => story_ids } )
+    metrics_map = metrics.inject({}){ |s,x| s[x.story_id] = x; s }
+    metrics.clear
+    count = 0
+    story_ids.each do |s_id|
+      if metrics_map[ s_id ].nil?
+        metric = ( StoryMetric.create( :story_id => s_id, :master_id => master_id ) rescue nil )
+        count += 1 if metric
+      elsif metrics_map[ s_id ].master_id != master_id
+        metrics_map[ s_id ].master_id = master_id
+        metrics_map[ s_id ].save
+      end
+    end
+    return count
+  end
+  
   def set_delta_index_story
     @delta_index_story = master_id_changed?
     return true
