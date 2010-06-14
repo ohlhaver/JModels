@@ -8,7 +8,7 @@ class DuplicateDeletion < BackgroundService
   end
   
   def finalize( options = {} )
-    logger.info( "Checked Stories: #{@checked_story_ids.join(',')}\n")
+    #logger.info( "Checked Stories: #{@checked_story_ids.join(',')}\n")
     Story.update_all( { :duplicate_checked => true }, { :id => @checked_story_ids, :duplicate_checked => false } )
     StoryTitle.update_all( {:wip => 0 }, { :wip => 1 } )
     @checked_story_ids.clear
@@ -20,13 +20,9 @@ class DuplicateDeletion < BackgroundService
     @checked_story_ids = []
     stories = Story.find(:all, :select => 'id, title, source_id', :conditions => { :duplicate_checked => false }, :limit => 1000)
     stories.each do |story|
-      begin
-        story_title = StoryTitle.create_from_story( story )
-      rescue StandardError
-        mark_checked( story.id )
-      else
-        StoryTitle.update_all( { :wip => 1 }, { :wip => 0, :title => story_title.title } )
-      end
+      story_title = ( StoryTitle.create_from_story( story ) rescue nil )
+      StoryTitle.update_all( { :wip => 1 }, { :wip => 0, :title => story_title.title } ) if story_title
+      mark_checked( story.id )
     end
     stories.clear
   end
@@ -44,7 +40,6 @@ class DuplicateDeletion < BackgroundService
   end
   
   def mark_duplicates( story_ids )
-    mark_checked( story_ids )
     story_ids.collect!( &:to_i )
     master_story = Story.find(:first, :select => 'id', :conditions => { :id => story_ids }, :order => 'created_at ASC', :include => :story_metric )
     master_id = master_story.story_metric.try(:master_id) ? master_story.story_metric.master_id : master_story.id
@@ -83,7 +78,6 @@ class DuplicateDeletion < BackgroundService
     master_story.is_blog = stories.inject( master_story.is_blog ){ |s,x| s = s || x.is_blog } unless master_story.is_blog?
     master_story.is_video = stories.inject( master_story.is_video ){ |s,x| s = s || x.is_video } unless master_story.is_video?
     master_story.is_opinion = stories.inject( master_story.is_opinion ){ |s,x| s = s || x.is_opinion } unless master_story.is_opinion?
-    mark_checked( master_story.id )
     if master_story.changed?
       master_story.save
       db.execute( 'UPDATE candidate_stories SET is_blog = ' + db.quote( master_story.is_blog ) + ', is_video = ' + db.quote( master_story.is_video ) +
