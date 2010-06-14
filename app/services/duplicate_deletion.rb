@@ -8,6 +8,7 @@ class DuplicateDeletion < BackgroundService
   end
   
   def finalize( options = {} )
+    logger.info( "Checked Stories: #{@checked_story_ids.join(',')}\n")
     Story.update_all( { :duplicate_checked => true }, { :id => @checked_story_ids, :duplicate_checked => false } )
     StoryTitle.update_all( {:wip => 0 }, { :wip => 1 } )
     @checked_story_ids.clear
