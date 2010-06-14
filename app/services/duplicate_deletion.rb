@@ -23,8 +23,9 @@ class DuplicateDeletion < BackgroundService
         story_title = StoryTitle.create_from_story( story )
       rescue StandardError
         mark_checked( story.id )
+      else
+        StoryTitle.update_all( { :wip => 1 }, { :wip => 0, :title => story_title.title } )
       end
-      StoryTitle.update_all( { :wip => 1 }, { :wip => 0, :title => story_title.title } )
     end
     stories.clear
   end
