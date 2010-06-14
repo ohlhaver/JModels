@@ -128,18 +128,37 @@ class Author < ActiveRecord::Base
   
   # Please use this operation to block an Author
   def block!( auto_blacklist = false )
+    batch_process( "SELECT story_id FROM story_authors WHERE author_id = '#{self.id}' AND block = 0" ) do |ids|
+      Story.update_all( 'delta = 1', [ 'id IN (?) AND created_at > ?', ids, 1.month.ago ] )
+    end
     StoryAuthor.update_all( 'block = 1', { :author_id => self.id } )
     AuthorSubscription.update_all( 'block = 1', { :author_id => self.id } )
     self.update_attributes( :delta => true, :block => true, :auto_blacklisted => !!auto_blacklist )
-    stories.find_each(:select => 'id, delta'){ |story| story.update_attribute( :delta, true ) }
+    Story.index_delta
   end
   
   # Please use this operation to unblock an Author
   def unblock!( auto_blacklist = false )
+    batch_process( "SELECT story_id FROM story_authors WHERE author_id = '#{self.id}' AND block = 1" ) do |ids|
+      Story.update_all( 'delta = 1', [ 'id IN (?) AND created_at > ?', ids, 1.month.ago ] )
+    end
     StoryAuthor.update_all( 'block = 0', { :author_id => self.id } )
     AuthorSubscription.update_all( 'block = 0', { :author_id => self.id } )
     self.update_attributes( :delta => true, :block => false, :auto_blacklisted => !!auto_blacklist )
-    stories.find_each(:select => 'id, delta'){ |story| story.update_attribute( :delta, true ) }
+    #stories.find_each(:select => 'id, delta'){ |story| story.update_attribute( :delta, true ) }
+    Story.update_all( 'delta = 1',  "id IN ( SELECT story_id FROM story_authors WHERE author_id = '#{self.id}')" )
+    Stort.index_delta
+  end
+  
+  def batch_process( statement, &block )
+    offset = 0
+    while (true)
+      values = connection.select_values( "#{statement} LIMIT 1001 OFFSET #{offset}")
+      values.pop
+      break if values.empty?
+      offset += values.size
+      block.call( values )
+    end
   end
   
   #
