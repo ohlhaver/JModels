@@ -13,7 +13,7 @@ class StoryTitle < ActiveRecord::Base
       story_ids << story.id
       unless story_ids.size < 1000
         Story.update_all( { :duplicate_checked => true}, { :id => story_ids } )
-        logger.info( "Story Title Bootstrap: 1000 stories pushed. [#{Time.now.utc.to_s(:db)}]")
+        logger.info( "Story Title Bootstrap: 1000 stories pushed.\n")
         story_ids.clear
       end
     end

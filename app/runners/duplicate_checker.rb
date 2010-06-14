@@ -6,7 +6,12 @@ class DuplicateChecker < BackgroundRunnerPool
     options.reverse_merge!( :pause_between_iterations => 1.seconds )
     super( options )
     
-    if options[:test]
+    if options[:bootstrap]
+      add_runner( 'Duplicate Bootstrap!',  :run_once ) do
+        bm = Benchmark.measure{  StoryTitle.bootstrap! }
+        self.logger.info( "Background Service Benchmark: Bootstrap:\n" + Benchmark::Tms::CAPTION + bm.to_s )
+      end
+    elsif options[:test]
       add_runner( 'Duplicate Table Trimmer',  :run_once ) do
         bm = Benchmark.measure{  StoryTitle.purge! }
         self.logger.info( "Background Service Benchmark: Duplicate Table Trimmer:\n" + Benchmark::Tms::CAPTION + bm.to_s )

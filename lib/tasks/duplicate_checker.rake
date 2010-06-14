@@ -42,4 +42,10 @@ namespace :duplicate_checker do
     duplicate_checker.start
   end
   
+  desc "Bootstrap Duplicate Checker"
+  task :bootstrap => :environment do
+    duplicate_checker = DuplicateChecker.new( :bootstrap => true, :logfile => STDOUT )
+    duplicate_checker.start
+  end
+  
 end
