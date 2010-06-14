@@ -9,7 +9,7 @@ class StoryTitle < ActiveRecord::Base
     story_ids = Array.new
     Story.find_each( :select => 'id, source_id, title', 
       :conditions => ['duplicate_checked = ? AND created_at < ?', false, 24.hours.ago ] ) do |story| 
-      create_from_story( story )
+      create_from_story( story ) rescue nil
       story_ids << story.id
       unless story_ids.size < 1000
         Story.update_all( { :duplicate_checked => true}, { :id => story_ids } )
@@ -33,7 +33,7 @@ class StoryTitle < ActiveRecord::Base
   
   # Keep the story_titles records for last 5.days for the duplicates
   def self.purge!
-    connection.execute( "DELETE FROM story_titles WHERE story_id IN ( SELECT id FROM stories WHERE created_at >= '#{5.days.ago.to_s(:db)}')" )
+    connection.execute( "DELETE FROM story_titles WHERE story_id NOT IN ( SELECT id FROM stories WHERE created_at > '#{5.days.ago.to_s(:db)}')" )
   end
   
   protected
