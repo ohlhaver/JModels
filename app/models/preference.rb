@@ -236,7 +236,7 @@ class Preference < ActiveRecord::Base
     
   end
   
-  belongs_to :owner, :polymorphic => true
+  belongs_to :owner, :polymorphic => true, :touch => true
   before_save :save_search_language_ids, :save_wizards
   before_create :create_homepage_box_prefs, :create_top_section_prefs, :create_wizard_prefs
   

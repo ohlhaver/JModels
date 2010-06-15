@@ -9,7 +9,7 @@ class TopicSubscription < ActiveRecord::Base
     map :advanced => :advance?
   end
   
-  belongs_to :owner, :polymorphic => true, :counter_cache => :topic_count
+  belongs_to :owner, :polymorphic => true, :counter_cache => :topic_count, :touch => true
   
   acts_as_list :scope => :owner
   

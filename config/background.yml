@@ -19,6 +19,15 @@ development:
   password: 
   host: localhost
   reconnect: true
+  
+cached:
+  adapter: mysql
+  encoding: utf8
+  database: background_db
+  user: root
+  password: 
+  host: localhost
+  reconnect: true
 
 production:
     adapter: mysql

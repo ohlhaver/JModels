@@ -17,7 +17,7 @@ class MultiValuedPreference < ActiveRecord::Base
     PreferenceOptions = { :search_languages => 1, :homepage_clusters => 2, :homepage_boxes => 3, :top_stories_cluster_group => 4, :wizards => 5 }
   end
   
-  belongs_to :owner, :polymorphic => true
+  belongs_to :owner, :polymorphic => true, :touch => true
   belongs_to :cluster_group, :foreign_key => :value
   
   acts_as_list :scope => [ :owner, :preference_id, :tag ]
