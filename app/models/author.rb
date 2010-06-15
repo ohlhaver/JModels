@@ -145,9 +145,7 @@ class Author < ActiveRecord::Base
     StoryAuthor.update_all( 'block = 0', { :author_id => self.id } )
     AuthorSubscription.update_all( 'block = 0', { :author_id => self.id } )
     self.update_attributes( :delta => true, :block => false, :auto_blacklisted => !!auto_blacklist )
-    #stories.find_each(:select => 'id, delta'){ |story| story.update_attribute( :delta, true ) }
-    Story.update_all( 'delta = 1',  "id IN ( SELECT story_id FROM story_authors WHERE author_id = '#{self.id}')" )
-    Stort.index_delta
+    Story.index_delta
   end
   
   def batch_process( statement, &block )
