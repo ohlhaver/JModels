@@ -36,9 +36,8 @@ class AuthorBlacklist < ActiveRecord::Base
       else
         connection.execute( "DELETE FROM auto_blacklisted WHERE author_id IN ( 
           SELECT authors.id 
-          FROM `authors`, `author_blacklists` 
-          WHERE (( authors.name NOT REGEXP author_blacklists.keyword ) AND authors.auto_blacklisted = 1)
-        )" )
+          FROM `authors` LEFT OUTER JOIN `author_blacklists` ON ( authors.name REGEXP author_blacklists.keyword AND authors.auto_blacklisted = 1)
+          WHERE authors.auto_blacklisted = 1 AND author_blacklists.keyword IS NULL)" )
       end
       Author.should_not_be_blacklisted.find_each do |author|
         author.unblock! #auto_blacklist column is set to false
