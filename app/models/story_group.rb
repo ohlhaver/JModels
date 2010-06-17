@@ -76,10 +76,11 @@ class StoryGroup < ActiveRecord::Base
     options = args.extract_options!
     cluster_group_id = args.first || 'NULL'
     user = options.delete(:user)
+    top_cluster_ids = Array( options.delete(:top_cluster_ids) || 'NULL' ).join(',')
     { 
       :select => %Q( story_groups.*, cgm.broadness_score AS broadness_score, cgm.cluster_group_id ),
       :joins => %Q( INNER JOIN cluster_group_memberships AS cgm ON ( cgm.story_group_id = story_groups.id AND cgm.active = #{connection.quoted_true} 
-        AND cgm.cluster_group_id = #{ args.first } ) ),
+        AND cgm.cluster_group_id = #{ args.first } AND story_groups.id NOT IN ( #{top_cluster_ids} ) ) ),
       :conditions => [ :video, :opinion, :blog ].collect{ |x| vob_sql_value_for( 'story_groups', x, user ) }.select{ |x| !x.nil? }.join( ' AND ' ),
       :order => 'cgm.rank ASC'
     }
