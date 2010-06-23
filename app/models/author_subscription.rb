@@ -8,7 +8,7 @@ class AuthorSubscription < ActiveRecord::Base
   
   attr_accessor :created_or_updated
   
-  belongs_to :owner, :polymorphic => true, :counter_cache => :author_count
+  belongs_to :owner, :polymorphic => true, :counter_cache => :author_count, :touch => true
   belongs_to :author
   
   validates_presence_of :author_id
