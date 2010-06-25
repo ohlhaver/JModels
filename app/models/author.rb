@@ -83,6 +83,9 @@ class Author < ActiveRecord::Base
   after_save    :set_story_delta_flag,  :if => Proc.new{ |r| !r.skip_delta_callbacks }
   after_destroy :set_story_delta_flag,  :if => Proc.new{ |r| !r.skip_delta_callbacks }
   
+  def stories_paginate( *args )
+    self.story_authors.paginate( *args ).collect!( &:story )
+  end
   #
   # Methods check whether the author name exists in our database. It also refers AuthorAlias table
   # If it exists then it returns the author object otherwise initialize a new author object 
