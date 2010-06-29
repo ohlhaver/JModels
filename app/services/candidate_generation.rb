@@ -51,14 +51,15 @@ class CandidateGeneration < BackgroundService
       
     column_names = attributes.join(', ')
     new_stories_count = 0
-      
+    
     Story.find_in_batches( :select => attributes_to_select, :joins => 'LEFT OUTER JOIN feed_categories ON ( feed_categories.feed_id = stories.feed_id ) 
         LEFT OUTER JOIN story_metrics ON ( story_metrics.story_id = stories.id ) LEFT OUTER JOIN languages ON ( languages.id = stories.language_id)', 
-      :conditions => [ 'created_at >= ? AND quality_ratings_generated = ?', last_story_found_at, true ], :group => 'stories.id' ) do |story_batch|
+      :conditions => [ 'created_at >= ? AND duplicate_checked = ?', last_story_found_at, true ], :group => 'stories.id' ) do |story_batch|
       
       #break if exit?
       db.transaction do
         story_batch.each do |story|
+          next unless story.send( :read_attribute, :master_id ).nil?
           @story_titles[ story.id ] = story.title
           # storing title hash for duplicate deletion within a source
           story.send(:write_attribute, :title_hash, story.title.hash )
@@ -71,7 +72,7 @@ class CandidateGeneration < BackgroundService
       
       @story_titles.clear
       @story_languages.clear
-      break if new_stories_count >= 2000
+      break if new_stories_count >= 5000
     end
     
     clear_cache!
