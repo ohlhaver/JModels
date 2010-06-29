@@ -1,6 +1,6 @@
 class AccountStatusPoint < ActiveRecord::Base
   
-  belongs_to :user
+  belongs_to :user, :touch => true
   
   def plan_id_variant
     read_attribute(:plan_id) 
