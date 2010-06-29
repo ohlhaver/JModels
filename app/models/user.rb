@@ -68,6 +68,10 @@ class User < ActiveRecord::Base
     plan_id == 1
   end
   
+  def renew?
+    !power_plan? && ( account_status_points.count || 0 ) > 0
+  end
+  
   def alert_monitor?
     false # This will be true for Business Users
   end
