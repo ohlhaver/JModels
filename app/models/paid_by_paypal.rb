@@ -69,6 +69,7 @@ class PaidByPaypal < ActiveRecord::Base
     br = BillingRecord.create( :plan_id => self.item_id.to_i, :amount => self.amount, :user => self.user, :currency => self.currency, :checksum_salt => self.transaction_id )
     raise 'Billing Record could not be generated' if br.new_record?
     br.duration = self.plan_name.to_i.months
+    br.event_time = self.starts_at if !self.starts_at.blank?
     br.payment_authorized! # First do the authorization
     br.payment_confirmed! # Upgrades the User
     self.update_attribute( :starts_at, br.event_time )
