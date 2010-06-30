@@ -101,9 +101,9 @@ class Preference < ActiveRecord::Base
   
     SortValues = [
       { :name => 'prefs.sort.relevance',          :code => :relevance,            :id => 0 },
-      { :name => 'prefs.sort.cluster.relevance',  :code => :relevance_clustered,  :id => 1 },
-      { :name => 'prefs.sort.time',               :code => :time,                 :id => 2 },
-      { :name => 'prefs.sort.cluster.time',       :code => :time_clustered,       :id => 3 }
+     # { :name => 'prefs.sort.cluster.relevance',  :code => :relevance_clustered,  :id => 1 },
+      { :name => 'prefs.sort.time',               :code => :time,                 :id => 2 } #,
+     # { :name => 'prefs.sort.cluster.time',       :code => :time_clustered,       :id => 3 }
     ]
   
     TimeRangeValues = [
