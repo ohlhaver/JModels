@@ -13,6 +13,8 @@ class TopicSubscription < ActiveRecord::Base
   
   acts_as_list :scope => :owner
   
+  after_create :move_to_top
+  
   #redefining scope condition # bugfix for the acts_as_list plugin
   def scope_condition
     self.class.send( :sanitize_sql_hash_for_conditions, { :owner_type => owner_type, :owner_id => owner_id } )
