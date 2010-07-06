@@ -9,7 +9,9 @@ class AuthorBlacklist < ActiveRecord::Base
   
   # On new author creation
   def self.blacklist!( author )
-    author.block!( :auto_blacklist ) if blacklist?( author )
+    return unless blacklist?( author )
+    connection.execute( "INSERT IGNORE INTO auto_blacklisted( author_id ) VALUE ( #{author.id} )" )
+    author.block!( :auto_blacklist )
   end
   
   # The blacklisted authors are stored in auto_blacklisted table
