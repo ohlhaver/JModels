@@ -59,7 +59,7 @@ class TopicSubscription < ActiveRecord::Base
   end
   
   def advance?
-    ( !search_all.blank? || !search_exact_phrase.blank? || !search_except.blank? || sort_criteria || time_span || 
+    ( !search_any.blank? || !search_exact_phrase.blank? || !search_except.blank? || sort_criteria || time_span || 
       category_id || region_id || author_id || source_id || blog || video || opinion || subscription_type )
   end
   
@@ -86,7 +86,7 @@ class TopicSubscription < ActiveRecord::Base
   end
   
   def populate_default_name
-    self.name = self.search_any if self.name.blank?
+    self.name = self.search_all if self.name.blank?
     return true
   end
   
