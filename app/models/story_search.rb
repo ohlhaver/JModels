@@ -175,6 +175,7 @@ class StorySearch
     add_filter( :source_id )
     add_subscription_type
     add_language_ids
+    add_skip_story_ids
     @facet_options = { :with => self.options[:with].dup, 
       :without => self.options[:without].dup, 
       :match_mode => :extended, 
@@ -308,6 +309,14 @@ class StorySearch
     language_ids = ( language_ids.blank? ? nil : Integer( language_ids ) rescue nil )
     language_ids ||= user.try( :preference ).try( :search_language_ids ) || Preference.default_language_id_for_region_id( column_eval( :region_id ) || -1 )
     options[:with].merge!( :language_id => language_ids )
+  end
+  
+  def add_skip_story_ids
+    skip_story_ids = column_eval( :skip_story_ids )
+    skip_story_ids = skip_story_ids.split(',') if skip_story_ids.is_a?( String )
+    unless skip_story_ids.blank?
+      options[:without].merge!( :story_id => skip_story_ids )
+    end
   end
   
   def set_vob_pref( attr_name, attr_value )
