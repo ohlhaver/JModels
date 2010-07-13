@@ -314,8 +314,9 @@ class StorySearch
   def add_skip_story_ids
     skip_story_ids = column_eval( :skip_story_ids )
     skip_story_ids = skip_story_ids.split(',') if skip_story_ids.is_a?( String )
+    skip_story_ids = [] unless skip_story_ids.is_a?( Array )
     unless skip_story_ids.blank?
-      options[:without].merge!( :story_id => skip_story_ids )
+      options[:without].merge!( :story_id => skip_story_ids.collect( &:to_i ) )
     end
   end
   
