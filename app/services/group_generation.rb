@@ -503,6 +503,12 @@ class GroupGeneration < BackgroundService
       INNER JOIN candidate_group_stories ON ( candidate_group_stories.group_id = candidate_groups.id AND candidate_group_stories.master_id IS NULL)
       GROUP BY candidate_groups.id HAVING source_count > 1 AND story_count > 1' )
     
+    @broadness_scores = db.select_all( 
+      'SELECT candidate_groups.id AS id, COUNT(*) AS story_count, COUNT(DISTINCT source_id) AS source_count
+       FROM candidate_groups LEFT OUTER JOIN candidate_group_stories ON ( candidate_group_stories.group_id = candidate_groups.id AND candidate_group_stories.master_id IS NULL)
+       WHERE candidate_group_stories.created_at >' + db.quote( 12.hours.ago ) + 'GROUP BY candidate_groups.id HAVING story_count > 1' 
+    ).inject({}){ |s,x| s[ x['id'] ] = x['source_count'].to_i + x['story_count'].to_i/100.00; s }
+    
     # Fetch all stories and group them by group_id
     @group_stories = db.select_all( 'SELECT group_id, story_id, thumbnail_exists, source_id, created_at, quality_rating, blub_score, master_id, rank 
       FROM candidate_group_stories ORDER BY group_id, blub_score' ).group_by{ |x| x['group_id'].to_i }
@@ -533,7 +539,7 @@ class GroupGeneration < BackgroundService
           group.bj_session_id = @session.id
           
           # Setting the broadness score
-          group.broadness_score = group.source_count + group.story_count / 100.00
+          group.broadness_score = @broadness_scores[ group.pilot_story_id.to_s ] || 0.0
           
           # Setting up group memberships
           db_true_value = db.quoted_true.gsub('\'', '')

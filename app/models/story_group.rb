@@ -115,8 +115,9 @@ class StoryGroup < ActiveRecord::Base
   # Should be called by Background Process
   #
   def self.find_each_for_cluster_group( cluster_group, &block)
-     source_ids = cluster_group.perspective.source_ids
-     find_each( {
+    source_ids = cluster_group.perspective.source_ids
+    with_scope( :find => { :conditions => [ 'sgm.created_at > ? ', 12.hours.ago ] } ) do
+      find_each( {
         :select => 'story_groups.*, COUNT( DISTINCT source_id ) + ( COUNT( * ) / 100 ) AS broadness_score',
         :joins => 'LEFT OUTER JOIN story_group_memberships AS sgm ON ( sgm.group_id = story_groups.id)',
         :conditions  => { :sgm => { :source_id => source_ids }, 
@@ -125,6 +126,7 @@ class StoryGroup < ActiveRecord::Base
         },
         :group => 'story_groups.id'
       }, &block )
+    end
   end
   
   def self.thumbs_hash_map( story_group_ids, user = nil )
