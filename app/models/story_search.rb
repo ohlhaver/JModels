@@ -272,7 +272,7 @@ class StorySearch
   end
   
   def relevance
-    order = "@weight * (100/POW( 1 + IF( NOW() < created_at, 0, NOW() - created_at ), 0.33 ) ) * quality_rating" # sphinx_score * age * quality_rating
+    order = "@weight * (100/POW( 1 + IF( NOW() < created_at, 0, ( ( NOW() - created_at )/3600 ) ), 0.33 )) * quality_rating" # sphinx_score * age * quality_rating
     if @user && ( @user.author_subscriptions.count > 0 || @user.source_subscriptions.count > 0 )
       "#{order} * 
         IF( IN( source_high_user_ids, #{@user.id} ), IF( default_author_rating < 0, 3/quality_rating, (3 + default_author_rating)/(2*quality_rating) ), 1 ) *
