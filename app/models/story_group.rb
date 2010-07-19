@@ -24,6 +24,7 @@ class StoryGroup < ActiveRecord::Base
   serialize :top_keywords
   
   belongs_to :language
+  belongs_to :category
   
   has_many :memberships, :class_name => 'StoryGroupMembership', :foreign_key => 'group_id', :dependent => :delete_all
   
@@ -230,6 +231,11 @@ class StoryGroup < ActiveRecord::Base
       ).inject([]){ |s,group| group.split(',')[ 0, options[:limit] ].inject(s){ |ss, ii| ss.push(ii.to_i) } }
     end
     
+  end
+  
+  # This used when generating Cluster Perspectives which are displayed on the web
+  def adjusted_broadness_score
+    ( Category::Weights[ self.category.try( :code ) || "MIX" ] || 1 )*( self.broadness_score || 0.0 )
   end
   
   protected

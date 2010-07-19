@@ -530,6 +530,7 @@ class GroupGeneration < BackgroundService
           
           # Getting the top category id
           group.category_id = Category.top_category_id( category_ids )
+          group.category = Category.code( 'MIX' ).first if group.category_id.blank?
           
           # Getting the top 3 keywords
           group.top_keywords = top_keywords #JCore::Keyword.words( @pilot_stories[ group.pilot_story_id ].first[ 'body' ], top_keywords )
@@ -606,7 +607,7 @@ class GroupGeneration < BackgroundService
     ClusterGroup.find_each do |cluster_group|
       ClusterGroupMembership.update_all( 'flagged=true', { :cluster_group_id => cluster_group.id } )
       StoryGroup.by_session( @session ).find_each_for_cluster_group( cluster_group ) do |story_group|
-        cluster_group.memberships.create(  :flagged => false, :active => false, :story_group_id => story_group.id, :broadness_score => story_group.broadness_score )
+        cluster_group.memberships.create(  :flagged => false, :active => false, :story_group_id => story_group.id, :broadness_score => story_group.adjusted_broadness_score )
       end
       rank = 1
       offset = 0

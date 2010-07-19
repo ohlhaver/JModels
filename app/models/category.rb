@@ -2,14 +2,17 @@ class Category < ActiveRecord::Base
   
   unless defined?( Default )
     Default = [ "POL", "BUS", "SPO", "TEC", "SCI", "CUL", "MIX", "OPI" ]
-    Top = [ "POL", "BUS", "CUL", "SCI", "TEC", "OPI" ]
+    Top = [ "POL", "BUS", "CUL", "SCI", "TEC", "OPI", "MIX", "SPO" ]
     Map = { :top_stories_cluster_group => :Top, :default => :Default }
+    Weights = { "MIX" => 0.5, "SPO" => 0.333 }
   end
   
   serialize_with_options( :short ) do
     dasherize false
     only :id, :code
   end
+  
+  named_scope :code, lambda{ |code| { :conditions => { :code => code } } }
   
   validates_presence_of   :id, :name, :code
   validates_uniqueness_of :code
@@ -37,7 +40,6 @@ class Category < ActiveRecord::Base
     constant_name = Category::Map[ filter.try( :to_sym ) ]
     self.const_get( constant_name ).collect{ |code| map[ code ] }.select{ |category| !category.nil? }
   end
-  
   
   def self.top_category_id( category_ids )
     return nil if category_ids.blank?
