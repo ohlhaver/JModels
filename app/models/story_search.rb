@@ -175,13 +175,13 @@ class StorySearch
     add_filter( :source_id )
     add_subscription_type
     add_language_ids
-    add_skip_story_ids
     @facet_options = { :with => self.options[:with].dup, 
       :without => self.options[:without].dup, 
       :match_mode => :extended, 
       :facets => [:is_opinion, :is_blog, :is_video] 
     }
     @facet_options.merge!( :group_function => options[:group_function], :group_by => options[:group_by] ) if options[:group_by]
+    add_skip_story_ids
     add_blog_pref
     add_video_pref
     add_opinion_pref
