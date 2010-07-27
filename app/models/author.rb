@@ -2,7 +2,13 @@ class Author < ActiveRecord::Base
   
   serialize_with_options do
     dasherize false
-    except :default_rating, :default_preference, :delta, :block
+    except :default_rating, :default_preference, :delta, :block, :sitemap, :auto_blacklisted
+  end
+  
+  serialize_with_options( :user_preference ) do
+    dasherize false
+    except :default_rating, :default_preference, :delta, :block, :sitemap, :auto_blacklisted
+    map_include :average_user_preference => :average_user_preference_serialize, :user_preference_count => :user_preference_count_serialize
   end
   
   serialize_with_options( :short ) do
@@ -12,6 +18,9 @@ class Author < ActiveRecord::Base
   
   attr_accessor :skip_uniqueness_validation
   attr_accessor :skip_delta_callbacks
+  
+  attr_accessor :average_user_preference
+  attr_accessor :user_preference_count
   
   has_one   :priority_author, :dependent => :delete
   has_many  :story_authors, :dependent => :delete_all
@@ -109,6 +118,14 @@ class Author < ActiveRecord::Base
     end
     authors.uniq!
     return authors
+  end
+  
+  def set_user_preference_metrics
+    subscription = AuthorSubscription.preferences.first( :select => 'AVG( preference ) as average_user_preference, COUNT( preference ) as user_preference_count',
+      :conditions => { :author_id => self.id }, :group => 'author_id' )
+    return unless subscription
+    self.average_user_preference = subscription.send( :read_attribute, 'average_user_preference' ).try( :to_f )
+    self.user_preference_count = subscription.send( :read_attribute, 'user_preference_count' ).try( :to_i )
   end
   
   #
@@ -223,6 +240,14 @@ class Author < ActiveRecord::Base
   end
   
   protected
+  
+  def average_user_preference_serialize( options = {} )
+    self.average_user_preference.to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct=>true )
+  end
+  
+  def user_preference_count_serialize( options = {} )
+    self.user_preference_count.to_xml( :root => options[:root], :builder => options[:builder], :skip_instruct=>true )
+  end
   
   def merge_author( author )
     return unless author.is_a?( Author )
