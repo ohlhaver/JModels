@@ -19,7 +19,7 @@ class AuthorSubscription < ActiveRecord::Base
   after_save :destroy_record_if_blank
   after_create :turn_off_wizard
   
-  #please update the vendor plugin and User#max_pref_limit, User#cur_pref_count , User#out_of_limit? if you want to uncomment this
+  #please update the vendor plugin, User has_many :author_subscriptions and User#max_pref_limit, User#cur_pref_count , User#out_of_limit? if you want to uncomment this
   #activate_user_account_restrictions :user => :owner, :association => :author_subscriptions
   
   named_scope :subscribed, lambda{ { :conditions => { :subscribed => true } } }

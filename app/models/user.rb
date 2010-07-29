@@ -7,8 +7,8 @@ class User < ActiveRecord::Base
   has_many :paid_by_paypals, :dependent => :delete_all
   has_one :preference, :as => :owner, :dependent => :delete
   
-  has_many :author_subscriptions, :as => :owner, :conditions => { :block => false }, :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
-  has_many :source_subscriptions, :as => :owner, :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
+  has_many :author_subscriptions, :as => :owner, :conditions => { :block => false }#, :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
+  has_many :source_subscriptions, :as => :owner#, :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
   has_many :topic_subscriptions, :as => :owner, :order => 'position ASC', :extend => ActiveRecord::UserAccountRestriction::AssociationMethods
   
   has_many :story_subscriptions, :as => :owner, :dependent => :delete_all

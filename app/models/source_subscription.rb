@@ -12,7 +12,7 @@ class SourceSubscription < ActiveRecord::Base
   validates_presence_of :source_id
   validates_uniqueness_of :category_id, :scope => [ :owner_type, :owner_id, :source_id ]
   
-  #please update the vendor plugin and User#max_pref_limit, User#cur_pref_count , User#out_of_limit? if you want to uncomment this
+  #please update the vendor plugin, User has_many :source_subscriptions and User#max_pref_limit, User#cur_pref_count , User#out_of_limit? if you want to uncomment this
   #activate_user_account_restrictions :user => :owner, :association => :source_subscriptions
   
   after_save :destroy_record_if_blank
