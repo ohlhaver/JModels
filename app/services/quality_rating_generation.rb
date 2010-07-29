@@ -47,11 +47,11 @@ class QualityRatingGeneration < BackgroundService
     end
     
     unless story.quality_ratings_generated?
-      story.author_quality_rating = ( author_quality_ratings_count < 10 ?  nil : ( author_quality_ratings_sum.to_f / author_quality_ratings_count ) )
+      story.author_quality_rating = ( author_quality_ratings_count < 1 ?  nil : ( author_quality_ratings_sum.to_f / author_quality_ratings_count ) )
     end
     
-    source_quality_ratings_sum = 0
-    source_quality_ratings_count = 0
+    source_quality_ratings_sum = story.source.try(:default_preference) || 0
+    source_quality_ratings_count = story.source.try(:default_preference) ? 1 : 0
     SourceSubscription.find_each( 
       :conditions => { :source_id => story.source_id, :category_id => nil, :owner_type => 'User' }, 
       :without_account_restriction => true 
@@ -75,7 +75,7 @@ class QualityRatingGeneration < BackgroundService
     
     # These are generated once when used in incremental format
     unless story.quality_ratings_generated?
-      story.source_quality_rating = ( source_quality_ratings_count < 10 ?  story.source.try(:default_preference) : ( source_quality_ratings_sum.to_f / source_quality_ratings_count ) )
+      story.source_quality_rating = ( source_quality_ratings_count < 1 ?  nil : ( source_quality_ratings_sum.to_f / source_quality_ratings_count ) )
       story.quality_rating = story.author_quality_rating || story.source_quality_rating || 1
       story.quality_ratings_generated ||= true
       delete_useless_records( story )
