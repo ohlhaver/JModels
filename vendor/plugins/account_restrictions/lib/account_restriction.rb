@@ -63,8 +63,8 @@ module ActiveRecord
         user = options.delete(:user) || scope(:find, :user)
         skip_account_restriction = options.delete(:without_account_restriction) || scope( :find, :without_account_restriction)
         if user && !user.power_plan? && !skip_account_restriction
-          user_prefs_count = user.topic_count + user.source_count + user.author_count
-          if user_prefs_count > 5
+          user_prefs_count = user.topic_count #+ user.source_count + user.author_count
+          if user_prefs_count > 3
             max_limit = user.max_pref_limit
             options.merge!( :limit => max_limit )
           end
@@ -81,8 +81,8 @@ module ActiveRecord
         args.push( options )
         count = count_without_account_restriction( *args )
         if user && !user.power_plan? && !skip_account_restriction
-          user_prefs_count = user.topic_count + user.source_count + user.author_count
-          if user_prefs_count > 5
+          user_prefs_count = user.topic_count #+ user.source_count + user.author_count
+          if user_prefs_count > 3
             max_limit = user.max_pref_limit
             count = max_limit if count > max_limit
           end
@@ -96,8 +96,8 @@ module ActiveRecord
       def validate_account_restrictions
         account_user = self.send( self.class.user_account_restrictions[:user] )
         association = self.class.user_account_restrictions[:association]
-        user_prefs_count = account_user.topic_count + account_user.source_count + account_user.author_count
-        errors.add( :account, :restricted ) if account_user.nil? || ( !account_user.power_plan? && user_prefs_count >= 5 )
+        user_prefs_count = account_user.topic_count #+ account_user.source_count + account_user.author_count
+        errors.add( :account, :restricted ) if account_user.nil? || ( !account_user.power_plan? && user_prefs_count >= 3 )
       end
       
       protected( :validate_account_restrictions )

@@ -187,27 +187,30 @@ class User < ActiveRecord::Base
   # It tries the heuristic approach to give either a 5 or 6 prefs to the users
   # who once where power users and have no. of prefs greater than the normal limit
   def max_pref_limit
-    zeros, ones = 0, 0
-    [ :topic_count, :source_count, :author_count ].each do |method|
-      cnt = self.send( method )
-      zeros += 1 if cnt == 0
-      ones += 1 if cnt == 1
-    end
-    case ( zeros ) when 1 :
-      ones == 1 ? 4 : 3
-    when 2, 3:
-      5
-    when 0 :
-      ones == 2 ? 3 : 2
-    end
+    # zeros, ones = 0, 0
+    # [ :topic_count, :source_count, :author_count ].each do |method|
+    #   cnt = self.send( method )
+    #   zeros += 1 if cnt == 0
+    #   ones += 1 if cnt == 1
+    # end
+    # case ( zeros ) when 1 :
+    #   ones == 1 ? 4 : 3
+    # when 2, 3:
+    #   5
+    # when 0 :
+    #   ones == 2 ? 3 : 2
+    # end
+    
+    #for now only topics are something which are paid
+    3
   end
   
   def cur_pref_count
-    author_count + topic_count + source_count
+    topic_count #+ author_count + source_count
   end
   
   def out_of_limit?
-    !power_plan? && (cur_pref_count >= 5) ? true : false
+    !power_plan? && (cur_pref_count >= 3) ? true : false
   end
   
   def has_fb_proxy_email?
