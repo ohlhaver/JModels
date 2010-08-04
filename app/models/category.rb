@@ -4,7 +4,7 @@ class Category < ActiveRecord::Base
     Default = [ "POL", "BUS", "SPO", "TEC", "SCI", "CUL", "MIX", "OPI" ]
     Top = [ "POL", "BUS", "CUL", "SCI", "TEC", "OPI", "MIX", "SPO" ]
     Map = { :top_stories_cluster_group => :Top, :default => :Default }
-    Weights = { "MIX" => 0.5, "SPO" => 0.333 }
+    Weights = { "MIX" => { 'de' => 0.5 } , "SPO" => 0.333 }
   end
   
   serialize_with_options( :short ) do

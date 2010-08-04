@@ -125,7 +125,8 @@ class StoryGroup < ActiveRecord::Base
           :category_id => cluster_group.category_id, 
           :language_id => cluster_group.language_id 
         },
-        :group => 'story_groups.id'
+        :group => 'story_groups.id',
+        :include => :language
       }, &block )
     end
   end
@@ -235,7 +236,9 @@ class StoryGroup < ActiveRecord::Base
   
   # This used when generating Cluster Perspectives which are displayed on the web
   def adjusted_broadness_score
-    ( Category::Weights[ self.category.try( :code ) || "MIX" ] || 1 )*( self.broadness_score || 0.0 )
+    category_weight = Category::Weights[ self.category.try( :code ) || "MIX" ]
+    category_weight = category_weight[ self.language.try(:code) ] if category_weight.is_a?( Hash )
+    ( category_weight || 1 )*( self.broadness_score || 0.0 )
   end
   
   protected
