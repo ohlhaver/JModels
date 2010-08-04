@@ -126,7 +126,7 @@ class StoryGroup < ActiveRecord::Base
           :language_id => cluster_group.language_id 
         },
         :group => 'story_groups.id',
-        :include => :language
+        :include => [ :language, :category ]
       }, &block )
     end
   end
