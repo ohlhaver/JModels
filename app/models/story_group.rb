@@ -93,14 +93,17 @@ class StoryGroup < ActiveRecord::Base
     options.delete_if{ |k,v| v.blank? }
     user = options.delete(:user)
     if user
-      category_ids = MultiValuedPreference.owner( user ).preference( :top_stories_cluster_group ).all( :select => 'value' ).collect( &:value )
+      #category_ids = MultiValuedPreference.owner( user ).preference( :top_stories_cluster_group ).all( :select => 'value' ).collect( &:value )
       options.reverse_merge!( :region_id => user.preference.region_id, :language_id => user.preference.default_language_id )
     else
-      category_ids = Preference.select_all( :top_stories_cluster_group ).collect{ |s| s[:id] }
+      #category_ids = Preference.select_all( :top_stories_cluster_group ).collect{ |s| s[:id] }
       options.reverse_merge!( :region_id => Preference.default_region_id, :language_id => Preference.default_language_id )
     end
+    # cluster_ids = ClusterGroup.region( options[:region_id] ).language( options[:language_id] ).all( :select => 'id', 
+    #   :conditions => { :public => true, :category_id => category_ids } 
+    # ).collect( &:id )
     cluster_ids = ClusterGroup.region( options[:region_id] ).language( options[:language_id] ).all( :select => 'id', 
-      :conditions => { :public => true, :category_id => category_ids } 
+      :conditions => { :public => true } 
     ).collect( &:id )
     cluster_ids.push( 'NULL' ) if cluster_ids.blank?
     { 
