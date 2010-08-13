@@ -46,10 +46,16 @@ class Category < ActiveRecord::Base
     groups = category_ids.group_by{ |x| x }
     groups.each_pair{ |k,v| groups[k] = v.size }
     unique_category_ids = groups.keys.sort_by{ |x| -groups[x] }
-    top_count = groups[ unique_category_ids.first ]
-    top_category_ids = unique_category_ids.select{ |x| groups[x] == top_count }
-    return top_category_ids.first if top_category_ids.size < 2
+    candidate_category_ids = main_category_ids( unique_category_ids )
+    return nil if candidate_category_ids.empty?
+    top_count = groups[ candidate_category_ids.first ]
+    top_category_ids = candidate_category_ids.select{ |x| groups[x] == top_count }
     return prefered_category_id( top_category_ids )
+  end
+  
+  def self.main_category_ids( category_ids )
+    hash_map = find(:all, :conditions => { :id => category_ids }).inject({}){ |s,x| s[x.id] = x; s }
+    category_ids.select{ |cid| Category::Default.include?( hash_map[cid.to_i].try(:code) ) }
   end
   
   def self.prefered_category_id( category_ids )
