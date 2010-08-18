@@ -380,11 +380,11 @@ class StorySearch
   end
   
   def per_cluster_group
-    Integer( column_eval( :per_cluster_group ) || @user.try(:preference).try( :headlines_per_cluster_group ) || 2 ) rescue 2
+    Integer( column_eval( :per_cluster_group ) || @user.try(:preference).try( :headlines_per_cluster_group ) || Preference::DefaultValues[ :headlines_per_cluster_group ] ) rescue Preference::DefaultValues[ :headlines_per_cluster_group ]
   end
   
   def per_cluster
-    Integer( column_eval( :per_cluster ) || @user.try(:preference).try( :cluster_preview ) || 3 ) rescue 3
+    Integer( column_eval( :per_cluster ) || @user.try(:preference).try( :cluster_preview ) || Preference::DefaultValues[ :cluster_preview ] ) rescue Preference::DefaultValues[ :cluster_preview ]
   end
   
 end
