@@ -163,7 +163,7 @@ class Preference < ActiveRecord::Base
       :opinion => 2,
       :topic_email => 0,
       :author_email => 2,
-      :cluster_preview => 3,
+      :cluster_preview => 1,
       :headlines_per_cluster_group => 2,
       :subscription_type => 0,
       :per_page => 10,
