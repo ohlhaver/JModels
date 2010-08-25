@@ -107,6 +107,10 @@ class Story < ActiveRecord::Base
       :order => 'tas.subscription_count DESC, stories.created_at DESC' }
   }
   
+  named_scope :skip_ids, lambda{ |a|
+    { :conditions => [ 'stories.id NOT IN (?)', a ] }
+  }
+  
   # particular story
   def duplicates( *args )
     master_id = story_metric ? story_metric.master_id : id
