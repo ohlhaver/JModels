@@ -108,7 +108,7 @@ class Story < ActiveRecord::Base
   }
   
   named_scope :skip_ids, lambda{ |a|
-    { :conditions => [ 'stories.id NOT IN (?)', a ] }
+    Array(a).empty?  ? {} : { :conditions => [ 'stories.id NOT IN (?)', Array(a) ] }
   }
   
   # particular story
