@@ -1,3 +1,5 @@
+$test = true
+
 DelayedWorkerPatch = Proc.new{
   attr_accessor :last_block_return_value
   def start_with_block( &block )
@@ -5,11 +7,14 @@ DelayedWorkerPatch = Proc.new{
     trap('TERM') { say 'Exiting...'; $exit = true }
     trap('INT')  { say 'Exiting...'; $exit = true }
     loop do
-      result = nil
-      realtime = Benchmark.realtime do
-        result = Delayed::Job.work_off
+      count = 0
+      unless $test
+        result = nil
+        realtime = Benchmark.realtime do
+          result = Delayed::Job.work_off
+        end
+        count = result.sum
       end
-      count = result.sum
       if count.zero?
         self.last_block_return_value = block.call( self.last_block_return_value ) if block
         break if $exit
@@ -28,8 +33,8 @@ UpdateSearchdIndices = Proc.new{ |sync_main_index_flag|
   puts "Syncing New Indices ..."
   dir = ThinkingSphinx::Configuration.instance.searchd_file_path
   glob_suffix = sync_main_index_flag ? "/*.new.*" : "/*_delta.new.*"
-  remote_servers = YAML.load( Rails.root.to_s + "/config/searchd_servers.yml" )[ Rails.env ]
-  Dir.glob[dir + glob_suffix ] do |source_file|
+  remote_servers = YAML.load( File.read( Rails.root.to_s + "/config/searchd_servers.yml" ) )[ Rails.env ]
+  Dir.glob[ dir + glob_suffix ].each do |source_file|
     dest_file = source_file
     remote_servers.each{ |server| sh "scp #{source_file} #{server}:#{dest_file}" }
     sh "mv -f #{source_file} #{source.file.gsub( '.new.', '.' )}"
@@ -66,15 +71,15 @@ namespace :ts do
   namespace :ci do
     
     desc "Start Thinking Sphinx Central Indexing Service"
-    task :start => :app_env do
+    task :start => :environment do
       fork do
         $0 = 'ts_ci_runner'
         Process.setsid
         Dir.chdir File.join( File.dirname(__FILE__), '..' )
-        PidFile.store(  Rails.root + '../../shared', '/log/ts_ci_runner.pid' ), Process.pid )
+        PidFile.store(  File.join( Rails.root + '/../../shared', '/log/ts_ci_runner.pid' ), Process.pid )
         File.umask 0000
         STDIN.reopen "/dev/null"
-        STDOUT.reopen File.join( Rails.root + '../../shared', '/log/ts_ci_runner.log' ), "a"
+        STDOUT.reopen File.join( Rails.root + '/../../shared', '/log/ts_ci_runner.log' ), "a"
         STDERR.reopen STDOUT
         require 'delayed_job'
         Delayed::Worker.class_eval( DelayedWorkerPatch )
@@ -89,9 +94,9 @@ namespace :ts do
     end
     
     desc "Stop Thinking Sphinx Central Indexing Service"
-    task :stop => :app_env do
+    task :stop => :environment do
       $0 = 'ts_ci_stopper'
-      pid_file = File.join( Rails.root + '../../shared', '/log/ts_ci_runner.pid' )
+      pid_file = File.join( Rails.root + '/../../shared', '/log/ts_ci_runner.pid' )
       pid = PidFile.recall( pid_file )
       FileUtils.rm( pid_file ) rescue nil
       pid && Process.kill( "TERM", pid )
