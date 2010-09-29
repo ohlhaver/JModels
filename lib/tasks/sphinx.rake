@@ -1,6 +1,5 @@
 $test = true
-
-DelayedWorkerPatch = Proc.new{
+module DelayedWorkerPatch
   attr_accessor :last_block_return_value
   def start_with_block( &block )
     say "*** Starting job worker #{Delayed::Job.worker_name}"
@@ -18,7 +17,7 @@ DelayedWorkerPatch = Proc.new{
       if count.zero?
         self.last_block_return_value = block.call( self.last_block_return_value ) if block
         break if $exit
-        sleep(SLEEP)
+        sleep(Delayed::Worker::SLEEP)
       else
         say "#{count} jobs processed at %.4f j/s, %d failed ..." % [count / realtime, result.last]
       end
@@ -27,23 +26,28 @@ DelayedWorkerPatch = Proc.new{
   ensure
     Delayed::Job.clear_locks!
   end
-}
+end
 
 UpdateSearchdIndices = Proc.new{ |sync_main_index_flag|
   puts "Syncing New Indices ..."
   dir = ThinkingSphinx::Configuration.instance.searchd_file_path
   glob_suffix = sync_main_index_flag ? "/*.new.*" : "/*_delta.new.*"
   remote_servers = YAML.load( File.read( Rails.root.to_s + "/config/searchd_servers.yml" ) )[ Rails.env ]
-  Dir.glob[ dir + glob_suffix ].each do |source_file|
+  new_indices = false
+  Dir[ dir + glob_suffix ].each do |source_file|
     dest_file = source_file
+    new_indices = true
     remote_servers.each{ |server| sh "scp #{source_file} #{server}:#{dest_file}" }
-    sh "mv -f #{source_file} #{source.file.gsub( '.new.', '.' )}"
+    sh "mv -f #{source_file} #{source_file.gsub( '.new.', '.' )}"
     puts "Synced #{source_file}"
   end
-  pid_file = ThinkingSphinx::Configuration.instance.searchd.pid_file
-  remote_servers.each{ |server| 
-    sh "ssh #{server} 'kill -s SIGHUP `cat #{pid_file}`'"
-  }
+  if new_indices
+    pid_file = ThinkingSphinx::Configuration.instance.pid_file
+    remote_servers.each{ |server| 
+      sh "ssh #{server} 'kill -s SIGHUP `cat #{pid_file}`'"
+    }
+  end
+  puts "Syncing Complete"
 }
 
 MainIndexRunner = Proc.new{ |hash_value|
@@ -51,13 +55,13 @@ MainIndexRunner = Proc.new{ |hash_value|
     hash_value ||= Hash.new
     last_value = hash_value[ :full_index_at ]
     sync_main_index_flag = hash_value[ :sync_main_index_flag ] || false
-    if ( last_value.nil? && Time.now.utc.hour == 2 ) || last_value < 24.hours.ago
+    if ( last_value.nil? && Time.now.utc.hour == 2 ) || ( last_value && last_value < 24.hours.ago )
       hash_value[ :full_index_at ] = Time.now.utc
       sync_main_index_flag = hash_value[ :sync_main_index_flag ] = true
       Rake::Task['thinking_sphinx:index'].invoke
     end
     last_value = hash_value[ :sync_at ]
-    if last_value < 2.minutes.ago
+    if last_value.nil? || last_value < 2.minutes.ago
       hash_value[ :sync_at ] = Time.now.utc
       UpdateSearchdIndices.call( sync_main_index_flag )
       hash_value[ :sync_main_index_flag ] = false
@@ -76,19 +80,20 @@ namespace :ts do
         $0 = 'ts_ci_runner'
         Process.setsid
         Dir.chdir File.join( File.dirname(__FILE__), '..' )
-        PidFile.store(  File.join( Rails.root + '/../../shared', '/log/ts_ci_runner.pid' ), Process.pid )
+        PidFile.store(  File.join( Rails.root.to_s + '/../../shared', '/log/ts_ci_runner.pid' ), Process.pid )
         File.umask 0000
         STDIN.reopen "/dev/null"
-        STDOUT.reopen File.join( Rails.root + '/../../shared', '/log/ts_ci_runner.log' ), "a"
+        STDOUT.reopen File.join( Rails.root.to_s + '/../../shared', '/log/ts_ci_runner.log' ), "a"
         STDERR.reopen STDOUT
         require 'delayed_job'
-        Delayed::Worker.class_eval( DelayedWorkerPatch )
+        Delayed::Worker.send( :include, DelayedWorkerPatch )
         ActiveRecord::Base.connection.reconnect!
         BackgroundServiceDB.connection.reconnect! # Due to fork and MySQL Gone Away
         Delayed::Worker.new(
          :min_priority => ENV['MIN_PRIORITY'],
          :max_priority => ENV['MAX_PRIORITY']
-        ).start_with_block( MainIndexRunner )
+        ).start_with_block( &MainIndexRunner )
+        puts "Service terminated successfully"
       end
       puts "Thinking Sphinx Central Indexing Service Started"
     end
@@ -96,11 +101,17 @@ namespace :ts do
     desc "Stop Thinking Sphinx Central Indexing Service"
     task :stop => :environment do
       $0 = 'ts_ci_stopper'
-      pid_file = File.join( Rails.root + '/../../shared', '/log/ts_ci_runner.pid' )
+      pid_file = File.join( Rails.root.to_s + '/../../shared', '/log/ts_ci_runner.pid' )
       pid = PidFile.recall( pid_file )
       FileUtils.rm( pid_file ) rescue nil
       pid && Process.kill( "TERM", pid )
       puts "Thinking Sphinx Central Indexing Service Stopped"
+    end
+    
+    desc "Restart Thinking Sphinx Central Indexing Service"
+    task :restart => :environment do
+      Rake::Task['ts:ci:stop'].invoke rescue
+      Rake::Task['ts:ci:start'].invoke
     end
     
   end
