@@ -4,6 +4,7 @@ module DelayedWorkerPatch
     say "*** Starting job worker #{Delayed::Job.worker_name}"
     trap('TERM') { say 'Exiting...'; $exit = true }
     trap('INT')  { say 'Exiting...'; $exit = true }
+    overall_count = 0
     loop do
       count = 0
       unless $test
@@ -12,14 +13,15 @@ module DelayedWorkerPatch
           result = Delayed::Job.work_off
         end
         count = result.sum
+        overall_count += count
       end
-      if count.zero?
+      if overall_count >= 1500 || count.zero?
+        overall_count = 0
         self.last_block_return_value = block.call( self.last_block_return_value ) if block
         break if $exit
         sleep(Delayed::Worker::SLEEP)
-      else
-        say "#{count} jobs processed at %.4f j/s, %d failed ..." % [count / realtime, result.last]
       end
+      say( "#{count} jobs processed at %.4f j/s, %d failed ..." % [count / realtime, result.last] ) if count > 0
       break if $exit
     end
   ensure
