@@ -1,4 +1,3 @@
-$test = true
 module DelayedWorkerPatch
   attr_accessor :last_block_return_value
   def start_with_block( &block )
