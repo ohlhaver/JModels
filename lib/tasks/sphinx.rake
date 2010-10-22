@@ -4,7 +4,6 @@ module DelayedWorkerPatch
     say "*** Starting job worker #{Delayed::Job.worker_name}"
     trap('TERM') { say 'Exiting...'; $exit = true }
     trap('INT')  { say 'Exiting...'; $exit = true }
-    overall_count = 0
     loop do
       count = 0
       unless $test
@@ -13,16 +12,11 @@ module DelayedWorkerPatch
           result = Delayed::Job.work_off
         end
         count = result.sum
-        overall_count += count
-      end
-      if overall_count >= 1500 || count.zero?
-        overall_count = 0
-        self.last_block_return_value = block.call( self.last_block_return_value ) if block
-        break if $exit
-        sleep(Delayed::Worker::SLEEP)
       end
       say( "#{count} jobs processed at %.4f j/s, %d failed ..." % [count / realtime, result.last] ) if count > 0
+      self.last_block_return_value = block.call( self.last_block_return_value ) if block
       break if $exit
+      sleep(Delayed::Worker::SLEEP)
     end
   ensure
     Delayed::Job.clear_locks!
@@ -32,7 +26,7 @@ end
 UpdateSearchdIndices = Proc.new{ |sync_main_index_flag|
   puts "Syncing New Indices ..."
   dir = ThinkingSphinx::Configuration.instance.searchd_file_path
-  glob_suffix = sync_main_index_flag ? "/*.new.*" : "/*_delta.new.*"
+  glob_suffix =  "/*.new.*"
   remote_servers = YAML.load( File.read( Rails.root.to_s + "/config/searchd_servers.yml" ) )[ Rails.env ]
   new_indices = false
   Dir[ dir + glob_suffix ].each do |source_file|
@@ -47,8 +41,11 @@ UpdateSearchdIndices = Proc.new{ |sync_main_index_flag|
     remote_servers.each{ |server| 
       sh "ssh #{server} 'kill -s SIGHUP `cat #{pid_file}`'"
     }
+    puts "Syncing Complete"
+  else
+    puts "No new index to sync"
   end
-  puts "Syncing Complete"
+  
 }
 
 MainIndexRunner = Proc.new{ |hash_value|
@@ -60,6 +57,14 @@ MainIndexRunner = Proc.new{ |hash_value|
       hash_value[ :full_index_at ] = Time.now.utc
       sync_main_index_flag = hash_value[ :sync_main_index_flag ] = true
       Rake::Task['thinking_sphinx:index'].invoke
+      dir = ThinkingSphinx::Configuration.instance.searchd_file_path
+      # new index fix. it replaces the old index somehow
+      if Dir[ dir + "/*_core.new.*" ].empty?
+        Dir[ dir + "/*_core.*" ].each do |file|
+          dest_file = file.split('.').insert(-2, 'new').join('.')
+          sh "mv -f #{file} #{dest_file}"
+        end
+      end
     end
     last_value = hash_value[ :sync_at ]
     if last_value.nil? || last_value < 2.minutes.ago

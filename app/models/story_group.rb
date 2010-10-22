@@ -184,6 +184,7 @@ class StoryGroup < ActiveRecord::Base
     # hash_map is top stories for each story group using personalized score if applicable
     stories_hash_map = Story.hash_map_by_story_groups( clusters.collect( &:id ), user, per_cluster, story_ids_to_skip )
     thumbs_hash_map = StoryGroup.thumbs_hash_map( clusters.collect( &:id ) )
+    
     clusters.each do |cluster| 
       cluster.stories_to_serialize = stories_hash_map[ cluster.id ] || []
       if thumbs_info = thumbs_hash_map[ cluster.id ]
