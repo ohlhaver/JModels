@@ -56,6 +56,7 @@ MainIndexRunner = Proc.new{ |hash_value|
     if ( last_value.nil? && Time.now.utc.hour == 2 ) || ( last_value && last_value < 24.hours.ago )
       hash_value[ :full_index_at ] = Time.now.utc
       sync_main_index_flag = hash_value[ :sync_main_index_flag ] = true
+      Delayed::Job.delete_all # Just clear up the pending jobs I am doing a fresh index generation
       Rake::Task['thinking_sphinx:index'].invoke
       dir = ThinkingSphinx::Configuration.instance.searchd_file_path
       # new index fix. it replaces the old index somehow
