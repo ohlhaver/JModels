@@ -122,7 +122,7 @@ namespace :ts do
     end
     
     desc "Do full index and update the indices"
-    task :full => :environmant do
+    task :full => :environment do
       Delayed::Job.delete_all # Just clear up the pending jobs I am doing a fresh index generation
       Rake::Task['thinking_sphinx:index'].invoke
       dir = ThinkingSphinx::Configuration.instance.searchd_file_path
