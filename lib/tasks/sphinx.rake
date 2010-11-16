@@ -49,10 +49,10 @@ UpdateSearchdIndices = Proc.new{ |sync_main_index_flag|
 }
 
 MainIndexRunner = Proc.new{ |hash_value|
+  hash_value ||= Hash.new
+  last_value = hash_value[ :full_index_at ]
+  sync_main_index_flag = hash_value[ :sync_main_index_flag ] || false
   unless $exit
-    hash_value ||= Hash.new
-    last_value = hash_value[ :full_index_at ]
-    sync_main_index_flag = hash_value[ :sync_main_index_flag ] || false
     if ( last_value.nil? && Time.now.utc.hour == 2 ) || ( last_value && last_value < 24.hours.ago )
       hash_value[ :full_index_at ] = Time.now.utc
       sync_main_index_flag = hash_value[ :sync_main_index_flag ] = true
@@ -67,12 +67,12 @@ MainIndexRunner = Proc.new{ |hash_value|
         end
       end
     end
-    last_value = hash_value[ :sync_at ]
-    if last_value.nil? || last_value < 2.minutes.ago
-      hash_value[ :sync_at ] = Time.now.utc
-      UpdateSearchdIndices.call( sync_main_index_flag )
-      hash_value[ :sync_main_index_flag ] = false
-    end
+  end
+  last_value = hash_value[ :sync_at ]
+  if last_value.nil? || last_value < 2.minutes.ago
+    hash_value[ :sync_at ] = Time.now.utc
+    UpdateSearchdIndices.call( sync_main_index_flag )
+    hash_value[ :sync_main_index_flag ] = false
   end
   hash_value
 }
@@ -119,6 +119,29 @@ namespace :ts do
     task :restart => :environment do
       Rake::Task['ts:ci:stop'].invoke rescue
       Rake::Task['ts:ci:start'].invoke
+    end
+    
+    task :update => :environment do
+      dir = ThinkingSphinx::Configuration.instance.searchd_file_path
+      glob_suffix =  "/*.new.*"
+      remote_servers = YAML.load( File.read( Rails.root.to_s + "/config/searchd_servers.yml" ) )[ Rails.env ]
+      new_indices = false
+      Dir[ dir + glob_suffix ].each do |source_file|
+        dest_file = source_file
+        new_indices = true
+        remote_servers.each{ |server| sh "scp #{source_file} #{server}:#{dest_file}" }
+        sh "mv -f #{source_file} #{source_file.gsub( '.new.', '.' )}"
+        puts "Synced #{source_file}"
+      end
+      if new_indices
+        pid_file = ThinkingSphinx::Configuration.instance.pid_file
+        remote_servers.each{ |server| 
+          sh "ssh #{server} 'kill -s SIGHUP `cat #{pid_file}`'"
+        }
+        puts "Syncing Complete"
+      else
+        puts "No new index to sync"
+      end
     end
     
   end
