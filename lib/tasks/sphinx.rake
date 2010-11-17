@@ -2,6 +2,11 @@ module DelayedWorkerPatch
   attr_accessor :last_block_return_value
   def start_with_block( &block )
     say "*** Starting job worker #{Delayed::Job.worker_name}"
+    ThinkingSphinx::Deltas::FlagAsDeletedJob.class_eval do
+      def perform
+        say("Skipping Delayed Delta Index Job")
+      end
+    end
     trap('TERM') { say 'Exiting...'; $exit = true }
     trap('INT')  { say 'Exiting...'; $exit = true }
     loop do
@@ -14,13 +19,35 @@ module DelayedWorkerPatch
         count = result.sum
       end
       say( "#{count} jobs processed at %.4f j/s, %d failed ..." % [count / realtime, result.last] ) if count > 0
-      self.last_block_return_value = block.call( self.last_block_return_value ) if block
       break if $exit
+      self.last_block_return_value = block.call( self.last_block_return_value ) if block && ( self.last_block_return_value.nil? || self.last_block_return_value[:delta_index_at] < 2.minutes.ago )
       sleep(Delayed::Worker::SLEEP)
     end
   ensure
     Delayed::Job.clear_locks!
   end
+end
+
+def core_index_name(model)
+  "#{model.source_of_sphinx_index.name.underscore.tr(':/\\', '_')}_core"
+end
+
+def delta_index_name(model)
+  "#{model.source_of_sphinx_index.name.underscore.tr(':/\\', '_')}_delta"
+end
+
+def core_index( model )
+  index = core_index_name( model )
+  config = ThinkingSphinx::Configuration.instance
+  output = `#{config.bin_path}#{config.indexer_binary_name} --config #{config.config_file} --rotate #{index}`
+  say output
+end
+
+def delta_index( model )
+  index = delta_index_name( model )
+  config = ThinkingSphinx::Configuration.instance
+  output = `#{config.bin_path}#{config.indexer_binary_name} --config #{config.config_file} --rotate #{index}`
+  say output
 end
 
 UpdateSearchdIndices = Proc.new{ |sync_main_index_flag|
@@ -45,28 +72,43 @@ UpdateSearchdIndices = Proc.new{ |sync_main_index_flag|
   else
     puts "No new index to sync"
   end
-  
 }
 
 MainIndexRunner = Proc.new{ |hash_value|
   hash_value ||= Hash.new
   last_value = hash_value[ :full_index_at ]
   sync_main_index_flag = hash_value[ :sync_main_index_flag ] || false
-  unless $exit
-    if ( last_value.nil? && Time.now.utc.hour == 2 ) || ( last_value && last_value < 24.hours.ago )
-      hash_value[ :full_index_at ] = Time.now.utc
-      sync_main_index_flag = hash_value[ :sync_main_index_flag ] = true
-      Delayed::Job.delete_all # Just clear up the pending jobs I am doing a fresh index generation
-      Rake::Task['thinking_sphinx:index'].invoke
-      dir = ThinkingSphinx::Configuration.instance.searchd_file_path
-      # new index fix. it replaces the old index somehow
-      if Dir[ dir + "/*_core.new.*" ].empty?
-        Dir[ dir + "/*_core.*" ].each do |file|
-          dest_file = file.split('.').insert(-2, 'new').join('.')
-          sh "mv -f #{file} #{dest_file}"
-        end
+  if ( last_value.nil? && Time.now.utc.hour == 2 ) || ( last_value && last_value < 24.hours.ago )
+    sync_main_index_flag = hash_value[ :sync_main_index_flag ] = true
+    #Delayed::Job.delete_all # Just clear up the pending jobs I am doing a fresh index generation
+    #Rake::Task['thinking_sphinx:index'].invoke
+    core_index( Author )
+    core_index( Story )
+    ThinkingSphinx::Deltas::Job.cancel_thinking_sphinx_jobs rescue nil
+    dir = ThinkingSphinx::Configuration.instance.searchd_file_path
+    # new index fix. it replaces the old index somehow
+    if Dir[ dir + "/*_core.new.*" ].empty?
+      Dir[ dir + "/*_core.*" ].each do |file|
+        dest_file = file.split('.').insert(-2, 'new').join('.')
+        sh "mv -f #{file} #{dest_file}"
       end
     end
+    hash_value[ :full_index_at ] = Time.now.utc
+    hash_value[ :delta_index_at] = Time.now.utc
+  end
+  last_value = hash_value[ :delta_index_at ]
+  if last_value.nil? || last_value < 2.minutes.ago
+    delta_index( Author )
+    delta_index( Story )
+    dir = ThinkingSphinx::Configuration.instance.searchd_file_path
+    # new index fix. it replaces the old index somehow
+    if Dir[ dir + "/*_delta.new.*" ].empty?
+      Dir[ dir + "/*_delta.*" ].each do |file|
+        dest_file = file.split('.').insert(-2, 'new').join('.')
+        sh "mv -f #{file} #{dest_file}"
+      end
+    end
+    hash_value[:delta_index_at] = Time.now.utc
   end
   last_value = hash_value[ :sync_at ]
   if last_value.nil? || last_value < 2.minutes.ago
