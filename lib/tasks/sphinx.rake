@@ -2,9 +2,10 @@ module DelayedWorkerPatch
   attr_accessor :last_block_return_value
   def start_with_block( &block )
     say "*** Starting job worker #{Delayed::Job.worker_name}"
-    ThinkingSphinx::Deltas::FlagAsDeletedJob.class_eval do
+    ThinkingSphinx::Deltas::DeltaJob.class_eval do
       def perform
-        say("Skipping Delayed Delta Index Job")
+        #do nothing 
+        #puts("Skipping Delayed Delta Index Job")
       end
     end
     trap('TERM') { say 'Exiting...'; $exit = true }
