@@ -40,14 +40,14 @@ def core_index( model )
   index = core_index_name( model )
   config = ThinkingSphinx::Configuration.instance
   output = `#{config.bin_path}#{config.indexer_binary_name} --config #{config.config_file} --rotate #{index}`
-  say output
+  puts output
 end
 
 def delta_index( model )
   index = delta_index_name( model )
   config = ThinkingSphinx::Configuration.instance
   output = `#{config.bin_path}#{config.indexer_binary_name} --config #{config.config_file} --rotate #{index}`
-  say output
+  puts output
 end
 
 UpdateSearchdIndices = Proc.new{ |sync_main_index_flag|
