@@ -9,6 +9,7 @@ module DelayedWorkerPatch
     end
     trap('TERM') { say 'Exiting...'; $exit = true }
     trap('INT')  { say 'Exiting...'; $exit = true }
+    sleep_after = 100
     loop do
       count = 0
       unless $test
@@ -21,7 +22,11 @@ module DelayedWorkerPatch
       say( "#{count} jobs processed at %.4f j/s, %d failed ..." % [count / realtime, result.last] ) if count > 0
       break if $exit
       self.last_block_return_value = block.call( self.last_block_return_value ) if block && ( self.last_block_return_value.nil? || self.last_block_return_value[:delta_index_at] < 2.minutes.ago )
-      sleep(Delayed::Worker::SLEEP)
+      sleep_after += -1
+      if sleep_after.zero?
+        sleep_after = 100
+        sleep(Delayed::Worker::SLEEP)
+      end
     end
   ensure
     Delayed::Job.clear_locks!
