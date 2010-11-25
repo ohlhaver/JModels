@@ -18,6 +18,7 @@ class Author < ActiveRecord::Base
   
   attr_accessor :skip_uniqueness_validation
   attr_accessor :skip_delta_callbacks
+  attr_accessor :skip_block_author_stories
   
   attr_accessor :average_user_preference
   attr_accessor :user_preference_count
@@ -148,13 +149,15 @@ class Author < ActiveRecord::Base
   
   # Please use this operation to block an Author
   def block!( auto_blacklist = false )
-    batch_process( "SELECT story_id FROM story_authors WHERE author_id = '#{self.id}' AND block = 0" ) do |ids|
-      Story.update_all( 'delta = 1', [ 'id IN (?) AND created_at > ?', ids, 1.month.ago ] )
+    unless skip_block_author_stories
+      batch_process( "SELECT story_id FROM story_authors WHERE author_id = '#{self.id}' AND block = 0" ) do |ids|
+        Story.update_all( 'delta = 1', [ 'id IN (?) AND created_at > ?', ids, 1.month.ago ] )
+      end
+      StoryAuthor.update_all( 'block = 1', { :author_id => self.id } )
+      AuthorSubscription.update_all( 'block = 1', { :author_id => self.id } )
     end
-    StoryAuthor.update_all( 'block = 1', { :author_id => self.id } )
-    AuthorSubscription.update_all( 'block = 1', { :author_id => self.id } )
     self.update_attributes( :delta => true, :block => true, :auto_blacklisted => !!auto_blacklist )
-    Story.index_delta
+    Story.index_delta unless skip_block_author_stories
   end
   
   # Please use this operation to unblock an Author
@@ -274,6 +277,7 @@ class Author < ActiveRecord::Base
   end
   
   def auto_block_if_blacklisted
+    self.skip_block_author_stories = true
     AuthorBlacklist.blacklist!( self )
   end
   
